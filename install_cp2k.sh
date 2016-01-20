@@ -36,7 +36,8 @@ The --enable-FEATURE options follow the rules:
   --enable-FEATURE        The option keyword alone is equivalent to
                           --enable-FEATURE=yes
 
-  --enagle-tsan           If you are installing GCC using this script
+  --enable-toochain       Sets all --with-PKG to install
+  --enable-tsan           If you are installing GCC using this script
                           this option enables thread sanitizer support.
                           This is only relevant for debugging purposes.
                           Default = no
@@ -160,6 +161,7 @@ superlu_ver=3.3
 valgrind_ver=3.11.0
 
 # default settings
+enable_toolchain=__FALSE__
 enable_tsan=__FALSE__
 enable_gcc_master=__FALSE__
 enable_omp=__TRUE__
@@ -189,8 +191,15 @@ with_pexsi=__DONTUSE__
 with_quip=__DONTUSE__
 
 # parse options
+toolchain_options=''
 while [ $# -ge 1 ] ; do
     case $1 in
+        --enable-toolchain*)
+            enable_toolchain=$(read_enable $1)
+            if [ $enable_toolchain = "__INVALID__" ] ; then
+                echo "invalid value for --enable-toolchain, please use yes or no" >&2
+                exit 1
+            fi
         --enable-tsan*)
             enable_tsan=$(read_enable $1)
             if [ $enable_tsan = "__INVALID__" ] ; then
@@ -221,42 +230,53 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-gcc*)
             with_gcc=$(read_with $1)
+            toolchain_options="$toolchain_options with_gcc"
             ;;
         --with-binutils*)
             with_binutils=$(read_with $1)
+            toolchain_options="$toolchain_options with_binutils"
             ;;
         --with-cmake*)
             with_cmake=$(read_with $1)
+            toolchain_options="$toolchain_options with_cmake"
             ;;
         --with-lcov*)
             with_lcov=$(read_with $1)
+            toolchain_options="$toolchain_options with_lcov"
             ;;
         --with-valgrind*)
             with_valgrind=$(read_with $1)
+            toolchain_options="$toolchain_options with_valgrind"
             ;;
         --with-openmpi*)
             with_openmpi=$(read_with $1)
             if [ "$with_openmpi" != "__DONTUSE__" ] ; then
                 with_mpich='__DONTUSE__'
             fi
+            toolchain_options="$toolchain_options with_openmpi"
             ;;
         --with-mpich*)
             with_mpich=$(read_with $1)
             if [ "$with_mpich" != "__DONTUSE__" ] ; then
                 with_openmpi='__DONTUSE__'
             fi
+            toolchain_options="$toolchain_options with_mpich"
             ;;
         --with-libint*)
             with_libint=$(read_with $1)
+            toolchain_options="$toolchain_options with_libint"
             ;;
         --with-libxc*)
             with_libxc=$(read_with $1)
+            toolchain_options="$toolchain_options with_libxc"
             ;;
         --with-fftw*)
             with_fftw=$(read_with $1)
+            toolchain_options="$toolchain_options with_fftw"
             ;;
         --with-reflapack*)
             with_reflapack=$(read_with $1)
+            toolchain_options="$toolchain_options with_reflapack"
             ;;
         --with-mkl*)
             with_mkl=$(read_with $1)
@@ -266,18 +286,22 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-openblas*)
             with_openblas=$(read_with $1)
+            toolchain_options="$toolchain_options with_openblas"
             ;;
         --with-scalapack*)
             with_scalapack=$(read_with $1)
+            toolchain_options="$toolchain_options with_scalapack"
             ;;
         --with-libsmm*)
             with_libsmm=$(read_with $1)
+            toolchain_options="$toolchain_options with_libsmm"
             ;;
         --with-elpa*)
             with_elpa=$(read_with $1)
+            toolchain_options="$toolchain_options with_elpa"
             ;;
         --with-scotch*)
-            with_scotch=${read_with $1}
+            with_scotch=$(read_with $1)
             ;;
         --with-parmetis*)
             with_parmetis=$(read_with $1)
@@ -290,9 +314,11 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-pexsi*)
             with_pexsi=$(read_with $1)
+            toolchain_options="$toolchain_options with_pexsi"
             ;;
         --with-quip*)
             with_quip=$(read_with $1)
+            toolchain_options="$toolchain_options with_quip"
             ;;
         *)
             show_help
@@ -301,6 +327,13 @@ while [ $# -ge 1 ] ; do
     esac
     shift
 done
+
+# toolchain mode settings
+if [ $enable_toolchain = "__TRUE__" ] ; then
+    for opt in $toolchain_options ; do
+        eval \$$opt="__INSTALL__"
+    done
+fi
 
 # check and solve known conflicts before installations proceed
 if [ $enable_tsan = "__TRUE__" ] ; then
