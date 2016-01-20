@@ -230,10 +230,14 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-gcc*)
             with_gcc=$(read_with $1)
+            
+
             toolchain_options="$toolchain_options with_gcc"
             ;;
         --with-binutils*)
             with_binutils=$(read_with $1)
+
+
             toolchain_options="$toolchain_options with_binutils"
             ;;
         --with-cmake*)
@@ -842,7 +846,6 @@ case "$with_openmpi" in
         check_command mpif90 "openmpi"
         check_command mpic++ "openmpi"
         check_lib -lmpi "openmpi"
-        check_lib -lmpi_f90 "openmpi"
         check_lib -lmpi_cxx "openmpi"
         ;;
     __DONTUSE__)
@@ -865,7 +868,7 @@ esac
 if [ "$with_openmpi" != "__DONTUSE__" ] ; then
     CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel,)"
     # extra libs needed to link with mpif90 also applications based on C++
-    CP_LIBS="${CP_LIBS} IF_MPI(-lmpi -lmpi_f90 -lmpi_cxx,)"
+    CP_LIBS="${CP_LIBS} IF_MPI(-lmpi -lmpi_cxx,)"
 fi
 
 # ----------------------------------------------------------------------
