@@ -190,6 +190,34 @@ with_superlu_dist=__DONTUSE__
 with_pexsi=__DONTUSE__
 with_quip=__DONTUSE__
 
+# toolchain mode default options
+# toolchain mode settings
+if [ $enable_toolchain = "__TRUE__" ] ; then
+    with_gcc=__INSTALL__
+    with_binutils=__INSTALL__
+    with_cmake=__INSTALL__
+    with_valgrind=__INSTALL__
+    with_lcov=__INSTALL__
+    with_openmpi=__DONTUSE__
+    with_mpich=__INSTALL__
+    with_libxc=__INSTALL__
+    with_libint=__INSTALL__
+    with_fftw=__INSTALL__
+    with_reflapack=__INSTALL__
+    with_acml=__DONTUSE__
+    with_mkl=__DONTUSE__
+    with_openblas=__INSTALL__
+    with_scalapack=__INSTALL__
+    with_libsmm=__INSTALL__
+    with_elpa=__INSTALL__
+    with_scotch=__INSTALL__
+    with_parmetis=__INSTALL__
+    with_metis=__INSTALL__
+    with_superlu_dist=__INSTALL__
+    with_pexsi=__INSTALL__
+    with_quip=__INSTALL__    
+fi
+
 # parse options
 toolchain_options=''
 while [ $# -ge 1 ] ; do
@@ -230,57 +258,42 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-gcc*)
             with_gcc=$(read_with $1)
-            
-
-            toolchain_options="$toolchain_options with_gcc"
             ;;
         --with-binutils*)
             with_binutils=$(read_with $1)
-
-
-            toolchain_options="$toolchain_options with_binutils"
             ;;
         --with-cmake*)
             with_cmake=$(read_with $1)
-            toolchain_options="$toolchain_options with_cmake"
             ;;
         --with-lcov*)
             with_lcov=$(read_with $1)
-            toolchain_options="$toolchain_options with_lcov"
             ;;
         --with-valgrind*)
             with_valgrind=$(read_with $1)
-            toolchain_options="$toolchain_options with_valgrind"
             ;;
         --with-openmpi*)
             with_openmpi=$(read_with $1)
             if [ "$with_openmpi" != "__DONTUSE__" ] ; then
                 with_mpich='__DONTUSE__'
             fi
-            toolchain_options="$toolchain_options with_openmpi"
             ;;
         --with-mpich*)
             with_mpich=$(read_with $1)
             if [ "$with_mpich" != "__DONTUSE__" ] ; then
                 with_openmpi='__DONTUSE__'
             fi
-            toolchain_options="$toolchain_options with_mpich"
             ;;
         --with-libint*)
             with_libint=$(read_with $1)
-            toolchain_options="$toolchain_options with_libint"
             ;;
         --with-libxc*)
             with_libxc=$(read_with $1)
-            toolchain_options="$toolchain_options with_libxc"
             ;;
         --with-fftw*)
             with_fftw=$(read_with $1)
-            toolchain_options="$toolchain_options with_fftw"
             ;;
         --with-reflapack*)
             with_reflapack=$(read_with $1)
-            toolchain_options="$toolchain_options with_reflapack"
             ;;
         --with-mkl*)
             with_mkl=$(read_with $1)
@@ -290,19 +303,15 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-openblas*)
             with_openblas=$(read_with $1)
-            toolchain_options="$toolchain_options with_openblas"
             ;;
         --with-scalapack*)
             with_scalapack=$(read_with $1)
-            toolchain_options="$toolchain_options with_scalapack"
             ;;
         --with-libsmm*)
             with_libsmm=$(read_with $1)
-            toolchain_options="$toolchain_options with_libsmm"
             ;;
         --with-elpa*)
             with_elpa=$(read_with $1)
-            toolchain_options="$toolchain_options with_elpa"
             ;;
         --with-scotch*)
             with_scotch=$(read_with $1)
@@ -318,11 +327,9 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-pexsi*)
             with_pexsi=$(read_with $1)
-            toolchain_options="$toolchain_options with_pexsi"
             ;;
         --with-quip*)
             with_quip=$(read_with $1)
-            toolchain_options="$toolchain_options with_quip"
             ;;
         *)
             show_help
@@ -332,27 +339,26 @@ while [ $# -ge 1 ] ; do
     shift
 done
 
-# toolchain mode settings
-if [ $enable_toolchain = "__TRUE__" ] ; then
-    for opt in $toolchain_options ; do
-        eval \$$opt="__INSTALL__"
-    done
-fi
+# ----------------------------------------------------------------------
+# Check and solve known conflicts before installations proceed
+# ----------------------------------------------------------------------
 
-# check and solve known conflicts before installations proceed
+# GCC thread sanitizer conflicts
 if [ $enable_tsan = "__TRUE__" ] ; then
     echo "TSAN is enabled, canoot use openblas"
     with_openblas="__DONTUSE__"
     echo "TSAN is enabled, canoot use libsmm"
     with_libsmm="__DONTUSE__"
 fi
+# valgrind conflicts
 if [ "$with_valgrind" != "__DONTUSE__" ] ; then
     echo "openblas is not thread safe, use reflapack instead when use with valgrind"
     with_openblas="__DONTUSE__"
     with_reflapack="__INSTALL__"
 fi
+# math library conflicts
 enable_lapack="__FALSE__"
-lapack_option_list="$with_reflapack $with_acml $with_mkl $with_openblas"
+lapack_option_list="$with_acml $with_mkl $with_openblas"
 for ii in $lapack_option_list ; do
     if [ "$ii" != "__DONTUSE__" ] ; then
         if [ $enable_lapack = "__FALSE__" ] ; then
@@ -367,6 +373,7 @@ if [ $enable_lapack = "__FALSE__" ] ; then
     echo "Must use one of the LAPACK libraries." >&2
     exit 1
 fi
+# mpi library conflicts
 enable_mpi="__FALSE__"
 mpi_option_list="$with_openmpi $with_mpich"
 for ii in $mpi_option_list ; do
@@ -398,6 +405,7 @@ else
         echo "Not using MPI, so PEXSI is disabled."
     with_pexsi="__DONTUSE__"    
 fi
+# PESXI and its dependencies
 if [ "$with_pexsi" = "__DONTUSE__" ] ; then
     if [ "$with_scotch" != "__DONTUSE__" ] ; then
         echo "Not using PEXSI, so PT-Scotch is disabled."
@@ -445,12 +453,16 @@ else
         exit 1
     fi
 fi
+# ParMETIS requires cmake, it also installs METIS if it is chosen
+# __INSTALL__ option
 if [ "$with_parmetis" = "__INSTALL__" ] ; then
     [ "$with_cmake" = "__DONTUSE__" ] && with_cmake="__INSTALL__"
     with_metis="__INSTALL__"
 fi
 
-# preliminaries
+# ----------------------------------------------------------------------
+# Preliminaries
+# ----------------------------------------------------------------------
 ROOTDIR="${PWD}"
 mkdir -p build
 cd build
@@ -466,11 +478,21 @@ CP_CFLAGS='IF_OMP(-fopenmp,)'
 CP_LDFLAGS="-Wl,--enable-new-dtags"
 
 # libs variable for LAPACK related compilation
-MATH_LIBS=''
-MATH_CFLAGS=''
-MATH_LDFLAGS="-Wl,--enable-new-dtags"
+REF_MATH_CFLAGS=''
+REF_MATH_LDFLAGS='-Wl,--enable-new-dtags'
+REF_MATH_LIBS=''
+FAST_MATH_CFLAGS=''
+FAST_MATH_LDFLAGS="-Wl,--enable-new-dtags"
+FAST_MATH_LIBS=''
+# must use CP_MATH_* flags with eval
+CP_MATH_CFLAGS='IF_VALGRIND\($REF_MATH_CFLAGS,$FAST_MATH_CFLAGS\)'
+CP_MATH_LDFLAGS='IF_VALGRIND\($REF_MATH_LDFLAGS,$FAST_MATH_LDFLAGS\)'
+CP_MATH_LIBS='IF_VALGRIND\($REF_MATH_LIBS,$FAST_MATH_LIBS\)'
 
-# start writing setup file
+
+# ----------------------------------------------------------------------
+# Start writing setup file
+# ----------------------------------------------------------------------
 SETUPFILE="${INSTALLDIR}/setup"
 cat <<EOF > "$SETUPFILE"
 #!/bin/bash
@@ -487,6 +509,10 @@ prepend_path() {
 }
 EOF
 
+# ----------------------------------------------------------------------
+# Installing tools required for building CP2K and associated libraries
+# ----------------------------------------------------------------------
+
 # set environment for compiling compilers and tools required for CP2K
 # and libraries it depends on
 export CC=${CC:-gcc}
@@ -501,6 +527,9 @@ export F90FLAGS=${F90FLAGS:-"-O2 -g -Wno-error"}
 export F77FLAGS=${F77FLAGS:-"-O2 -g -Wno-error"}
 export CXXFLAGS=${CXXFLAGS:-"-O2 -g -Wno-error"}
 
+# ----------------------------------------------------------------------
+# GNU binutils
+# ----------------------------------------------------------------------
 case "$with_binutils" in
     __INSTALL__)
         echo "==================== Installing binutils ===================="
@@ -542,6 +571,9 @@ EOF
         ;;
 esac
 
+# ----------------------------------------------------------------------
+# CMAKE
+# ----------------------------------------------------------------------
 case "$with_cmake" in
     __INSTALL__)
         echo "==================== Installing CMake ===================="
@@ -575,6 +607,9 @@ EOF
         ;;
 esac
 
+# ----------------------------------------------------------------------
+# LCOV
+# ----------------------------------------------------------------------
 case "$with_lcov" in
     __INSTALL__)
         echo "==================== Installing lcov ====================="
@@ -607,6 +642,9 @@ EOF
         ;;
 esac
 
+# ----------------------------------------------------------------------
+# Valgrind
+# ----------------------------------------------------------------------
 case "$with_valgrind" in
     __INSTALL__)
         echo "==================== Installing valgrind ===================="
@@ -642,7 +680,7 @@ EOF
 esac
 
 # ----------------------------------------------------------------------
-# gcc with or without tsan
+# GCC with or without tsan
 # ----------------------------------------------------------------------
 if [ $enable_gcc_master = "__TRUE__" ] ; then
     echo "Trying to install gcc master (developer) version"
@@ -741,8 +779,10 @@ else
     TSANFLAGS=""
 fi
 
-# suppress reporting of known leaks
-#valgrind suppressions
+# ----------------------------------------------------------------------
+# Suppress reporting of known leaks
+# ----------------------------------------------------------------------
+# valgrind suppressions
 cat <<EOF > ${INSTALLDIR}/valgrind.supp
 {
    BuggySUPERLU
@@ -775,7 +815,9 @@ race:__dbcsr_operations_MOD_dbcsr_filter_anytype
 race:__dbcsr_transformations_MOD_dbcsr_make_untransposed_blocks
 EOF
 
-# write setup file for the installed tools and libraries
+# ----------------------------------------------------------------------
+# Write setup file for the installed tools and libraries
+# ----------------------------------------------------------------------
 cat <<EOF >> $SETUPFILE
 prepend_path LD_LIBRARY_PATH "${INSTALLDIR}/lib"
 prepend_path LD_LIBRARY_PATH "${INSTALLDIR}/lib64"
@@ -799,6 +841,10 @@ EOF
 # load the setup file
 source ${SETUPFILE}
 
+# ----------------------------------------------------------------------
+# Now, install the dependent libraries
+# ----------------------------------------------------------------------
+
 # setup compiler flags, leading to nice stack traces on crashes but
 # still optimised
 export CFLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -ffast-math $TSANFLAGS"
@@ -807,7 +853,6 @@ export F77FLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -
 export F90FLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -ffast-math $TSANFLAGS"
 export FCFLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -ffast-math $TSANFLAGS"
 export CXXFLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -ffast-math $TSANFLAGS"
-#export LDFLAGS="$GCC_LDFLAGS $TSANFLAGS"
 export LDFLAGS="$TSANFLAGS"
 
 # ----------------------------------------------------------------------
@@ -1134,7 +1179,7 @@ EOF
             cp libblas.a liblapack.a "${INSTALLDIR}/lib/"
             cd ..
         fi
-        MATH_LDFLAGS="$(unique ${MATH_LDFLAGS} \"-L${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib)\""
+        REF_MATH_LDFLAGS="$(unique ${REF_MATH_LDFLAGS} \"-L${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib)\""
         ;;
     __SYSTEM__)
         check_lib -lblas
@@ -1151,7 +1196,7 @@ prepend_path LD_RUN_PATH "$with_reflapack/lib"
 prepend_path LIBRARY_PATH "$with_reflapack/lib"
 prepend_path CPATH "with_reflapack/include"
 EOF
-            MATH_LDFLAGS="${MATH_LDFLAGS} -L\"$with_reflapack/lib\" -Wl,-rpath=\"$with_reflapack/lib\""
+            REF_MATH_LDFLAGS="${MATH_LDFLAGS} -L\"$with_reflapack/lib\" -Wl,-rpath=\"$with_reflapack/lib\""
         else
             echo "Cannot find $with_reflapack" >&2
             exit 1
@@ -1159,9 +1204,9 @@ EOF
         ;;
 esac
 if [ "$with_reflapack" != "__DONTUSE__" ] ; then
-    MATH_LIBS="-lblas -llapack"
-    CP_LDFLAGS="$(unique ${CP_LDFLAGS} ${MATH_LDFLAGS})"
-    CP_LIBS="${MATH_LIBS} ${CP_LIBS}"
+    REF_MATH_LIBS="-lblas -llapack"
+
+    CP_LDFLAGS="$(unique ${CP_LDFLAGS} ${REF_MATH_LDFLAGS})"
 fi
 
 # ----------------------------------------------------------------------
