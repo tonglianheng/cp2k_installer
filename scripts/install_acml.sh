@@ -1,0 +1,61 @@
+#!/bin/bash -e
+[ "${BASH_SOURCE[0]}" ] && SCRIPT_NAME="${BASH_SOURCE[0]}" || SCRIPT_NAME=$0
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd -P)"
+
+source "${SCRIPT_DIR}"/common_vars.sh
+source "${SCRIPT_DIR}"/package_versions.sh
+source "${SCRIPT_DIR}"/tool_kit.sh
+
+with_acml=${1:-__INSTALL__}
+
+ACML_CFLAGS=''
+ACML_LDFLAGS=''
+ACML_LIBS=''
+! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
+cd "${BUILDDIR}"
+case "$with_acml" in
+    __INSTALL__)
+        echo "==================== Installing ACML ===================="
+        echo "Cannot install ACML automatically, please contact your system " >&2
+        echo "administrator or go to" >&2
+        echo "https://developer.amd.com/tools-and-sdks/archive/amd-core-math-library-acml/acml-downloads-resources/" >&2
+        echo "and download and install the correct version for your system" >&2
+        exit 1
+        ;;
+    __SYSTEM__)
+        echo "==================== Finding ACML from system paths ===================="
+        check_lib -lacml "ACML"
+        add_include_from_paths ACML_CFLAGS "acml.h" $INCLUDE_PATHS
+        add_lib_from_paths ACML_LDFLAGS "libacml.*" $LIB_PATHS
+        ;;
+    __DONTUSE__)
+        ;;
+    *)
+        echo "==================== Linking ACML to user paths ===================="
+        pkg_install_dir="$with_acml"
+        check_dir "${pkg_install_dir}/lib"
+        ACML_CFLAGS="-I\"${pkg_install_dir}/include\""
+        ACML_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        ;;
+esac
+if [ "$with_acml" != "__DONTUSE__" ] ; then
+    ACML_LIBS="-lacml"
+    if [ "$with_acml" != "__SYSTEM__" ] ; then
+        cat <<EOF > "${BUIILDDIR}/setup_acml"
+prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
+prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
+prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
+prepend_path CPATH "$pkg_install_dir/include"
+EOF
+        cat "${BUIILDDIR}/setup_acml" >> $SETUPFILE
+    fi
+    cat <<EOF >> "${BUIILDDIR}/setup_acml"
+export ACML_CFLAGS="${ACML_CFLAGS}"
+export ACML_LDFLAGS="${ACML_LDFLAGS}"
+export ACML_LIBS="${ACML_LIBS}"
+export FAST_MATH_CFLAGS="\$(unique \${FAST_MATH_CFLAGS} ${ACML_CFLAGS})"
+export FAST_MATH_LDFLAGS="\$(unique \${FAST_MATH_LDFLAGS} ${ACML_LDFLAGS})"
+export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${ACML_LIBS}"
+EOF
+fi
+cd "${ROOTDIR}"

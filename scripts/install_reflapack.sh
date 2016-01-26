@@ -1,0 +1,96 @@
+#!/bin/bash -e
+[ "${BASH_SOURCE[0]}" ] && SCRIPT_NAME="${BASH_SOURCE[0]}" || SCRIPT_NAME=$0
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd -P)"
+
+source "${SCRIPT_DIR}"/common_vars.sh
+source "${SCRIPT_DIR}"/package_versions.sh
+source "${SCRIPT_DIR}"/tool_kit.sh
+
+with_reflapack=${1:-__INSTALL__}
+
+REFLAPACK_CFLAGS=''
+REFLAPACK_LDFLAGS=''
+REFLAPACK_LIBS=''
+! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
+cd "${BUILDDIR}"
+case "$with_reflapack" in
+    __INSTALL__)
+        echo "==================== Installing LAPACK ===================="
+        pkg_install_dir="${INSTALLDIR}/lapack-${reflapack_ver}"
+        install_lock_file="$pkg_install_dir/install_successful"
+        if [ -f "${install_lock_file}" ] ; then
+            echo "lapack-${reflapack_ver} is already installed, skipping it."
+        else
+            if [ -f lapack-${reflapack_ver}.tar.gz ] ; then
+                echo "reflapack-${reflapack_ver}.tar.gz is found"
+            else
+                download_pkg ${DOWNLOADER_FLAGS} \
+                             https://www.cp2k.org/static/downloads/lapack-${lapack_ver}.tgz
+            fi
+            echo "Installing from scratch into ${pkg_install_dir}"
+            tar -xzf lapack-${reflapack_ver}.tar.gz
+            cd lapack-${reflapack_ver}
+
+            cat <<EOF > make.inc
+SHELL    = /bin/sh
+FORTRAN  = gfortran
+OPTS     = $FFLAGS -frecursive
+DRVOPTS  = $FFLAGS -frecursive
+NOOPT    = $FFLAGS -O0 -frecursive -fno-fast-math
+LOADER   = gfortran
+LOADOPTS = $FFLAGS
+TIMER    = INT_ETIME
+CC       = gcc
+CFLAGS   = $CFLAGS
+ARCH     = ar
+ARCHFLAGS= cr
+RANLIB   = ranlib
+XBLASLIB     =
+BLASLIB      = ../../libblas.a
+LAPACKLIB    = liblapack.a
+TMGLIB       = libtmglib.a
+LAPACKELIB   = liblapacke.a
+EOF
+            # lapack/blas build is *not* parallel safe (updates to the archive race)
+            make -j 1 lib blaslib >& make.log
+            # no make install, so have to do this manually
+            ! [ -d "${pkg_install_dir}" ] && mkdir -p "${pkg_install_dir}"
+            cp libblas.a liblapack.a "${pkg_install_dir}"
+            cd ..
+            touch "${install_lock_file}"
+        fi
+        REFLAPACK_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        ;;
+    __SYSTEM__)
+        echo "==================== Finding LAPACK from system paths ===================="
+        check_lib -lblas "lapack"
+        check_lib -llapack "lapack"
+        add_lib_from_paths REFLAPACK_LDFLAGS "liblapack.*" $LIB_PATHS
+        ;;
+    __DONTUSE__)
+        ;;
+    *)
+        echo "==================== Linking LAPACK to user paths ===================="
+        pkg_install_dir="$with_reflapack"
+        check_dir "${pkg_install_dir}/lib"
+        REFLAPACK_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        ;;
+esac
+if [ "$with_reflapack" != "__DONTUSE__" ] ; then
+    REFLAPACK_LIBS="-lblas -llapack"
+    if [ "$with_reflapack" != "__SYSTEM__" ] ; then
+        cat <<EOF > "${BUIILDDIR}/setup_reflapack"
+prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
+prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
+prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
+EOF
+        cat "${BUIILDDIR}/setup_reflapack" >> $SETUPFILE
+    fi
+    cat <<EOF >> "${BUIILDDIR}/setup_reflapack"
+export REFLAPACK_LDFLAGS="${REFLAPACK_LDFLAGS}"
+export REFLAPACK_LIBS="${REFLAPACK_LIBS}"
+export REF_MATH_LDFLAGS="\$(unique \${REF_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS})"
+export REF_MATH_LIBS="\$(unique \${REF_MATH_LIBS} ${REFLAPACK_LIBS})"
+EOF
+fi
+cd "${ROOTDIR}"

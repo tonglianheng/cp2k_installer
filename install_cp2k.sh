@@ -1,5 +1,6 @@
 #!/bin/bash -e
-[ "$BASH_SOURCE" ] && script_name=$BASH_SOURCE || script_name=$0
+[ "${BASH_SOURCE[0]}" ] && SCRIPT_NAME="${BASH_SOURCE[0]}" || SCRIPT_NAME=$0
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd -P)"
 
 # trap errors
 error_handler() {

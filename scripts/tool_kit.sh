@@ -9,6 +9,24 @@ SYS_LIB_PATH=${SYS_LIB_PATH:-"/user/local/lib64:/usr/local/lib:/usr/lib64:/usr/l
 INCLUDE_PATHS=${INCLUDE_PATHS:-"CPATH SYS_INCLUDE_PATH"}
 LIB_PATHS=${LIB_PATHS:-"LIBRARY_PATH LD_LIBRARY_PATH LD_RUN_PATH SYS_LIB_PATH"}
 
+# report an error message with script name and line number
+report_error() {
+    local __message="$1"
+    echo "ERROR: ($SCRIPT_NAME, line $LINENO) $__message" >&2
+}
+
+# error handler for line trap from set -e
+error_handler() {
+    report_error "Non-zero exit code detected."
+    exit 1
+}
+trap 'error_handler' ERR
+
+# source a file if it exists, otherwise do nothing
+load() {
+    [ -f "$1" ] && source "$1"
+}
+
 # A more portable command that will give the full path, removing
 # symlinks, of a given path. This is more portable than readlink -f
 # which does not work on Mac OS X
@@ -45,19 +63,6 @@ unique() {
     echo "$__result"
 }
 
-# helper routine to check integrity of downloaded files
-checksum() {
-   local __filename=$1
-   local __checksums=$2
-#   if grep $__filename $__checksums | sha256sum --quiet --check ; then
-   if grep $__filename $__checksums | sha256sum --check ; then
-      echo "Checksum of $__filename Ok"
-   else
-      echo "Checksum of $__filename could not be verified, abort." >&2
-      rm -v ${__filename}
-      return 1
-   fi
-}
 
 # get the number of processes avaliable for compilation
 get_nprocs() {
@@ -237,7 +242,18 @@ check_command() {
     if $(command -v $__command >& /dev/null) ; then
         echo "path to $__command is " $(command -v $__command)
     else
-        echo "cannot find $1, please check if $__package is installed or in system search path" >&2
+        report_error "cannot find $1, please check if $__package is installed or in system search path"
+        return 1
+    fi
+}
+
+# check if directory exists
+check_dir() {
+    local __dir=$1
+    if [ -d "$__dir" ] ; then
+        echo "Found directory $__dir"
+    else
+        report_error "Cannot find $__dir"
         return 1
     fi
 }
@@ -272,7 +288,8 @@ check_lib() {
     if (eval $__search_engine -l$__libname 2>&1 | grep -q -s "\-l$__libname") ; then
         # if library not found, ld will return error message
         # containing the library name
-        echo "ld cannot find -l$__libname, please check if $__package is installed or in system search path" >&2
+        report_error \
+        "ld cannot find -l$__libname, please check if $__package is installed or in system search path"
         return 1
     else
         # if library is found, then ld will return error message about
@@ -348,4 +365,63 @@ read_with() {
             echo "${__input_var//\~/$HOME}"
             ;;
     esac
+}
+
+# helper routine to check integrity of downloaded files
+checksum() {
+   local __filename=$1
+   local __checksums=$2
+   local __shasum_command='sha256sum'
+   # check if we have sha256sum command, Mac OS X does not have
+   # sha256sum, but has an equivalent with shasum -a 256
+   command -v "$__shasum_command" >& /dev/null || \
+       __shasum_command="shasum -a 256"
+   if eval "grep $__filename $__checksums | ${__shasum_command} --check" ; then
+       echo "Checksum of $__filename Ok"
+   else
+      rm -v ${__filename}
+      report_error "Checksum of $__filename could not be verified, abort."
+      return 1
+   fi
+}
+
+
+# downloader for the package tars, excludes checksum
+download_pkg_no_chesksum() {
+    local __wget_flags=''
+    if [ "$1" = "-n" ] ; then
+        shift
+        local __wget_flags="--no-check-certificate"
+    fi
+    local __url="$1"
+    local __filename="$(basename $__url)"
+    # download
+    if ! wget "$__wget_flags" "$__url" ; then
+        report_error "failed to download $__url"
+        return 1
+    fi
+}
+
+
+# downloader for the package tars, includes checksum
+download_pkg() {
+    local __wget_flags=''
+    if [ "$1" = "-n" ] ; then
+        shift
+        local __wget_flags="--no-check-certificate"
+    fi
+    local __url="$1"
+    local __filename="$(basename $__url)"
+    # env variable for checksum file must be provided
+    if [ -z "$SHA256_CHECKSUMS" ] ; then
+        report_error "env variable SHA256_CHECKSUMS is unset or empty!"
+        return 1
+    fi
+    # download
+    if ! wget "$__wget_flags" "$__url" ; then
+        report_error "failed to download $__url"
+        return 1
+    fi
+    # checksum
+    checksum "$__filename" "$SHA256_CHECKSUMS"
 }
