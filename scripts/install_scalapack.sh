@@ -22,13 +22,13 @@ case "$with_scalapack" in
             echo "scalapack-${scalapack_ver} is already installed, skipping it."
         else
             if [ -f lapack-${scalapack_ver}.tar.gz ] ; then
-                echo "scalapack-${scalapack_ver}.tar.gz is found"
+                echo "scalapack-${scalapack_ver}.tgz is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
                              https://www.cp2k.org/static/downloads/scalapack-${scalapack_ver}.tgz
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
-            tar -xzf scalapack-${scalapack_ver}.tar.gz
+            tar -xzf scalapack-${scalapack_ver}.tgz
             cd scalapack-${scalapack_ver}
             cat << EOF > SLmake.inc
 CDEFS         = -DAdd_

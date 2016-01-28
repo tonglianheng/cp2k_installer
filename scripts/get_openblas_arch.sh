@@ -44,7 +44,7 @@ OPENBLAS_LIBCORE="$(grep 'LIBCORE=' $openblas_conf | cut -f2 -d=)"
 OPENBLAS_ARCH="$(grep 'ARCH=' $openblas_conf | cut -f2 -d=)"
 
 # output setup file
-cat <<EOF > ${BUILDDIR}/openblas_archs
+cat <<EOF > "${BUILDDIR}/openblas_arch"
 export OPENBLAS_LIBCORE="${OPENBLAS_LIBCORE}"
 export OPENBLAS_ARCH="${OPENBLAS_ARCH}"
 EOF

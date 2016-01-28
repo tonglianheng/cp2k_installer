@@ -11,16 +11,35 @@ LIB_PATHS=${LIB_PATHS:-"LIBRARY_PATH LD_LIBRARY_PATH LD_RUN_PATH SYS_LIB_PATH"}
 
 # report an error message with script name and line number
 report_error() {
-    local __message="$1"
-    echo "ERROR: ($SCRIPT_NAME, line $LINENO) $__message" >&2
+    if [ $# -gt 1 ] ; then
+        local __lineno="$1"
+        local __message="$2"
+    else
+        local __lineno=''
+        local __message="$1"
+    fi
+    echo "ERROR: ($SCRIPT_NAME, line $__lineno) $__message" >&2
 }
 
 # error handler for line trap from set -e
 error_handler() {
-    report_error "Non-zero exit code detected."
-    exit 1
+    local __lineno="$1"
+    report_error $1 "Non-zero exit code detected."
+    exit 1 
 }
-trap 'error_handler' ERR
+trap 'error_handler ${LINENO}' ERR
+
+# report a warning message with script name and line number
+report_warning() {
+    if [ $# -gt 1 ] ; then
+        local __lineno="$1"
+        local __message="$2"
+    else
+        local __lineno=''
+        local __message="$1"
+    fi
+    echo "ERROR: ($SCRIPT_NAME, line $__lineno) $__message" >&2
+}
 
 # source a file if it exists, otherwise do nothing
 load() {
@@ -242,7 +261,7 @@ check_command() {
     if $(command -v $__command >& /dev/null) ; then
         echo "path to $__command is " $(command -v $__command)
     else
-        report_error "cannot find $1, please check if $__package is installed or in system search path"
+        report_error "cannot find $__command, please check if $__package is installed or in system search path"
         return 1
     fi
 }

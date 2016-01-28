@@ -12,8 +12,9 @@ ARCH_FILE_TEMPLATE=${ARCH_FILE_TEMPLATE:-"${SCRIPTDIR}/arch.tmpl"}
 # downloader flags, used for downloading tarballs
 DOWNLOADER_FLAGS="${DOWNLOADER_FLAGS:-}"
 
-# system arch
-ARCH="${ARCH:-x86_64}"
+# system arch gotten from OpenBLAS prebuild
+OPENBLAS_ARCH=${OPENBLAS_ARCH:-"x86_64"}
+OPENBLAS_LIBCORE=${OPENBLAS_LIBCORE:-''}
 
 # search paths
 SYS_INCLUDE_PATH=${SYS_INCLUDE_PATH:-'/usr/local/include:/usr/include'}

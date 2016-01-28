@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -eOA
 [ "${BASH_SOURCE[0]}" ] && SCRIPT_NAME="${BASH_SOURCE[0]}" || SCRIPT_NAME=$0
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd -P)"
 
@@ -40,17 +40,17 @@ case "$with_mkl" in
         ;;
 esac
 if [ "$with_mkl" != "__DONTUSE__" ] ; then
-    case $ARCH in
+    case $OPENBLAS_ARCH in
         x86_64)
             mkl_arch_dir=intel64
             MKL_CFLAGS="-m64"
             ;;
-        ia_32)
+        i386)
             mkl_arch_dir=ia32
             MKL_CFLAGS="-m32"
             ;;
         *)
-            report_error "ARCH can only be x86_64 or ia_32 at the moment"
+            report_error $LINENO "MKL only supports intel64 (x86_64) and ia32 (i386) at the moment, and your arch obtained from OpenBLAS prebuild is $OPENBLAS_ARCH"
             exit 1
             ;;
     esac
@@ -59,7 +59,7 @@ if [ "$with_mkl" != "__DONTUSE__" ] ; then
     mkl_required_libs="libmkl_gf_lp64.a libmkl_core.a libmkl_sequential.a"
     for ii in $mkl_required_libs ; do
         if [ ! -f "$mkl_lib_dir/${ii}" ] ; then
-            report_error "missing MKL library ${ii}"
+            report_error $LINENO "missing MKL library ${ii}"
             exit 1
         fi
     done
@@ -94,7 +94,7 @@ if [ "$with_mkl" != "__DONTUSE__" ] ; then
     fi
     MKL_LIBS="${MKL_LIBS} -Wl,--end-group -lpthread -lm -ldl"
     MKL_CFLAGS="${MKL_CFLAGS} -I${MKLROOT}/include"
-    
+
     # write setup files
     cat <<EOF > "${BUILDDIR}/setup_mkl"
 export MKLROOT="${MKLROOT}"

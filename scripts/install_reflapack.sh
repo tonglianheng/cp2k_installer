@@ -22,13 +22,13 @@ case "$with_reflapack" in
             echo "lapack-${reflapack_ver} is already installed, skipping it."
         else
             if [ -f lapack-${reflapack_ver}.tar.gz ] ; then
-                echo "reflapack-${reflapack_ver}.tar.gz is found"
+                echo "reflapack-${reflapack_ver}.tgz is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
                              https://www.cp2k.org/static/downloads/lapack-${lapack_ver}.tgz
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
-            tar -xzf lapack-${reflapack_ver}.tar.gz
+            tar -xzf lapack-${reflapack_ver}.tgz
             cd lapack-${reflapack_ver}
 
             cat <<EOF > make.inc

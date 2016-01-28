@@ -340,7 +340,7 @@ else
     with_elpa="__DONTUSE__"
     [ "$with_pexi" != "__DONTUSE__" ] && \
         echo "Not using MPI, so PEXSI is disabled."
-    with_pexsi="__DONTUSE__"    
+    with_pexsi="__DONTUSE__"
 fi
 # PESXI and its dependencies
 if [ "$with_pexsi" = "__DONTUSE__" ] ; then
@@ -474,6 +474,9 @@ export FCFLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -f
 export CXXFLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -ffast-math $TSANFLAGS"
 export LDFLAGS="$TSANFLAGS"
 
+# get system arch information using OpenBLAS prebuild
+./scripts/get_openblas_arch.sh; load "${BUILDDIR}/openblas_arch"
+
 # MPI libraries
 ./scripts/install_openmpi.sh "${with_openmpi}"; load "${BUILDDIR}/setup_openmpi"
 ./scripts/install_mpich.sh   "${with_mpich}";   load "${BUILDDIR}/setup_mpich"
@@ -506,9 +509,8 @@ export CP_CFLAGS="$(unique ${CP_CFLAGS} IF_VALGRIND(${REF_MATH_CFLAGS},${FAST_MA
 export CP_LDFLAGS="$(unique ${CP_LDFLAGS} IF_VALGRIND(${REF_MATH_LDFLAGS},${FAST_MATH_LDFLAGS}))"
 export CP_LIBS="$(unique ${CP_LIBS} IF_VALGRIND(${REF_MATH_LIBS},${FAST_MATH_LIBS}))"
 
-# other libraries 
+# other libraries
 ./scripts/install_fftw.sh      "${with_fftw}";      load "${BUILDDIR}/setup_fftw"
 ./scripts/install_libxc.sh     "${with_libxc}";     load "${BUILDDIR}/setup_libxc"
 ./scripts/install_libint.sh    "${with_libint}";    load "${BUILDDIR}/setup_libint"
 ./scripts/install_scalapack.sh "${with_scalapack}"; load "${BUILDDIR}/setup_scalapack"
-
