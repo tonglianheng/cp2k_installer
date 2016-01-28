@@ -11,6 +11,7 @@ with_libxsmm=${1:-__INSTALL__}
 LIBXSMM_CFLAGS=''
 LIBXSMM_LDFLAGS=''
 LIBXSMM_LIBS=''
+! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 case "$with_libxsmm" in
     __INSTALL__)
