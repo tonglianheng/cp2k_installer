@@ -118,8 +118,8 @@ paths_to_ld() {
         # loop over all dirs in path, and filter out duplications
         for __dir in $__raw_path ; do
             if ! [ x"$__dir" = x ] ; then
-                if ! [[ "$__lib_dirs" =~ (^|[[:space:]])"-L\"$__dir\""($|[[:space:]]) ]] ; then
-                    __lib_dirs="$__lib_dirs -L\"$__dir\""
+                if ! [[ "$__lib_dirs" =~ (^|[[:space:]])"-L'$__dir'"($|[[:space:]]) ]] ; then
+                    __lib_dirs="$__lib_dirs -L'$__dir'"
                 fi
             fi
         done
@@ -197,14 +197,14 @@ add_include_from_paths() {
         fi
         echo "Found include directory $__found_target"
         eval __cflags=\$"${__cflags_name}"
-        __cflags="${__cflags} -I\"${__found_target}\""
+        __cflags="${__cflags} -I'${__found_target}'"
         # remove possible duplicates
         __cflags="$(unique $__cflags)"
         # must escape all quotes again before the last eval, as
         # otherwise all quotes gets interpreted by the shell when
         # assiging to variable because eval will reduce one escape
         # level
-        __cflags="${__cflags//\"/\\\"}"
+        __cflags="${__cflags//'/\\'}"
         eval $__cflags_name=\"$__cflags\"
     fi
 }
@@ -238,14 +238,14 @@ add_lib_from_paths() {
         fi
         echo "Found lib directory $__found_target"
         eval __ldflags=\$"${__ldflags_name}"
-        __ldflags="${__ldflags} -L\"${__found_target}\" -Wl,-rpath=\"${__found_target}\""
+        __ldflags="${__ldflags} -L'${__found_target}' -Wl,-rpath='${__found_target}'"
         # remove possible duplicates
         __ldflags="$(unique $__ldflags)"
         # must escape all quotes again before the last eval, as
         # otherwise all quotes gets interpreted by the shell when
         # assiging to variable because eval will reduce one escape
         # level
-        __ldflags="${__ldflags//\"/\\\"}"
+        __ldflags="${__ldflags//'/\\'}"
         eval $__ldflags_name=\"$__ldflags\"
     fi
 }

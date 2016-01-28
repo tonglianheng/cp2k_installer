@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 FAIL='[0;31mFAIL[0m'
 PASS='[0;32mPASS[0m'
@@ -7,7 +7,7 @@ SYS_INCLUDE_PATH=${SYS_INCLUDE_PATH:-'/usr/local/include:/usr/include'}
 SYS_LIB_PATH=${SYS_LIB_PATH:-'/user/local/lib64:/usr/local/lib:/usr/lib64:/usr/lib:/lib64:/lib'}
 INCLUDE_PATHS=${INCLUDE_PATHS:-"CPATH SYS_INCLUDE_PATH"}
 LIB_PATHS=${LIB_PATHS:-"LIBRARY_PATH LD_LIBRARY_PATH LD_RUN_PATH SYS_LIB_PATH"}
-source ./tool_kit.sh
+source ./scripts/tool_kit.sh
 
 echo "SYS_INCLUDE_PATH = $SYS_INCLUDE_PATH"
 echo "SYS_LIB_PATH = $SYS_LIB_PATH"
@@ -36,7 +36,7 @@ test_path2=""
 test_path3=":blah/1/2::blah/2/2"
 test_path4=":blah/1/2:blah/2/3:"
 test_path5="blah/1/2:blah/2/3:blah special/df dd"
-correct='-L"blah/1/2" -L"blah/1/3" -L"blah/2/2" -L"blah/2/3" -L"blah special/df dd"'
+correct="-L'blah/1/2' -L'blah/1/3' -L'blah/2/2' -L'blah/2/3' -L'blah special/df dd'"
 echo test_path1='"blah/1/2:blah/1/3"'
 echo test_path2='""'
 echo test_path3='":blah/1/2::blah/2/2"'
@@ -67,29 +67,29 @@ unset LIBXC_CFLAGS
 echo 'add_include_from_paths LIBXC_CFLAGS "xc.h" $INCLUDE_PATHS'
 add_include_from_paths LIBXC_CFLAGS "xc.h" $INCLUDE_PATHS
 echo "LIBXC_CFLAGS = $LIBXC_CFLAGS"
-[ "$LIBXC_CFLAGS" = "-I\"$LIBXC_INCLUDE\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_CFLAGS" = "-I'$LIBXC_INCLUDE'" ] && echo $PASS || echo $FAIL
 echo 'add_include_from_paths LIBXC_CFLAGS "*.h" $INCLUDE_PATHS'
 add_include_from_paths LIBXC_CFLAGS "*.h" $INCLUDE_PATHS
 echo "LIBXC_CFLAGS = $LIBXC_CFLAGS"
-[ "$LIBXC_CFLAGS" = "-I\"$LIBXC_INCLUDE\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_CFLAGS" = "-I'$LIBXC_INCLUDE'" ] && echo $PASS || echo $FAIL
 echo 'add_include_from_paths LIBXC_CFLAGS "libint" $INCLUDE_PATHS'
 add_include_from_paths LIBXC_CFLAGS "libint" $INCLUDE_PATHS
 echo "LIBXC_CFLAGS = $LIBXC_CFLAGS"
-[ "$LIBXC_CFLAGS" = "-I\"$LIBXC_INCLUDE\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_CFLAGS" = "-I'$LIBXC_INCLUDE'" ] && echo $PASS || echo $FAIL
 echo 'module load lib/libint/1.1.4'
 module load lib/libint/1.1.4
 echo 'add_include_from_paths LIBXC_CFLAGS "libint" $INCLUDE_PATHS'
 add_include_from_paths LIBXC_CFLAGS "libint" $INCLUDE_PATHS
 echo "LIBXC_CFLAGS = $LIBXC_CFLAGS"
-[ "$LIBXC_CFLAGS" = "-I\"$LIBXC_INCLUDE\" -I\"$LIBINT_INCLUDE/libint\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_CFLAGS" = "-I'$LIBXC_INCLUDE' -I'$LIBINT_INCLUDE/libint'" ] && echo $PASS || echo $FAIL
 echo 'add_include_from_paths -p LIBXC_CFLAGS "libint" $INCLUDE_PATHS'
 add_include_from_paths -p LIBXC_CFLAGS "libint" $INCLUDE_PATHS
 echo "LIBXC_CFLAGS = $LIBXC_CFLAGS"
-[ "$LIBXC_CFLAGS" = "-I\"$LIBXC_INCLUDE\" -I\"$LIBINT_INCLUDE/libint\" -I\"$LIBINT_INCLUDE\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_CFLAGS" = "-I'$LIBXC_INCLUDE' -I'$LIBINT_INCLUDE/libint' -I'$LIBINT_INCLUDE'" ] && echo $PASS || echo $FAIL
 echo 'add_include_from_paths LIBXC_CFLAGS "test*" $INCLUDE_PATHS'
 add_include_from_paths LIBXC_CFLAGS "test*" $INCLUDE_PATHS
 echo "LIBXC_CFLAGS = $LIBXC_CFLAGS"
-[ "$LIBXC_CFLAGS" = "-I\"$LIBXC_INCLUDE\" -I\"$LIBINT_INCLUDE/libint\" -I\"$LIBINT_INCLUDE\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_CFLAGS" = "-I'$LIBXC_INCLUDE' -I'$LIBINT_INCLUDE/libint' -I'$LIBINT_INCLUDE'" ] && echo $PASS || echo $FAIL
 
 echo 'module unload lib/libint/1.1.4'
 module unload lib/libint/1.1.4
@@ -97,29 +97,29 @@ unset LIBXC_LDFLAGS
 echo 'add_lib_from_paths LIBXC_LDFLAGS "libxc.a" $LIB_PATHS'
 add_lib_from_paths LIBXC_LDFLAGS "libxc.a" $LIB_PATHS
 echo "LIBXC_LDFLAGS = $LIBXC_LDFLAGS"
-[ "$LIBXC_LDFLAGS" = "-L\"$LIBXC_LIB\" -Wl,-rpath=\"$LIBXC_LIB\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_LDFLAGS" = "-L'$LIBXC_LIB' -Wl,-rpath='$LIBXC_LIB'" ] && echo $PASS || echo $FAIL
 echo 'add_lib_from_paths LIBXC_LDFLAGS "lib*.a" $LIB_PATHS'
 add_lib_from_paths LIBXC_LDFLAGS "lib*.a" $LIB_PATHS
 echo "LIBXC_LDFLAGS = $LIBXC_LDFLAGS"
-[ "$LIBXC_LDFLAGS" = "-L\"$LIBXC_LIB\" -Wl,-rpath=\"$LIBXC_LIB\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_LDFLAGS" = "-L'$LIBXC_LIB' -Wl,-rpath='$LIBXC_LIB'" ] && echo $PASS || echo $FAIL
 echo 'add_lib_from_paths LIBXC_LDFLAGS "libint.a" $LIB_PATHS'
 add_lib_from_paths LIBXC_LDFLAGS "libint.a" $LIB_PATHS
 echo "LIBXC_LDFLAGS = $LIBXC_LDFLAGS"
-[ "$LIBXC_LDFLAGS" = "-L\"$LIBXC_LIB\" -Wl,-rpath=\"$LIBXC_LIB\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_LDFLAGS" = "-L'$LIBXC_LIB' -Wl,-rpath='$LIBXC_LIB'" ] && echo $PASS || echo $FAIL
 echo 'module load lib/libint/1.1.4'
 module load lib/libint/1.1.4
 echo 'add_lib_from_paths LIBXC_LDFLAGS "libint.a" $LIB_PATHS'
 add_lib_from_paths LIBXC_LDFLAGS "libint.a" $LIB_PATHS
 echo "LIBXC_LDFLAGS = $LIBXC_LDFLAGS"
-[ "$LIBXC_LDFLAGS" = "-L\"$LIBXC_LIB\" -Wl,-rpath=\"$LIBXC_LIB\" -L\"$LIBINT_LIB\" -Wl,-rpath=\"$LIBINT_LIB\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_LDFLAGS" = "-L'$LIBXC_LIB' -Wl,-rpath='$LIBXC_LIB' -L'$LIBINT_LIB' -Wl,-rpath='$LIBINT_LIB'" ] && echo $PASS || echo $FAIL
 echo 'add_lib_from_paths -p LIBXC_LDFLAGS "libint.a" $LIB_PATHS'
 add_lib_from_paths -p LIBXC_LDFLAGS "libint.a" $LIB_PATHS
 echo "LIBXC_LDFLAGS = $LIBXC_LDFLAGS"
-[ "$LIBXC_LDFLAGS" = "-L\"$LIBXC_LIB\" -Wl,-rpath=\"$LIBXC_LIB\" -L\"$LIBINT_LIB\" -Wl,-rpath=\"$LIBINT_LIB\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_LDFLAGS" = "-L'$LIBXC_LIB' -Wl,-rpath='$LIBXC_LIB' -L'$LIBINT_LIB' -Wl,-rpath='$LIBINT_LIB'" ] && echo $PASS || echo $FAIL
 echo 'add_lib_from_paths LIBXC_LDFLAGS "lib*" $LIB_PATHS'
 add_lib_from_paths LIBXC_LDFLAGS "lib*" $LIB_PATHS
 echo "LIBXC_LDFLAGS = $LIBXC_LDFLAGS"
-[ "$LIBXC_LDFLAGS" = "-L\"$LIBXC_LIB\" -Wl,-rpath=\"$LIBXC_LIB\" -L\"$LIBINT_LIB\" -Wl,-rpath=\"$LIBINT_LIB\"" ] && echo $PASS || echo $FAIL
+[ "$LIBXC_LDFLAGS" = "-L'$LIBXC_LIB' -Wl,-rpath='$LIBXC_LIB' -L'$LIBINT_LIB' -Wl,-rpath='$LIBINT_LIB'" ] && echo $PASS || echo $FAIL
 
 echo 'check_command gcc "GCC"'
 check_command gcc "GCC" && echo $PASS || echo $FAIL
