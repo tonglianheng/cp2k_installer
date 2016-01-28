@@ -9,37 +9,37 @@ SYS_LIB_PATH=${SYS_LIB_PATH:-"/user/local/lib64:/usr/local/lib:/usr/lib64:/usr/l
 INCLUDE_PATHS=${INCLUDE_PATHS:-"CPATH SYS_INCLUDE_PATH"}
 LIB_PATHS=${LIB_PATHS:-"LIBRARY_PATH LD_LIBRARY_PATH LD_RUN_PATH SYS_LIB_PATH"}
 
-# report an error message with script name and line number
-report_error() {
+# report a warning message with script name and line number
+report_warning() {
     if [ $# -gt 1 ] ; then
-        local __lineno="$1"
+        local __lineno="line $1"
         local __message="$2"
     else
         local __lineno=''
         local __message="$1"
     fi
-    echo "ERROR: ($SCRIPT_NAME, line $__lineno) $__message" >&2
+    echo "WARNING: ($SCRIPT_NAME, $__lineno) $__message" >&2
+}
+
+# report an error message with script name and line number
+report_error() {
+    if [ $# -gt 1 ] ; then
+        local __lineno="line $1"
+        local __message="$2"
+    else
+        local __lineno=''
+        local __message="$1"
+    fi
+    echo "ERROR: ($SCRIPT_NAME, $__lineno) $__message" >&2
 }
 
 # error handler for line trap from set -e
 error_handler() {
     local __lineno="$1"
     report_error $1 "Non-zero exit code detected."
-    exit 1 
+    exit 1
 }
 trap 'error_handler ${LINENO}' ERR
-
-# report a warning message with script name and line number
-report_warning() {
-    if [ $# -gt 1 ] ; then
-        local __lineno="$1"
-        local __message="$2"
-    else
-        local __lineno=''
-        local __message="$1"
-    fi
-    echo "ERROR: ($SCRIPT_NAME, line $__lineno) $__message" >&2
-}
 
 # source a file if it exists, otherwise do nothing
 load() {

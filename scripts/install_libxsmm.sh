@@ -17,7 +17,7 @@ case "$with_libxsmm" in
     __INSTALL__)
         echo "==================== Installing Libxsmm ===================="
         if [ "$OPENBLAS_ARCH" != "x86_64" ] ; then
-            report_warning "libxsmm not suported on arch ${OPENBLAS_ARCH}" 
+            report_warning $LINENO "libxsmm not suported on arch ${OPENBLAS_ARCH}" 
             cat <<EOF > "${BUILDDIR}/setup_libxsmm"
 with_libxsmm="__DONTUSE__"
 EOF
@@ -64,7 +64,7 @@ EOF
                 # check reflapack. reflapack exists if
                 # REFLAPACK_LDFLAGS is set
                 if [ -z "$REFLAPACK_LDFLAGS" ] ; then
-                    report_warning "You must install or link a BLAS/LAPACK library for libxsmm installation to work, libxsmm will NOT be installed this time."
+                    report_warning $LINENO "You must install or link a BLAS/LAPACK library for libxsmm installation to work, libxsmm will NOT be installed this time."
                     cat <<EOF > "${BUILDDIR}/setup_libxsmm"
 with_libxsmm="__DONTUSE__"
 EOF
