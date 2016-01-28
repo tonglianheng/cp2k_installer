@@ -51,7 +51,7 @@ EOF
                 mkl_flag=0
                 # find possible openblas lib and record its suffix if exists
                 blas_threads="$(find_in_paths "libopenblas*.*" $LIB_PATHS)"
-                blas_threads="${blas_threads#libopenblas}"
+                blas_threads="${blas_threads#*libopenblas}"
                 blas_threads="${blas_threads%%.*}"
             elif [ "$MKLROOT" ] ; then
                 mkl_flag=1
@@ -103,8 +103,8 @@ EOF
             cd ..
             touch "${install_lock_file}"
         fi
-        LIBXSMM_CFLAGS="-I\"${pkg_install_dir}/include\""
-        LIBXSMM_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        LIBXSMM_CFLAGS="-I'${pkg_install_dir}/include'"
+        LIBXSMM_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
         echo "==================== Finding Libxsmm from system paths ===================="
@@ -128,15 +128,15 @@ esac
 if [ "$with_libxsmm" != "__DONTUSE__" ] ; then
     LIBXSMM_LIBS="-lxmm"
     if [ "$with_libxsmm" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_libxsmm"
+        cat <<EOF > "${BUILDDIR}/setup_libxsmm"
 prepend_path PATH "${pkg_install_dir}/bin"
 prepend_path LD_LIBRARY_PATH "${pkg_install_dir}/lib"
 prepend_path LD_RUN_PATH "${pkg_install_dir}/lib"
 prepend_path LIBRARY_PATH "${pkg_install_dir}/lib"
 EOF
-        cat "${BUIILDDIR}/setup_libxsmm" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_libxsmm" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_libxsmm"
+    cat <<EOF >> "${BUILDDIR}/setup_libxsmm"
 export LIBXSMM_CFLAGS="${LIBXSMM_CFLAGS}"
 export LIBXSMM_LDFLAGS="${LIBXSMM_LDFLAGS}"
 export LIBXSMM_LIBS="${LIBXSMM_LIBS}"
