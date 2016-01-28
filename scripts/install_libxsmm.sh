@@ -16,7 +16,7 @@ cd "${BUILDDIR}"
 case "$with_libxsmm" in
     __INSTALL__)
         echo "==================== Installing Libxsmm ===================="
-        if [ "$OPENBLAS_ARCH" != "x86_64" ] ; then
+        if [ x"$OPENBLAS_ARCH" != x"x86_64" ] ; then
             report_warning $LINENO "libxsmm not suported on arch ${OPENBLAS_ARCH}" 
             cat <<EOF > "${BUILDDIR}/setup_libxsmm"
 with_libxsmm="__DONTUSE__"
@@ -34,7 +34,7 @@ EOF
                 mv master.zip libxsmm-master.zip
                 unzip libxsmm-master.zip  >& libxsmm-unzip.log
             else
-                if [ -f lapack-${libxsmm_ver}.tar.gz ] ; then
+                if [ -f libxsmm-${libxsmm_ver}.tar.gz ] ; then
                     echo "libxsmm-${libxsmm_ver}.tar.gz is found"
                 else
                     download_pkg ${DOWNLOADER_FLAGS} \
