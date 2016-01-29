@@ -767,7 +767,7 @@ prepend_path LIBRARY_PATH "$with_gcc/lib"
 prepend_path LIBRARY_PATH "$with_gcc/lib64"
 prepend_path CPATH "$with_gcc/include"
 EOF
-            GCC_LDFLAGS="-L\"${with_gcc}/lib64\" -L\"${with_gcc}/lib\" -Wl,-rpath=\"${with_gcc}/lib64\" -Wl,-rpath=\"${with_gcc}/lib64\""
+            GCC_LDFLAGS="-L'${with_gcc}/lib64' -L'${with_gcc}/lib' -Wl,-rpath='${with_gcc}/lib64' -Wl,-rpath='${with_gcc}/lib64'"
         else
             echo "Cannot find $with_gcc" >&2
             exit 1
@@ -990,8 +990,8 @@ case "$with_fftw" in
             make install >& install.log
             cd ..
         fi
-        FFTW3_CFLAGS="-I\"${INSTALLDIR}/include\""
-        FFTW3_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        FFTW3_CFLAGS="-I'${INSTALLDIR}/include'"
+        FFTW3_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lfftw3 "FFTW3"
@@ -1009,8 +1009,8 @@ prepend_path LD_RUN_PATH "$with_fftw/lib"
 prepend_path LIBRARY_PATH "$with_fftw/lib"
 prepend_path CPATH "$with_fftw/include"
 EOF
-            FFTW3_CFLAGS="-I\"${with_fftw}/include\""
-            FFTW3_LDFLAGS="-L\"${with_fftw}/lib\" -Wl,-rpath=\"${with_fftw}/lib\""
+            FFTW3_CFLAGS="-I'${with_fftw}/include'"
+            FFTW3_LDFLAGS="-L'${with_fftw}/lib' -Wl,-rpath='${with_fftw}/lib'"
         else
             echo "Cannot find $with_fftw" >&2
             exit 1
@@ -1045,8 +1045,8 @@ case "$with_libxc" in
             make install >& install.log
             cd ..
         fi
-        LIBXC_CFLAGS="-I\"${INSTALLDIR}/include\""
-        LIBXC_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        LIBXC_CFLAGS="-I'${INSTALLDIR}/include'"
+        LIBXC_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lxcf90 "libxc"
@@ -1064,8 +1064,8 @@ prepend_path LD_RUN_PATH $with_libxc/lib
 prepend_path LIBRARY_PATH $with_libxc/lib
 prepend_path CPATH $with_libxc/include
 EOF
-            LIBXC_CFLAGS="-I\"$with_libxc/include\""
-            LIBXC_LDFLAGS="-L\"$with_libxc/lib\" -Wl,-rpath=\"$with_libxc/lib\""
+            LIBXC_CFLAGS="-I'$with_libxc/include'"
+            LIBXC_LDFLAGS="-L'$with_libxc/lib' -Wl,-rpath='$with_libxc/lib'"
         else
             echo "Cannot find $with_libxc" >&2
             exit 1
@@ -1106,8 +1106,8 @@ case "$with_libint" in
             make install >& install.log
             cd ..
         fi
-        LIBINT_CFLAGS="-I\"${INSTALLDIR}/include\""
-        LIBINT_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        LIBINT_CFLAGS="-I'${INSTALLDIR}/include'"
+        LIBINT_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lderiv "libint"
@@ -1125,8 +1125,8 @@ prepend_path LD_RUN_PATH "$with_libint/lib"
 prepend_path LIBRARY_PATH "$with_libint/lib"
 prepend_path CPATH "$with_libint/include"
 EOF
-            LIBINT_CFLAGS="-I\"$with_libint/include\""
-            LIBINT_LDFLAGS="-L\"$with_libint/lib\" -Wl,-rpath=\"$with_libint/lib\""
+            LIBINT_CFLAGS="-I'$with_libint/include'"
+            LIBINT_LDFLAGS="-L'$with_libint/lib' -Wl,-rpath='$with_libint/lib'"
         else
             echo "Cannot find $with_libint" >&2
             exit 1
@@ -1180,7 +1180,7 @@ EOF
             cp libblas.a liblapack.a "${INSTALLDIR}/lib/"
             cd ..
         fi
-        REF_MATH_LDFLAGS="$(unique ${REF_MATH_LDFLAGS} \"-L${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib)\""
+        REF_MATH_LDFLAGS="$(unique ${REF_MATH_LDFLAGS} '-L${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib')"
         ;;
     __SYSTEM__)
         check_lib -lblas
@@ -1197,7 +1197,7 @@ prepend_path LD_RUN_PATH "$with_reflapack/lib"
 prepend_path LIBRARY_PATH "$with_reflapack/lib"
 prepend_path CPATH "with_reflapack/include"
 EOF
-            REF_MATH_LDFLAGS="${MATH_LDFLAGS} -L\"$with_reflapack/lib\" -Wl,-rpath=\"$with_reflapack/lib\""
+            REF_MATH_LDFLAGS="${MATH_LDFLAGS} -L'$with_reflapack/lib' -Wl,-rpath='$with_reflapack/lib'"
         else
             echo "Cannot find $with_reflapack" >&2
             exit 1
@@ -1236,8 +1236,8 @@ prepend_path LD_RUN_PATH "$with_acml/lib"
 prepend_path LIBRARY_PATH "$with_acml/lib"
 prepend_path CPATH "$with_acml/include"
 EOF
-            MATH_CFLAGS="${MATH_CFLAGS} -I\"$with_acml/include\""
-            MATH_LDFLAGS="${MATH_LDFLAGS} -L\"$with_acml/lib\" -Wl,-rpath=\"$with_acml/lib\""
+            MATH_CFLAGS="${MATH_CFLAGS} -I'$with_acml/include'"
+            MATH_LDFLAGS="${MATH_LDFLAGS} -L'$with_acml/lib' -Wl,-rpath='$with_acml/lib'"
         else
             echo "Cannot find $with_acml" >&2
             exit 1
@@ -1378,8 +1378,8 @@ case "$with_openblas" in
             #      install >& install.omp.log
             cd ..
         fi
-        MATH_CFLAGS="$(unique ${MATH_CFLAGS} -I\"${INSTALLDIR}/include\")"
-        MATH_LDFLAGS="$(unique ${MATH_LDFLAGS} -L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\")"
+        MATH_CFLAGS="$(unique ${MATH_CFLAGS} -I'${INSTALLDIR}/include')"
+        MATH_LDFLAGS="$(unique ${MATH_LDFLAGS} -L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib')"
         ;;
     __SYSTEM__)
         check_lib -lopenblas
@@ -1396,8 +1396,8 @@ prepend_path LD_RUN_PATH "$with_openblas/lib"
 prepend_path LIBRARY_PATH "$with_openblas/lib"
 prepend_path CPATH "$with_openblas/include"
 EOF
-            MATH_CFLAGS="${MATH_CFLAGS} -I\"$with_openblas/include\""
-            MATH_LDFLAGS="${MATH_LDFLAGS} -L\"$with_openblas/lib\" -Wl,-rpath=\"$with_openblas/lib\""
+            MATH_CFLAGS="${MATH_CFLAGS} -I'$with_openblas/include'"
+            MATH_LDFLAGS="${MATH_LDFLAGS} -L'$with_openblas/lib' -Wl,-rpath='$with_openblas/lib'"
         else
             echo "Cannot find $with_openblas" >&2
             exit 1
@@ -1484,7 +1484,7 @@ case "$with_libsmm" in
             echo "using the toolkid in tools/build_libsmm provided in cp2k package"
             with_libsmm="__DONTUSE__"
         fi
-        LIBSMM_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        LIBSMM_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lsmm_dnn
@@ -1499,7 +1499,7 @@ prepend_path LD_LIBRARY_PATH $with_libsmm/lib
 prepend_path LD_RUN_PATH $with_libsmm/lib
 prepend_path LIBRARY_PATH $with_libsmm/lib
 EOF
-            LIBSMM_LDFLAGS="-L\"${with_libsmm}/lib\" -Wl,-rpath=\"${with_libsmm}/lib\""
+            LIBSMM_LDFLAGS="-L'${with_libsmm}/lib' -Wl,-rpath='${with_libsmm}/lib'"
         else
             echo "Cannot find $with_libsmm" >&2
             exit 1
@@ -1554,7 +1554,7 @@ EOF
             cp libscalapack.a "${INSTALLDIR}/lib/"
             cd ..
         fi
-        MATH_LDFLAGS="$(unique ${MATH_LDFLAGS} -L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\")"
+        MATH_LDFLAGS="$(unique ${MATH_LDFLAGS} -L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib')"
         ;;
     __SYSTEM__)
         check_lib -lscalapack
@@ -1570,7 +1570,7 @@ prepend_path LD_RUN_PATH "$with_scalapack/lib"
 prepend_path LIBRARY_PATH "$with_scalapack/lib"
 prepend_path CPATH "$with_scalapack/include"
 EOF
-            MATH_LDFLAGS="${MATH_LDFLAGS} -L\"$with_scalapack/lib\" -Wl,-rpath=\"$with_scalapack/lib\""
+            MATH_LDFLAGS="${MATH_LDFLAGS} -L'$with_scalapack/lib' -Wl,-rpath='$with_scalapack/lib'"
         else
             echo "Cannot find $with_scalapack" >&2
             exit 1
@@ -1637,7 +1637,7 @@ case "$with_elpa" in
             fi
             cd ..
         fi
-        ELPA_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        ELPA_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lelpa "ELPA"
@@ -1645,7 +1645,7 @@ case "$with_elpa" in
         ELPA_CFLAGS="$(find_in_paths "elpa-*" $INCLUDE_PATHS)"
         if [ "$ELPA_CFLAGS" != "__FALSE__" ] ; then
             echo "ELPA include directory is found to be $ELPA_CFLAGS/modules"
-            ELPA_CFLAGS="-I\"$ELPA_CFLAGS/modules\""
+            ELPA_CFLAGS="-I'$ELPA_CFLAGS/modules'"
         else
             echo "Cannot find elpa-* from paths $INCLUDE_PATHS"
             exit 1
@@ -1654,7 +1654,7 @@ case "$with_elpa" in
             ELPA_CFLAGS_OMP="$(find_in_paths "elpa_openmp-*" $INCLUDE_PATHS)"
             if [ "$ELPA_CFLAGS_OMP" != "__FALSE__" ] ; then
                 echo "ELPA include directory threaded version is found to be $ELPA_CFLAGS_OMP/modules"
-                ELPA_CFLAGS_OMP="-I\"$ELPA_CFLAGS_OMP/modules\""
+                ELPA_CFLAGS_OMP="-I'$ELPA_CFLAGS_OMP/modules'"
             else
                 echo "Cannot find elpa_openmp-${elpa_ver} from paths $INCLUDE_PATHS"
                 exit 1
@@ -1676,7 +1676,7 @@ EOF
             ELPA_CFLAGS="$(find_in_paths "elpa-*" user_include_path)"
             if [ "$ELPA_CFLAGS" != "__FALSE__" ] ; then
                 echo "ELPA include directory is found to be $ELPA_CFLAGS/modules"
-                ELPA_CFLAGS="-I\"$ELPA_CFLAGS/modules\""
+                ELPA_CFLAGS="-I'$ELPA_CFLAGS/modules'"
             else
                 echo "Cannot find elpa-* from path $user_include_path"
                 exit 1
@@ -1684,12 +1684,12 @@ EOF
             ELPA_CFLAGS_OMP="$(find_in_paths "elpa_openmp-*" user_include_path)"
             if [ "$ELPA_CFLAGS_OMP" != "__FALSE__" ] ; then
                 echo "ELPA include directory threaded version is found to be $ELPA_CFLAGS_OMP/modules"
-                ELPA_CFLAGS_OMP="-I\"$ELPA_CFLAGS_OMP/modules\""
+                ELPA_CFLAGS_OMP="-I'$ELPA_CFLAGS_OMP/modules'"
             else
                 echo "Cannot find elpa_openmp-* from path $user_include_path"
                 exit 1
             fi
-            ELPA_LDFLAGS="${ELPA_LDFLAGS} -L\"$with_elpa/lib\" -Wl,-rpath=\"$with_elpa/lib\""
+            ELPA_LDFLAGS="${ELPA_LDFLAGS} -L'$with_elpa/lib' -Wl,-rpath='$with_elpa/lib'"
         else
             echo "Cannot find $with_elpa" >&2
             exit 1
@@ -1724,8 +1724,8 @@ case "$with_scotch" in
             make install prefix=${INSTALLDIR} >& install.log
             cd ../..
         fi
-        SCOTCH_CFLAGS="-I\"${INSTALLDIR}/include\""
-        SCOTCH_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        SCOTCH_CFLAGS="-I'${INSTALLDIR}/include'"
+        SCOTCH_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lptscotch "PT-Scotch"
@@ -1748,8 +1748,8 @@ prepend_path LD_RUN_PATH "$with_scotch/lib"
 prepend_path LIBRARY_PATH "$with_scotch/lib"
 prepend_path CPATH "$with_scotch/include"
 EOF
-            SCOTCH_CFLAGS="-I\"$with_scotch/include\""
-            SCOTCH_LDFLAGS="-L\"$with_scotch/lib\" -Wl,-rpath=\"$with_scotch/lib\""
+            SCOTCH_CFLAGS="-I'$with_scotch/include'"
+            SCOTCH_LDFLAGS="-L'$with_scotch/lib' -Wl,-rpath='$with_scotch/lib'"
         else
             echo "Cannot find $with_scotch" >&2
             exit 1
@@ -1783,8 +1783,8 @@ case "$with_parmetis" in
             make install >& install.log
             cd ../..
         fi
-        PARMETIS_CFLAGS="-I\"${INSTALLDIR}/include\""
-        PARMETIS_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        PARMETIS_CFLAGS="-I'${INSTALLDIR}/include'"
+        PARMETIS_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lparmetis "ParMETIS"
@@ -1802,8 +1802,8 @@ prepend_path LD_RUN_PATH "$with_parmetis/lib"
 prepend_path LIBRARY_PATH "$with_parmetis/lib"
 prepend_path CPATH "$with_parmetis/include"
 EOF
-            PARMETIS_CFLAGS="-I\"$with_parmetis/include\""
-            PARMETIS_LDFLAGS="-L\"$with_parmetis/lib\" -Wl,-rpath=\"$with_parmetis/lib\""
+            PARMETIS_CFLAGS="-I'$with_parmetis/include'"
+            PARMETIS_LDFLAGS="-L'$with_parmetis/lib' -Wl,-rpath='$with_parmetis/lib'"
         else
             echo "Cannot find $with_parmetis" >&2
             exit 1
@@ -1821,8 +1821,8 @@ case "$with_metis" in
     __INSTALL__)
         echo "METIS is installed together with ParMETIS"
         if [ "$with_parmetis" = "__INSTALL__" ] ; then
-            METIS_CFLAGS="-I\"${INSTALLDIR}/include\""
-            METIS_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+            METIS_CFLAGS="-I'${INSTALLDIR}/include'"
+            METIS_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         else
             echo "Use option --with-parmetis=install to install METIS"
             exit 1
@@ -1844,8 +1844,8 @@ prepend_path LD_RUN_PATH "$with_metis/lib"
 prepend_path LIBRARY_PATH "$with_metis/lib"
 prepend_path CPATH "$with_metis/include"
 EOF
-            METIS_CFLAGS="-I\"$with_metis/include\""
-            METIS_LDFLAGS="-L\"$with_metis/lib\" -Wl,-rpath=\"$with_metis/lib\""
+            METIS_CFLAGS="-I'$with_metis/include'"
+            METIS_LDFLAGS="-L'$with_metis/lib' -Wl,-rpath='$with_metis/lib'"
         else
             echo "Cannot find $with_metis" >&2
             exit 1
@@ -1893,8 +1893,8 @@ EOF
             cp SRC/*.h "${INSTALLDIR}/include/superlu_dist_${superlu_ver}/"
             cd ..
         fi
-        SUPERLU_DIST_CFLAGS="-I\"${INSTALLDIR}/include/superlu_dist_${superlu_ver}\""
-        SUPERLU_DIST_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        SUPERLU_DIST_CFLAGS="-I'${INSTALLDIR}/include/superlu_dist_${superlu_ver}'"
+        SUPERLU_DIST_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         SUPERLU_DIST_LIBS="-lsuperlu_dist_${superlu_ver}"
         ;;
     __SYSTEM__)
@@ -1914,8 +1914,8 @@ prepend_path LD_RUN_PATH "$with_superlu_dist/lib"
 prepend_path LIBRARY_PATH "$with_superlu_dist/lib"
 prepend_path CPATH "$with_superlu_dist/include"
 EOF
-            SUPERLU_DIST_CFLAGS="-I\"$with_superlu_dist/include\""
-            SUPERLU_DIST_LDFLAGS="-L\"$with_superlu_dist/lib\" -Wl,-rpath=\"$with_superlu_dist/lib\""
+            SUPERLU_DIST_CFLAGS="-I'$with_superlu_dist/include'"
+            SUPERLU_DIST_LDFLAGS="-L'$with_superlu_dist/lib' -Wl,-rpath='$with_superlu_dist/lib'"
             SUPERLU_DIST_LIBS="-lsuperlu_dist"
         else
             echo "Cannot find $with_superlu_dist" >&2
@@ -1984,7 +1984,7 @@ case "$with_pexsi" in
             #cp include/* ${INSTALLDIR}/include/pexsi_v${pexsi_ver}/
             cd ..
         fi
-        PEXSI_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        PEXSI_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         PEXSI_LIB="-lpexsi_linux_v${pexsi_ver}"
         ;;
     __SYSTEM__)
@@ -2002,7 +2002,7 @@ prepend_path LD_RUN_PATH "$with_pexsi/lib"
 prepend_path LIBRARY_PATH "$with_pexsi/lib"
 prepend_path CPATH "$with_pexsi/include"
 EOF
-            PEXSI_LDFLAGS="-L\"${with_pexsi}/lib\" -Wl,-rpath=\"${with_pexsi}/lib\""
+            PEXSI_LDFLAGS="-L'${with_pexsi}/lib' -Wl,-rpath='${with_pexsi}/lib'"
             PEXSI_LIB="-lpexsi"
         else
             echo "Cannot find $with_pexsi" >&2
@@ -2047,8 +2047,8 @@ case "$with_quip" in
                 cd ..
             fi
         fi
-        QUIP_CFLAGS="-I\"${INSTALLDIR}/include\""
-        QUIP_LDFLAGS="-L\"${INSTALLDIR}/lib\" -Wl,-rpath=\"${INSTALLDIR}/lib\""
+        QUIP_CFLAGS="-I'${INSTALLDIR}/include'"
+        QUIP_LDFLAGS="-L'${INSTALLDIR}/lib' -Wl,-rpath='${INSTALLDIR}/lib'"
         ;;
     __SYSTEM__)
         check_lib -lquip_core "QUIP"
@@ -2070,8 +2070,8 @@ prepend_path LD_RUN_PATH "$with_quip/lib"
 prepend_path LIBRARY_PATH "$with_quip/lib"
 prepend_path CPATH "$with_quip/include"
 EOF
-            QUIP_CFLAGS="-I\"${with_quip}/include\""
-            QUIP_LDFLAGS="-L\"${with_quip}/lib\" -Wl,-rpath=\"${with_quip}/lib\""
+            QUIP_CFLAGS="-I'${with_quip}/include'"
+            QUIP_LDFLAGS="-L'${with_quip}/lib' -Wl,-rpath='${with_quip}/lib'"
         else
             echo "Cannot find $with_quip" >&2
             exit 1

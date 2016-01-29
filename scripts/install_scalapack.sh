@@ -57,7 +57,7 @@ EOF
             cd ..
             touch "${install_lock_file}"
         fi
-        SCALAPACK_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        SCALAPACK_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
         echo "==================== Finding ScaLAPACK from system paths ===================="
@@ -70,7 +70,7 @@ EOF
         echo "==================== Linking ScaLAPACK to user paths ===================="
         pkg_install_dir="$with_scalapack"
         check_dir "${pkg_install_dir}/lib"
-        SCALAPACK_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        SCALAPACK_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
 esac
 if [ "$with_scalapack" != "__DONTUSE__" ] ; then

@@ -45,8 +45,8 @@ case "$with_libint" in
             cd ..
             touch "${install_lock_file}"
         fi
-        LIBINT_CFLAGS="-I\"${pkg_install_dir}/include\""
-        LIBINT_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        LIBINT_CFLAGS="-I'${pkg_install_dir}/include'"
+        LIBINT_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
         echo "==================== Finding LIBINT from system paths ===================="
@@ -62,8 +62,8 @@ case "$with_libint" in
         pkg_install_dir="$with_libint"
         check_dir "${pkg_install_dir}/lib"
         check_dir "${pkg_install_dir}/include"
-        LIBINT_CFLAGS="-I\"${pkg_install_dir}/include\""
-        LIBINT_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        LIBINT_CFLAGS="-I'${pkg_install_dir}/include'"
+        LIBINT_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
 esac
 if [ "$with_libint" != "__DONTUSE__" ] ; then

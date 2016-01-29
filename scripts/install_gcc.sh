@@ -77,8 +77,8 @@ case "$with_gcc" in
             cd ../..
             touch "${install_lock_file}"
         fi
-        GCC_CFLAGS="-I\"${pkg_install_dir}/include\""
-        GCC_LDFLAGS="-L\"${pkg_install_dir}/lib64\" -L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib64\" -Wl,-rpath=\"${pkg_install_dir}/lib64\""
+        GCC_CFLAGS="-I'${pkg_install_dir}/include'"
+        GCC_LDFLAGS="-L'${pkg_install_dir}/lib64' -L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib64' -Wl,-rpath='${pkg_install_dir}/lib64'"
         ;;
     __SYSTEM__)
         echo "==================== Finding GCC from system paths ===================="
@@ -97,8 +97,8 @@ case "$with_gcc" in
         check_dir "${pkg_install_dir}/lib"
         check_dir "${pkg_install_dir}/lib64"
         check_dir "${pkg_install_dir}/include"
-        GCC_CFLAGS="-I\"${pkg_install_dir}/include\""
-        GCC_LDFLAGS="-L\"${pkg_install_dir}/lib64\" -L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib64\" -Wl,-rpath=\"${pkg_install_dir}/lib64\""
+        GCC_CFLAGS="-I'${pkg_install_dir}/include'"
+        GCC_LDFLAGS="-L'${pkg_install_dir}/lib64' -L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib64' -Wl,-rpath='${pkg_install_dir}/lib64'"
         ;;
 esac
 if [ $ENABLE_TSAN = "__TRUE__" ] ; then

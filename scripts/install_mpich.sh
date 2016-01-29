@@ -40,8 +40,8 @@ case "$with_mpich" in
             cd ..
             touch "${install_lock_file}"
         fi
-        MPICH_CFLAGS="-I\"${pkg_install_dir}/include\""
-        MPICH_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        MPICH_CFLAGS="-I'${pkg_install_dir}/include'"
+        MPICH_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
         echo "==================== Finding Mpich from system paths ===================="
@@ -62,8 +62,8 @@ case "$with_mpich" in
         check_dir "${pkg_install_dir}/bin"
         check_dir "${pkg_install_dir}/lib"
         check_dir "${pkg_install_dir}/include"
-        MPICH_CFLAGS="-I\"${pkg_install_dir}/include\""
-        MPICH_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        MPICH_CFLAGS="-I'${pkg_install_dir}/include'"
+        MPICH_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
 esac
 if [ "$with_mpich" != "__DONTUSE__" ] ; then

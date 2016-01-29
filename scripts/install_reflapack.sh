@@ -59,7 +59,7 @@ EOF
             cd ..
             touch "${install_lock_file}"
         fi
-        REFLAPACK_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        REFLAPACK_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
         echo "==================== Finding LAPACK from system paths ===================="
@@ -73,7 +73,7 @@ EOF
         echo "==================== Linking LAPACK to user paths ===================="
         pkg_install_dir="$with_reflapack"
         check_dir "${pkg_install_dir}/lib"
-        REFLAPACK_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        REFLAPACK_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
 esac
 if [ "$with_reflapack" != "__DONTUSE__" ] ; then

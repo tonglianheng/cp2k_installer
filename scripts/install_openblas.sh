@@ -58,8 +58,8 @@ case "$with_openblas" in
             cd ..
             touch "${install_lock_file}"
         fi
-        OPENBLAS_CFLAGS="-I\"${pkg_install_dir}/include\""
-        OPENBLAS_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        OPENBLAS_CFLAGS="-I'${pkg_install_dir}/include'"
+        OPENBLAS_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
         echo "==================== Finding LAPACK from system paths ===================="
@@ -74,8 +74,8 @@ case "$with_openblas" in
         pkg_install_dir="$with_openblas"
         check_dir "${pkg_install_dir}/include"
         check_dir "${pkg_install_dir}/lib"
-        OPENBLAS_CFLAGS="-I\"${pkg_install_dir}/include\""
-        OPENBLAS_LDFLAGS="-L\"${pkg_install_dir}/lib\" -Wl,-rpath=\"${pkg_install_dir}/lib\""
+        OPENBLAS_CFLAGS="-I'${pkg_install_dir}/include'"
+        OPENBLAS_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
 esac
 if [ "$with_openblas" != "__DONTUSE__" ] ; then
