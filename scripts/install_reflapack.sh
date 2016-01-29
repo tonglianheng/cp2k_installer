@@ -25,7 +25,7 @@ case "$with_reflapack" in
                 echo "reflapack-${reflapack_ver}.tgz is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
-                             https://www.cp2k.org/static/downloads/lapack-${lapack_ver}.tgz
+                             https://www.cp2k.org/static/downloads/lapack-${reflapack_ver}.tgz
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf lapack-${reflapack_ver}.tgz
