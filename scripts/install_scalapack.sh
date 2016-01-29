@@ -76,14 +76,14 @@ esac
 if [ "$with_scalapack" != "__DONTUSE__" ] ; then
     SCALAPACK_LIBS="-lscalpack"
     if [ "$with_scalapack" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_scalapack"
+        cat <<EOF > "${BUILDDIR}/setup_scalapack"
 prepend_path LD_LIBRARY_PATH "${pkg_install_dir}/lib"
 prepend_path LD_RUN_PATH "${pkg_install_dir}/lib"
 prepend_path LIBRARY_PATH "${pkg_install_dir}/lib"
 EOF
-        cat "${BUIILDDIR}/setup_scalapack" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_scalapack" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_scalapack"
+    cat <<EOF >> "${BUILDDIR}/setup_scalapack"
 export SCALAPACK_LDFLAGS="${SCALAPACK_LDFLAGS}"
 export SCALAPACK_LIBS="${SCALAPACK_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"

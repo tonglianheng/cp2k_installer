@@ -41,15 +41,15 @@ esac
 if [ "$with_acml" != "__DONTUSE__" ] ; then
     ACML_LIBS="-lacml"
     if [ "$with_acml" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_acml"
+        cat <<EOF > "${BUILDDIR}/setup_acml"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_acml" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_acml" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_acml"
+    cat <<EOF >> "${BUILDDIR}/setup_acml"
 export ACML_CFLAGS="${ACML_CFLAGS}"
 export ACML_LDFLAGS="${ACML_LDFLAGS}"
 export ACML_LIBS="${ACML_LIBS}"

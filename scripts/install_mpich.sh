@@ -69,16 +69,16 @@ esac
 if [ "$with_mpich" != "__DONTUSE__" ] ; then
     MPICH_LIBS="-lmpi -lmpi_cxx"
     if [ "$with_mpich" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_mpich"
+        cat <<EOF > "${BUILDDIR}/setup_mpich"
 prepend_path PATH "$pkg_install_dir/bin"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_mpich" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_mpich" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_mpich"
+    cat <<EOF >> "${BUILDDIR}/setup_mpich"
 export MPI_MODE="__MPICH__"
 export MPICH_CFLAGS="${MPICH_CFLAGS}"
 export MPICH_LDFLAGS="${MPICH_LDFLAGS}"

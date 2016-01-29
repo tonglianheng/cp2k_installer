@@ -514,3 +514,4 @@ export CP_LIBS="$(unique ${CP_LIBS} IF_VALGRIND(${REF_MATH_LIBS},${FAST_MATH_LIB
 ./scripts/install_libxc.sh     "${with_libxc}";     load "${BUILDDIR}/setup_libxc"
 ./scripts/install_libint.sh    "${with_libint}";    load "${BUILDDIR}/setup_libint"
 ./scripts/install_scalapack.sh "${with_scalapack}"; load "${BUILDDIR}/setup_scalapack"
+./scripts/install_libxsmm.sh   "${with_libxsmm}";   load "${BUILDDIR}/setup_libxsmm"

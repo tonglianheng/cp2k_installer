@@ -76,16 +76,16 @@ esac
 if [ "$with_openmpi" != "__DONTUSE__" ] ; then
     OPENMPI_LIBS="-lmpi -lmpi_cxx"
     if [ "$with_openmpi" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_openmpi"
+        cat <<EOF > "${BUILDDIR}/setup_openmpi"
 prepend_path PATH "$pkg_install_dir/bin"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_openmpi" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_openmpi" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_openmpi"
+    cat <<EOF >> "${BUILDDIR}/setup_openmpi"
 export MPI_MODE="__OPENMPI__"
 export OPENMPI_CFLAGS="${OPENMPI_CFLAGS}"
 export OPENMPI_LDFLAGS="${OPENMPI_LDFLAGS}"

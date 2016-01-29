@@ -54,7 +54,7 @@ case "$with_binutils" in
 esac
 if [ "$with_binutils" != "__DONTUSE__" ] ; then
     if [ "$with_binutils" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_binutils"
+        cat <<EOF > "${BUILDDIR}/setup_binutils"
 prepend_path PATH "$pkg_install_dir/bin"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib64"
@@ -64,7 +64,7 @@ prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib64"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_binutils" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_binutils" >> $SETUPFILE
     fi
 fi
 cd "${ROOTDIR}"

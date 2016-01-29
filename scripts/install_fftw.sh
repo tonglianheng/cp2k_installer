@@ -62,16 +62,16 @@ if [ "$with_fftw" != "__DONTUSE__" ] ; then
     FFTW_LIBS="-lfftw3"
     FFTW_LIBS_OMP="-lfftw3_omp"
     if [ "$with_fftw" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_fftw"
+        cat <<EOF > "${BUILDDIR}/setup_fftw"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_fftw" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_fftw" >> $SETUPFILE
     fi
     # we may also want to cover FFT_SG
-    cat <<EOF >> "${BUIILDDIR}/setup_fftw"
+    cat <<EOF >> "${BUILDDIR}/setup_fftw"
 export FFTW_CFLAGS="${FFTW_CFLAGS}"
 export FFTW_LDFLAGS="${FFTW_LDFLAGS}"
 export FFTW_LIBS="${FFTW_LIBS}"

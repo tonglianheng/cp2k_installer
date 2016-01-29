@@ -79,14 +79,14 @@ esac
 if [ "$with_reflapack" != "__DONTUSE__" ] ; then
     REFLAPACK_LIBS="-lblas -llapack"
     if [ "$with_reflapack" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_reflapack"
+        cat <<EOF > "${BUILDDIR}/setup_reflapack"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 EOF
-        cat "${BUIILDDIR}/setup_reflapack" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_reflapack" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_reflapack"
+    cat <<EOF >> "${BUILDDIR}/setup_reflapack"
 export REFLAPACK_LDFLAGS="${REFLAPACK_LDFLAGS}"
 export REFLAPACK_LIBS="${REFLAPACK_LIBS}"
 export REF_MATH_LDFLAGS="\$(unique \${REF_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS})"

@@ -81,15 +81,15 @@ esac
 if [ "$with_openblas" != "__DONTUSE__" ] ; then
     OPENBLAS_LIBS="-lopenblas"
     if [ "$with_openblas" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_openblas"
+        cat <<EOF > "${BUILDDIR}/setup_openblas"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_openblas" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_openblas" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_openblas"
+    cat <<EOF >> "${BUILDDIR}/setup_openblas"
 export OPENBLAS_CFLAGS="${OPENBLAS_CFLAGS}"
 export OPENBLAS_LDFLAGS="${OPENBLAS_LDFLAGS}"
 export OPENBLAS_LIBS="${OPENBLAS_LIBS}"

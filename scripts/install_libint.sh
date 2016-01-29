@@ -69,15 +69,15 @@ esac
 if [ "$with_libint" != "__DONTUSE__" ] ; then
     LIBINT_LIBS="-lderiv -lint"
     if [ "$with_libint" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUIILDDIR}/setup_libint"
+        cat <<EOF > "${BUILDDIR}/setup_libint"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path LD_RUN_PATH "$pkg_install_dir/lib"
 prepend_path LIBRARY_PATH "$pkg_install_dir/lib"
 prepend_path CPATH "$pkg_install_dir/include"
 EOF
-        cat "${BUIILDDIR}/setup_libint" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_libint" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUIILDDIR}/setup_libint"
+    cat <<EOF >> "${BUILDDIR}/setup_libint"
 export LIBINT_CFLAGS="${LIBINT_CFLAGS}"
 export LIBINT_LDFLAGS="${LIBINT_LDFLAGS}"
 export LIBINT_LIBS="${LIBINT_LIBS}"
