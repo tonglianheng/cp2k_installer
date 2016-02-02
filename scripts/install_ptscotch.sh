@@ -34,6 +34,9 @@ case "$with_scotch" in
                 sed "s|\(^CFLAGS\).*|\1 =  $CFLAGS -DCOMMON_RANDOM_FIXED_SEED -DSCOTCH_RENAME -Drestrict=__restrict -DIDXSIZE64|" > Makefile.inc
             make scotch -j $NPROCS >& make.log
             make ptscotch -j $NROCS >& make.log
+            # PT-scotch make install is buggy in that it cannot create
+            # intermediate directories
+            [ -d "${pkg_install_dir}" ] && mkdir -p "${pkg_install_dir}"
             make install prefix=${pkg_install_dir} >& install.log
             cd ../..
             touch "${install_lock_file}"
