@@ -77,7 +77,7 @@ EOF
 esac
 if [ "$with_reflapack" != "__DONTUSE__" ] ; then
     [ -f "${BUILDDIR}/setup_reflapack" ] && rm "${BUILDDIR}/setup_reflapack"
-    REFLAPACK_LIBS="-lblas -llapack"
+    REFLAPACK_LIBS="-llapack -lblas"
     if [ "$with_reflapack" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_reflapack"
 prepend_path LD_LIBRARY_PATH "$pkg_install_dir/lib"

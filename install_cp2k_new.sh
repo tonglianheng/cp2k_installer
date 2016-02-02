@@ -568,11 +568,11 @@ echo "Compiling with $NPROCS nodes."
 
 # set environment for compiling compilers and tools required for CP2K
 # and libraries it depends on
-export CC=${CC:-gcc}
-export FC=${FC:-gfortran}
-export F77=${F77:-gfortran}
-export F90=${F90:-gfortran}
-export CXX=${CXX:-g++}
+# export CC=${CC:-gcc}
+# export FC=${FC:-gfortran}
+# export F77=${F77:-gfortran}
+# export F90=${F90:-gfortran}
+# export CXX=${CXX:-g++}
 export CFLAGS=${CFLAGS:-"-O2 -g -Wno-error"}
 export FFLAGS=${FFLAGS:-"-O2 -g -Wno-error"}
 export FCLAGS=${FCLAGS:-"-O2 -g -Wno-error"}

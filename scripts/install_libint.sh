@@ -36,7 +36,7 @@ case "$with_libint" in
             ./configure --prefix=${pkg_install_dir} \
                         --with-libint-max-am=5 \
                         --with-libderiv-max-am1=4 \
-                        --with-cc="gcc $CFLAGS" \
+                        --with-cc="$CC $CFLAGS" \
                         --with-cc-optflags="$CFLAGS" \
                         --with-cxx-optflags="$CXXFLAGS" \
                         >& config.log
