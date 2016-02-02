@@ -36,7 +36,7 @@ case "$with_scotch" in
             make ptscotch -j $NROCS >& make.log
             # PT-scotch make install is buggy in that it cannot create
             # intermediate directories
-            [ -d "${pkg_install_dir}" ] && mkdir -p "${pkg_install_dir}"
+            ! [ -d "${pkg_install_dir}" ] && mkdir -p "${pkg_install_dir}"
             make install prefix=${pkg_install_dir} >& install.log
             cd ../..
             touch "${install_lock_file}"
