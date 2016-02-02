@@ -561,6 +561,8 @@ EOF
 # Installing tools required for building CP2K and associated libraries
 # ----------------------------------------------------------------------
 
+echo "Compiling with $NPROC nodes."
+
 # set environment for compiling compilers and tools required for CP2K
 # and libraries it depends on
 export CC=${CC:-gcc}
