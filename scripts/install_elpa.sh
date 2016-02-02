@@ -49,9 +49,16 @@ case "$with_elpa" in
             # elpa expect FC to be an mpi fortran compiler that is happy
             # with long lines, and that a bunch of libs can be found
             cd elpa-${elpa_ver}
+            # shared libraries cannot be built if linked with reflapack
+            if [ $ENABLE_VALGRIND = "__TRUE__" ] ; then
+                shared_flag=yes
+            else
+                shared_flag=no
+            fi
             # non-threaded version
             ./configure  --prefix=${pkg_install_dir} \
                          --enable-openmp=no \
+                         --enable-shared=$shared_flag \
                          FC="mpif90 -ffree-line-length-none" \
                          CC="mpicc" \
                          CXX="mpic++" \
@@ -69,6 +76,7 @@ case "$with_elpa" in
                 make -j $NPROCS clean
                 ./configure  --prefix=${pkg_install_dir} \
                              --enable-openmp=yes \
+                             --enable-shared=$shared_flag \
                              FC="mpif90 -ffree-line-length-none" \
                              CC="mpicc" \
                              CXX="mpic++" \
