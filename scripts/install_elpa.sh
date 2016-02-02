@@ -49,11 +49,12 @@ case "$with_elpa" in
             # elpa expect FC to be an mpi fortran compiler that is happy
             # with long lines, and that a bunch of libs can be found
             cd elpa-${elpa_ver}
-            # shared libraries cannot be built if linked with reflapack
+            # shared libraries cannot be built if linked with
+            # reflapack (the case when valgrind is enabled)
             if [ $ENABLE_VALGRIND = "__TRUE__" ] ; then
-                shared_flag=yes
-            else
                 shared_flag=no
+            else
+                shared_flag=yes
             fi
             # non-threaded version
             ./configure  --prefix=${pkg_install_dir} \
