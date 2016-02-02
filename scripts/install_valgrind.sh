@@ -49,13 +49,14 @@ case "$with_valgrind" in
         ;;
 esac
 if [ "$with_valgrind" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_valgrind" ] && rm "${BUILDDIR}/setup_valgrind"
     if [ "$with_valgrind" != "__SYSTEM__" ] ; then
-        cat <<EOF > ${BUILDDIR}/setup_valgrind
+        cat <<EOF > "${BUILDDIR}/setup_valgrind"
 prepend_path PATH "$pkg_install_dir/bin"
 prepend_path PATH "$pkg_install_dir/lib"
 prepend_path PATH "$pkg_install_dir/include"
 EOF
-        cat ${BUILDDIR}/setup_valgrind >> ${SETUPFILE}
+        cat "${BUILDDIR}/setup_valgrind" >> ${SETUPFILE}
     fi
 fi
 cd "${ROOTDIR}"

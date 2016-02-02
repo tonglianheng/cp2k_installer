@@ -61,6 +61,7 @@ case "$with_libxc" in
         ;;
 esac
 if [ "$with_libxc" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_libxc" ] && rm "${BUILDDIR}/setup_libxc"
     LIBXC_LIBS="-lxcf90 -lxc"
     if [ "$with_libxc" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libxc"
@@ -76,8 +77,8 @@ export LIBXC_CFLAGS="${LIBXC_CFLAGS}"
 export LIBXC_LDFLAGS="${LIBXC_LDFLAGS}"
 export LIBXC_LIBS="${LIBXC_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} -D__LIBXC"
-export CP_CFLAGS="\$(unique \${CP_CFLAGS} ${LIBXC_CFLAGS})"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} ${LIBXC_LDFLAGS})"
+export CP_CFLAGS="\${CP_CFLAGS} ${LIBXC_CFLAGS}"
+export CP_LDFLAGS="\${CP_LDFLAGS} ${LIBXC_LDFLAGS}"
 export CP_LIBS="${LIBXC_LIBS} \${CP_LIBS}"
 EOF
 fi

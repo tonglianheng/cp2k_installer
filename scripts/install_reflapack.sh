@@ -38,7 +38,7 @@ OPTS     = $FFLAGS -frecursive
 DRVOPTS  = $FFLAGS -frecursive
 NOOPT    = $FFLAGS -O0 -frecursive -fno-fast-math
 LOADER   = gfortran
-LOADOPTS = $FFLAGS
+LOADOPTS = $FFLAGS -Wl,--enable-new-dtags
 TIMER    = INT_ETIME
 CC       = gcc
 CFLAGS   = $CFLAGS
@@ -54,8 +54,8 @@ EOF
             # lapack/blas build is *not* parallel safe (updates to the archive race)
             make -j 1 lib blaslib >& make.log
             # no make install, so have to do this manually
-            ! [ -d "${pkg_install_dir}" ] && mkdir -p "${pkg_install_dir}"
-            cp libblas.a liblapack.a "${pkg_install_dir}"
+            ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
+            cp libblas.a liblapack.a "${pkg_install_dir}/lib"
             cd ..
             touch "${install_lock_file}"
         fi
@@ -77,6 +77,7 @@ EOF
         ;;
 esac
 if [ "$with_reflapack" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_reflapack" ] && rm "${BUILDDIR}/setup_reflapack"
     REFLAPACK_LIBS="-lblas -llapack"
     if [ "$with_reflapack" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_reflapack"
@@ -89,8 +90,14 @@ EOF
     cat <<EOF >> "${BUILDDIR}/setup_reflapack"
 export REFLAPACK_LDFLAGS="${REFLAPACK_LDFLAGS}"
 export REFLAPACK_LIBS="${REFLAPACK_LIBS}"
-export REF_MATH_LDFLAGS="\$(unique \${REF_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS})"
-export REF_MATH_LIBS="\$(unique \${REF_MATH_LIBS} ${REFLAPACK_LIBS})"
+export REF_MATH_LDFLAGS="\${REF_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS}"
+export REF_MATH_LIBS="\${REF_MATH_LIBS} ${REFLAPACK_LIBS}"
 EOF
+    if [ "$FAST_MATH_MODE" = "__REFLAPACK__" ] ; then
+        cat <<EOF >> setup_reflapack
+export FAST_MATH_LDFLAGS="\${FAST_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS}"
+export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${REFLAPACK_LIBS}"
+EOF
+    fi
 fi
 cd "${ROOTDIR}"

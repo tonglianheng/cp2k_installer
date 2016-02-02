@@ -53,6 +53,7 @@ case "$with_binutils" in
         ;;
 esac
 if [ "$with_binutils" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_binutils" ] && rm "${BUILDDIR}/setup_binutils"
     if [ "$with_binutils" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_binutils"
 prepend_path PATH "$pkg_install_dir/bin"

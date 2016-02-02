@@ -67,6 +67,7 @@ case "$with_libint" in
         ;;
 esac
 if [ "$with_libint" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_libint" ] && rm "${BUILDDIR}/setup_libint"
     LIBINT_LIBS="-lderiv -lint"
     if [ "$with_libint" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libint"
@@ -82,8 +83,8 @@ export LIBINT_CFLAGS="${LIBINT_CFLAGS}"
 export LIBINT_LDFLAGS="${LIBINT_LDFLAGS}"
 export LIBINT_LIBS="${LIBINT_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} -D__LIBINT -D__LIBINT_MAX_AM=6 -D__LIBDERIV_MAX_AM1=5"
-export CP_CFLAGS="\$(unique \${CP_CFLAGS} ${LIBINT_CFLAGS})"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} ${LIBINT_LDFLAGS})"
+export CP_CFLAGS="\${CP_CFLAGS} ${LIBINT_CFLAGS}"
+export CP_LDFLAGS="\${CP_LDFLAGS} ${LIBINT_LDFLAGS}"
 export CP_LIBS="${LIBINT_LIBS} \${CP_LIBS}"
 EOF
 fi

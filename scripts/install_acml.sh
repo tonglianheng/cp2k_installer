@@ -39,6 +39,7 @@ case "$with_acml" in
         ;;
 esac
 if [ "$with_acml" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_acml" ] && rm "${BUILDDIR}/setup_acml"
     ACML_LIBS="-lacml"
     if [ "$with_acml" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_acml"
@@ -53,8 +54,8 @@ EOF
 export ACML_CFLAGS="${ACML_CFLAGS}"
 export ACML_LDFLAGS="${ACML_LDFLAGS}"
 export ACML_LIBS="${ACML_LIBS}"
-export FAST_MATH_CFLAGS="\$(unique \${FAST_MATH_CFLAGS} ${ACML_CFLAGS})"
-export FAST_MATH_LDFLAGS="\$(unique \${FAST_MATH_LDFLAGS} ${ACML_LDFLAGS})"
+export FAST_MATH_CFLAGS="\${FAST_MATH_CFLAGS} ${ACML_CFLAGS}"
+export FAST_MATH_LDFLAGS="\${FAST_MATH_LDFLAGS} ${ACML_LDFLAGS}"
 export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${ACML_LIBS}"
 EOF
 fi

@@ -16,8 +16,8 @@ cd "${BUILDDIR}"
 case "$with_libxsmm" in
     __INSTALL__)
         echo "==================== Installing Libxsmm ===================="
-        if [ x"$OPENBLAS_ARCH" != x"x86_64" ] ; then
-            report_warning $LINENO "libxsmm not suported on arch ${OPENBLAS_ARCH}" 
+        if [ "$OPENBLAS_ARCH" != "x86_64" ] ; then
+            report_warning $LINENO "libxsmm not suported on arch ${OPENBLAS_ARCH}"
             cat <<EOF > "${BUILDDIR}/setup_libxsmm"
 with_libxsmm="__DONTUSE__"
 EOF
@@ -43,34 +43,42 @@ EOF
                 fi
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
-            # need some care on linking MKL or OpenBLAS, OpenBLAS will
-            # be available if OPENBLAS_LDFLAGS is non-empty; MKL will
-            # be avaliable if MKLROOT is non-empty
-            if [ "$OPENBLAS_LDFLAGS" ] ; then
-                openblas_flag=1
-                mkl_flag=0
-                # find possible openblas lib and record its suffix if exists
-                blas_threads="$(find_in_paths "libopenblas*.*" $LIB_PATHS)"
-                blas_threads="${blas_threads#*libopenblas}"
-                blas_threads="${blas_threads%%.*}"
-            elif [ "$MKLROOT" ] ; then
-                mkl_flag=1
-                openblas_flag=0
-            else
-                # then we need to link to reflapack, which is again
-                # not in standard system dir
-                openblas_flag=0
-                blas_threads=''
-                # check reflapack. reflapack exists if
-                # REFLAPACK_LDFLAGS is set
-                if [ -z "$REFLAPACK_LDFLAGS" ] ; then
-                    report_warning $LINENO "You must install or link a BLAS/LAPACK library for libxsmm installation to work, libxsmm will NOT be installed this time."
-                    cat <<EOF > "${BUILDDIR}/setup_libxsmm"
-with_libxsmm="__DONTUSE__"
-EOF
-                    exit 0
-                fi
-            fi
+            # choose which math library should libxsmm use as a
+            # fall-back option, currently libxsmm make supports
+            # openblas, mkl or system lapack. We will just use
+            # reflapack in place of the system lapack here.
+            case $FAST_MATH_MODE in
+                __OPENBLAS__)
+                    require_env OPENBLAS_LDFLAGS
+                    openblas_flag=1
+                    mkl_flag=0
+                    # find possible openblas lib and record its suffix if exists
+                    blas_threads="$(find_in_paths "libopenblas*.*" $LIB_PATHS)"
+                    blas_threads="${blas_threads#*libopenblas}"
+                    blas_threads="${blas_threads%%.*}"
+                    ;;
+                __MKL__)
+                    # mkl exists if MKLROOT is set, and libxsmm make
+                    # only recognizes MKLROOT
+                    require_env MKLROOT
+                    mkl_flag=1
+                    openblas_flag=0
+                    ;;
+                *)
+                    # check reflapack. reflapack exists if
+                    # REFLAPACK_LDFLAGS is set
+                    require_env REFLAPACK_LDFLAGS
+                    openblas_flag=0
+                    mkl_flag=0
+                    blas_threads=''
+                    ;;
+            esac
+            # note that we do not have to set -L flags to ld for the
+            # linked math libraries for the libxsmm build, as for a
+            # library this is not required, you just have to provide
+            # the appropriate -L flags (LDFLAGS) during the linking
+            # stage of building an executable that uses the libxsmm
+            # library
             cd libxsmm-${libxsmm_ver}
             # we rely on the jit, but as it is not available for SSE,
             # we also generate a subset statically.
@@ -109,7 +117,7 @@ EOF
     __SYSTEM__)
         echo "==================== Finding Libxsmm from system paths ===================="
         check_command libxsmm_generator "libxsmm"
-        check_lib -llibxsmm "libxsmm"
+        check_lib -lxsmm "libxsmm"
         add_include_from_paths LIBXSMM_CFLAGS "libxsmm.h" $INCLUDE_PATHS
         add_lib_from_paths LIBXSMM_LDFLAGS "libxsmm.*" $LIB_PATHS
         ;;
@@ -126,6 +134,7 @@ EOF
         ;;
 esac
 if [ "$with_libxsmm" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_libxsmm" ] && rm "${BUILDDIR}/setup_libxsmm"
     LIBXSMM_LIBS="-lxmm"
     if [ "$with_libxsmm" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libxsmm"
@@ -141,8 +150,8 @@ export LIBXSMM_CFLAGS="${LIBXSMM_CFLAGS}"
 export LIBXSMM_LDFLAGS="${LIBXSMM_LDFLAGS}"
 export LIBXSMM_LIBS="${LIBXSMM_LIBS}"
 export CP_DFLAGS="-D__LIBXSMM \${CP_DFLAGS}"
-export CP_LDFLAGS="\$(unique \${CP_CFLAGS} ${LIBXSMM_CFLAGS})"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} ${LIBXSMM_LDFLAGS})"
+export CP_CFLAGS="\${CP_CFLAGS} ${LIBXSMM_CFLAGS}"
+export CP_LDFLAGS="\${CP_LDFLAGS} ${LIBXSMM_LDFLAGS}"
 export CP_LIBS="-lxsmm \${CP_LIBS}"
 EOF
 fi

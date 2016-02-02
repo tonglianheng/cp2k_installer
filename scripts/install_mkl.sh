@@ -96,6 +96,7 @@ if [ "$with_mkl" != "__DONTUSE__" ] ; then
     MKL_CFLAGS="${MKL_CFLAGS} -I${MKLROOT}/include"
 
     # write setup files
+    [ -f "${BUILDDIR}/setup_mkl" ] && rm "${BUILDDIR}/setup_mkl"
     cat <<EOF > "${BUILDDIR}/setup_mkl"
 export MKLROOT="${MKLROOT}"
 EOF
@@ -103,8 +104,8 @@ EOF
     cat <<EOF >> "${BUILDDIR}/setup_mkl"
 export MKL_CFLAGS="${MKL_CFLAGS}"
 export MKL_LIBS="${MKL_LIBS}"
-export FAST_MATH_CFLAGS="\$(unique \${FAST_MATH_CFLAGS} ${MKL_CFLAGS})"
-export FAST_MATH_LIBS="\$(unique \${FAST_MATH_LIBS} ${MKL_LIBS})"
+export FAST_MATH_CFLAGS="\${FAST_MATH_CFLAGS} ${MKL_CFLAGS}"
+export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${MKL_LIBS}"
 EOF
     if [ $enable_mlk_scalapack = "__TRUE__" ] ; then
         cat <<EOF >> "${BUILDDIR}/setup_mkl"

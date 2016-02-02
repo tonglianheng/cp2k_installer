@@ -12,25 +12,25 @@ LIB_PATHS=${LIB_PATHS:-"LIBRARY_PATH LD_LIBRARY_PATH LD_RUN_PATH SYS_LIB_PATH"}
 # report a warning message with script name and line number
 report_warning() {
     if [ $# -gt 1 ] ; then
-        local __lineno="line $1"
+        local __lineno=", line $1"
         local __message="$2"
     else
         local __lineno=''
         local __message="$1"
     fi
-    echo "WARNING: ($SCRIPT_NAME, $__lineno) $__message" >&2
+    echo "WARNING: (${SCRIPT_NAME}{$__lineno}) $__message" >&2
 }
 
 # report an error message with script name and line number
 report_error() {
     if [ $# -gt 1 ] ; then
-        local __lineno="line $1"
+        local __lineno=", line $1"
         local __message="$2"
     else
         local __lineno=''
         local __message="$1"
     fi
-    echo "ERROR: ($SCRIPT_NAME, $__lineno) $__message" >&2
+    echo "ERROR: (${SCRIPT_NAME}${__lineno}) $__message" >&2
 }
 
 # error handler for line trap from set -e
@@ -43,7 +43,9 @@ trap 'error_handler ${LINENO}' ERR
 
 # source a file if it exists, otherwise do nothing
 load() {
-    [ -f "$1" ] && source "$1"
+    if [ -f "$1" ] ; then
+        source "$1"
+    fi
 }
 
 # A more portable command that will give the full path, removing
@@ -443,4 +445,13 @@ download_pkg() {
     fi
     # checksum
     checksum "$__filename" "$SHA256_CHECKSUMS"
+}
+
+# check if environment variable is assigned and non-empty
+require_env() {
+    local __env_var_name=$1
+    if eval [ -z "\$$__env_var_name" ] ; then
+        report_error "requires environment variable $__env_var_name to work"
+        return 1
+    fi
 }

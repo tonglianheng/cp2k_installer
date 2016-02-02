@@ -74,6 +74,7 @@ case "$with_openmpi" in
         ;;
 esac
 if [ "$with_openmpi" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_openmpi" ] && rm "${BUILDDIR}/setup_openmpi"
     OPENMPI_LIBS="-lmpi -lmpi_cxx"
     if [ "$with_openmpi" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_openmpi"
@@ -91,8 +92,8 @@ export OPENMPI_CFLAGS="${OPENMPI_CFLAGS}"
 export OPENMPI_LDFLAGS="${OPENMPI_LDFLAGS}"
 export OPENMPI_LIBS="${OPENMPI_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__parallel,)"
-export CP_CFLAGS="\$(unique \${CP_CFLAGS} IF_MPI(${OPENMPI_CFLAGS},))"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} IF_MPI(${OPENMPI_LDFLAGS},))"
+export CP_CFLAGS="\${CP_CFLAGS} IF_MPI(${OPENMPI_CFLAGS},)"
+export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(\"${OPENMPI_LDFLAGS}\",)"
 export CP_LIBS="\${CP_LIBS} IF_MPI(${OPENMPI_LIBS},)"
 EOF
 fi

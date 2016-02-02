@@ -21,15 +21,15 @@ case "$with_openblas" in
         if [ -f "${install_lock_file}" ] ; then
             echo "openblas-${openblas_ver} is already installed, skipping it."
         else
-            if [ -f openblas-${openblas_ver}.tar.gz ] ; then
-                echo "openblas-${openblas_ver}.tar.gz is found"
+            if [ -f OpenBLAS-${openblas_ver}.tar.gz ] ; then
+                echo "OpenBLAS-${openblas_ver}.tar.gz is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
-                             https://www.cp2k.org/static/downloads/xianyi-OpenBLAS-${openblas_ver}.zip
+                             https://www.cp2k.org/static/downloads/OpenBLAS-${openblas_ver}.tar.gz
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
-            unzip xianyi-OpenBLAS-${openblas_ver}.zip >& unzip.log
-            cd xianyi-OpenBLAS-*
+            tar -zxf OpenBLAS-${openblas_ver}.tar.gz >& unzip.log
+            cd OpenBLAS-${openblas_ver}
             # Originally we try to install both the serial and the omp
             # threaded version. Unfortunately, neither is thread-safe
             # (i.e. the CP2K ssmp and psmp version need to link to
@@ -79,6 +79,7 @@ case "$with_openblas" in
         ;;
 esac
 if [ "$with_openblas" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_openblas" ] && rm "${BUILDDIR}/setup_openblas"
     OPENBLAS_LIBS="-lopenblas"
     if [ "$with_openblas" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_openblas"
@@ -93,9 +94,9 @@ EOF
 export OPENBLAS_CFLAGS="${OPENBLAS_CFLAGS}"
 export OPENBLAS_LDFLAGS="${OPENBLAS_LDFLAGS}"
 export OPENBLAS_LIBS="${OPENBLAS_LIBS}"
-export FAST_MATH_CFLAGS="\$(unique \${FAST_MATH_CFLAGS} ${OPENBLAS_CFLAGS})"
-export FAST_MATH_LDFLAGS="\$(unique \${FAST_MATH_LDFLAGS} ${OPENBLAS_LDFLAGS})"
-export FAST_MATH_LIBS="\$(unique \${FAST_MATH_LIBS} ${OPENBLAS_LIBS})"
+export FAST_MATH_CFLAGS="\${FAST_MATH_CFLAGS} ${OPENBLAS_CFLAGS}"
+export FAST_MATH_LDFLAGS="\${FAST_MATH_LDFLAGS} ${OPENBLAS_LDFLAGS}"
+export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${OPENBLAS_LIBS}"
 EOF
 fi
 cd "${ROOTDIR}"

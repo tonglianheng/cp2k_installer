@@ -45,7 +45,7 @@ case "$with_gcc" in
                                  >& config.log
             make -j $NPROCS >& make.log
             make -j $NPROCS install >& install.log
-            
+
             if [ $ENABLE_TSAN = "__TRUE__" ] ; then
                 # now the tricky bit... we need to recompile in particular
                 # libgomp with -fsanitize=thread.. there is not configure
@@ -107,8 +107,9 @@ else
     TSANFLAGS=""
 fi
 if [ "$with_gcc" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_gcc" ] && rm "${BUILDDIR}/setup_gcc"
     if [ "$with_gcc" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUILDDIR}/gcc_setup"
+        cat <<EOF > "${BUILDDIR}/setup_gcc"
 prepend_path PATH "${pkg_install_dir}/bin"
 prepend_path LD_LIBRARY_PATH "${pkg_install_dir}/lib"
 prepend_path LD_LIBRARY_PATH "${pkg_install_dir}/lib64"
@@ -118,9 +119,9 @@ prepend_path LIBRARY_PATH "${pkg_install_dir}/lib"
 prepend_path LIBRARY_PATH "${pkg_install_dir}/lib64"
 prepend_path CPATH "${pkg_install_dir}/include"
 EOF
-        cat "${BUILDDIR}/gcc_setup" >> $SETUPFILE
+        cat "${BUILDDIR}/setup_gcc" >> $SETUPFILE
     fi
-    cat <<EOF >> "${BUILDDIR}/gcc_setup"
+    cat <<EOF >> "${BUILDDIR}/setup_gcc"
 export GCC_CFLAGS="${GCC_CFLAGS}"
 export GCC_LDFLAGS="${GCC_LDFLAGS}"
 export TSANFLAGS="${TSANFLAGS}"

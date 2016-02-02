@@ -42,7 +42,8 @@ if ! [ -f "$openblas_conf" ] ; then
 fi
 OPENBLAS_LIBCORE="$(grep 'LIBCORE=' $openblas_conf | cut -f2 -d=)"
 OPENBLAS_ARCH="$(grep 'ARCH=' $openblas_conf | cut -f2 -d=)"
-
+echo "OpenBLAS detected LIBCORE = $OPENBLAS_LIBCORE"
+echo "OpenBLAS deteched ARCH    = $OPENBLAS_ARCH"
 # output setup file
 cat <<EOF > "${BUILDDIR}/openblas_arch"
 export OPENBLAS_LIBCORE="${OPENBLAS_LIBCORE}"

@@ -21,7 +21,8 @@ case "$with_scalapack" in
         if [ -f "${install_lock_file}" ] ; then
             echo "scalapack-${scalapack_ver} is already installed, skipping it."
         else
-            if [ -f lapack-${scalapack_ver}.tar.gz ] ; then
+            require_env MATH_LDFLAGS
+            if [ -f scalapack-${scalapack_ver}.tar.gz ] ; then
                 echo "scalapack-${scalapack_ver}.tgz is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
@@ -39,8 +40,8 @@ FCFLAGS       = ${FFLAGS} ${MATH_CFLAGS}
 CCFLAGS       = ${CFLAGS} ${MATH_CFLAGS}
 FCLOADER      = \$(FC)
 CCLOADER      = \$(CC)
-FCLOADFLAGS   = \$(FCFLAGS) ${MATH_LDFLAGS}
-CCLOADFLAGS   = \$(CCFLAGS) ${MATH_LDFLAGS}
+FCLOADFLAGS   = \$(FCFLAGS) -Wl,--enable-new-dtags ${MATH_LDFLAGS}
+CCLOADFLAGS   = \$(CCFLAGS) -Wl,--enable-new-dtags ${MATH_LDFLAGS}
 ARCH          = ar
 ARCHFLAGS     = cr
 RANLIB        = ranlib
@@ -53,7 +54,7 @@ EOF
             make -j 1 lib >& make.log
             # does not have make install, so install manually
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
-            cp libscalapack.a "${pkg_install_dir}/lib/"
+            cp libscalapack.a "${pkg_install_dir}/lib"
             cd ..
             touch "${install_lock_file}"
         fi
@@ -74,7 +75,8 @@ EOF
         ;;
 esac
 if [ "$with_scalapack" != "__DONTUSE__" ] ; then
-    SCALAPACK_LIBS="-lscalpack"
+    [ -f "${BUILDDIR}/setup_scalapack" ] && rm "${BUILDDIR}/setup_scalapack"
+    SCALAPACK_LIBS="-lscalapack"
     if [ "$with_scalapack" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_scalapack"
 prepend_path LD_LIBRARY_PATH "${pkg_install_dir}/lib"
@@ -87,7 +89,7 @@ EOF
 export SCALAPACK_LDFLAGS="${SCALAPACK_LDFLAGS}"
 export SCALAPACK_LIBS="${SCALAPACK_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} ${SCALAPACK_LDFLAGS})"
+export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(\"${SCALAPACK_LDFLAGS}\",)"
 export CP_LIBS="IF_MPI(-lscalapack,) \${CP_LIBS}"
 EOF
 fi

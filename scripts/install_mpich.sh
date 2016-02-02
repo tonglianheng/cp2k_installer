@@ -50,7 +50,7 @@ case "$with_mpich" in
         check_command mpif90 "mpich"
         check_command mpic++ "mpich"
         check_lib -lmpi "mpich"
-        check_lib -lmpi_cxx "mpich"
+        check_lib -lmpicxx "mpich"
         add_include_from_paths MPICH_CFLAGS "mpi.h" $INCLUDE_PATHS
         add_lib_from_paths MPICH_LDFLAGS "libmpi.*" $LIB_PATHS
         ;;
@@ -67,7 +67,8 @@ case "$with_mpich" in
         ;;
 esac
 if [ "$with_mpich" != "__DONTUSE__" ] ; then
-    MPICH_LIBS="-lmpi -lmpi_cxx"
+    [ -f "${BUILDDIR}/setup_mpich" ] && rm "${BUILDDIR}/setup_mpich"
+    MPICH_LIBS="-lmpi -lmpicxx"
     if [ "$with_mpich" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_mpich"
 prepend_path PATH "$pkg_install_dir/bin"
@@ -84,8 +85,8 @@ export MPICH_CFLAGS="${MPICH_CFLAGS}"
 export MPICH_LDFLAGS="${MPICH_LDFLAGS}"
 export MPICH_LIBS="${MPICH_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3,)"
-export CP_CFLAGS="\$(unique \${CP_CFLAGS} IF_MPI(${MPICH_CFLAGS},))"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} IF_MPI(${MPICH_LDFLAGS},))"
+export CP_CFLAGS="\${CP_CFLAGS} IF_MPI(${MPICH_CFLAGS},)"
+export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(\"${MPICH_LDFLAGS}\",)"
 export CP_LIBS="\${CP_LIBS} IF_MPI(${MPICH_LIBS},)"
 EOF
 fi

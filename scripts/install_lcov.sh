@@ -42,15 +42,16 @@ case "$with_lcov" in
     *)
         echo "==================== Linking Lcov to user paths ===================="
         pkg_install_dir="$with_lcov"
-        check_dir "${with_lcov}/bin"
+        check_dir "${with_lcov}/usr/bin"
         ;;
 esac
 if [ "$with_lcov" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_lcov" ] && rm "${BUILDDIR}/setup_lcov"
     if [ "$with_lcov" != "__SYSTEM__" ] ; then
-        cat <<EOF > "${BUILDDIR}/lcov_setup"
-prepend_path PATH "$pkg_install_dir/bin"
+        cat <<EOF > "${BUILDDIR}/setup_lcov"
+prepend_path PATH "$pkg_install_dir/usr/bin"
 EOF
-        cat "${BUILDDIR}/lcov_setup" >> ${SETUPFILE}
+        cat "${BUILDDIR}/setup_lcov" >> ${SETUPFILE}
     fi
 fi
 cd "${ROOTDIR}"

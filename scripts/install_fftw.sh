@@ -59,6 +59,7 @@ case "$with_fftw" in
         ;;
 esac
 if [ "$with_fftw" != "__DONTUSE__" ] ; then
+    [ -f "${BUILDDIR}/setup_fftw" ] && rm "${BUILDDIR}/setup_fftw"
     FFTW_LIBS="-lfftw3"
     FFTW_LIBS_OMP="-lfftw3_omp"
     if [ "$with_fftw" != "__SYSTEM__" ] ; then
@@ -77,8 +78,8 @@ export FFTW_LDFLAGS="${FFTW_LDFLAGS}"
 export FFTW_LIBS="${FFTW_LIBS}"
 export FFTW_LIBS_OMP="${FFTW_LIBS_OMP}"
 export CP_DFLAGS="\${CP_DFLAGS} -D__FFTW3 IF_COVERAGE(IF_MPI(,-U__FFTW3),)"
-export CP_CFLAGS="\$(unique \${CP_CFLAGS} ${FFTW_CFLAGS})"
-export CP_LDFLAGS="\$(unique \${CP_LDFLAGS} ${FFTW_LDFLAGS})"
+export CP_CFLAGS="\${CP_CFLAGS} ${FFTW_CFLAGS}"
+export CP_LDFLAGS="\${CP_LDFLAGS} ${FFTW_LDFLAGS}"
 export CP_LIBS="${FFTW_LIBS} IF_OMP(${FFTW_LIBS_OMP},) \${CP_LIBS}"
 EOF
 fi
