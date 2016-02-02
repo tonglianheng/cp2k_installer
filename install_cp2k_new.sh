@@ -15,7 +15,7 @@ to compile CP2K.
 
 USAGE:
 
-$(basename $script_name) [options]
+$(basename $SCRIPT_NAME) [options]
 
 OPTIONS:
 
