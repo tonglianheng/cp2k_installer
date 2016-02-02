@@ -561,6 +561,33 @@ prepend_path() {
 EOF
 
 # ----------------------------------------------------------------------
+# For CRAY systems where wrapper are used for compilers
+# ----------------------------------------------------------------------
+if (command -v ftn &> /dev/null) ; then
+    echo "CRAY Linux Environment (CLE) is detected"
+    echo "setting CC to cc"
+    export CC=cc
+    echo "setting FC to ftn"
+    export FC=ftn
+    echo "setting F77 to ftn"
+    export F77=ftn
+    echo "setting F90 to ftn"
+    export F90=ftn
+    echo "setting CXX to CC"
+    export CXX=CC
+    echo "setting MPICC to cc"
+    export MPICC=cc
+    echo "setting MPIFC to ftn"
+    export MPIFC=ftn
+    echo "setting MPIF77 to ftn"
+    export MPIF77=ftn
+    echo "setting MPIF90 to ftn"
+    export MPIF90=ftn
+    echo "setting MPICXX to CC"
+    export MPICXX=CC
+fi
+
+# ----------------------------------------------------------------------
 # Installing tools required for building CP2K and associated libraries
 # ----------------------------------------------------------------------
 
@@ -568,11 +595,6 @@ echo "Compiling with $NPROCS nodes."
 
 # set environment for compiling compilers and tools required for CP2K
 # and libraries it depends on
-# export CC=${CC:-gcc}
-# export FC=${FC:-gfortran}
-# export F77=${F77:-gfortran}
-# export F90=${F90:-gfortran}
-# export CXX=${CXX:-g++}
 export CFLAGS=${CFLAGS:-"-O2 -g -Wno-error"}
 export FFLAGS=${FFLAGS:-"-O2 -g -Wno-error"}
 export FCLAGS=${FCLAGS:-"-O2 -g -Wno-error"}
