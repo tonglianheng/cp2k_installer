@@ -54,7 +54,7 @@ case "$with_pexsi" in
                     -e "s|\(DSUPERLU_INCLUDE *=\).*|\1 ${SUPERLU_CFLAGS}|" \
                     -e "s|\(INCLUDES *=\).*|\1 ${METIS_CFLAGS} ${PARMETIS_CFLAGS} ${MATH_CFLAGS} \${DSUPERLU_INCLUDE} \${PEXSI_INCLUDE}|" \
                     -e "s|\(COMPILE_FLAG *=\).*|\1 ${CFLAGS} -fpermissive|" \
-                    -e "s|\(SUFFIX *=\).*|\1|" \
+                    -e "s|\(SUFFIX *=\).*|\1 ${OPENBLAS_ARCH}|" \
                     -e "s|\(DSUPERLU_DIR *=\).*|\1|" \
                     -e "s|\(METIS_DIR *=\).*|\1|" \
                     -e "s|\(PARMETIS_DIR *=\).*|\1|" \
@@ -65,9 +65,11 @@ case "$with_pexsi" in
             cd src
             make -j $NPROCS >& make.log
             # no make install, need to do install manually
-            chmod a+r libpexsi.a
+            chmod a+r libpexsi_${OPENBLAS_ARCH}.a
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
-            cp libpexsi_linux.a "${pkg_install_dir}/lib"
+            cp libpexsi_${OPENBLAS_ARCH}.a "${pkg_install_dir}/lib"
+            ln -sf "${pkg_install_dir}/lib/libpexsi_${OPENBLAS_ARCH}.a" \
+                   "${pkg_install_dir}/lib/libpexsi.a"
             # make fortran interface
             cd ../fortran
             make >& make.log #-j $nprocs will crash
@@ -75,7 +77,7 @@ case "$with_pexsi" in
             ! [ -d "${pkg_install_dir}/include" ] && mkdir -p "${pkg_install_dir}/include"
             cp f_ppexsi_interface.mod "${pkg_install_dir}/include"
             cd ..
-            cp include/* "${pkg_install_dir}/include"
+            cp -r include/* "${pkg_install_dir}/include"
             cd ..
             touch "${install_lock_file}"
         fi
