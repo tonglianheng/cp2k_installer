@@ -125,56 +125,134 @@ The --with-PKG options follow the rules:
 EOF
 }
 
-# default settings
+# ----------------------------------------------------------------------
+# PACKAGE LIST: register all new depedent tools and libs here. Order
+# is important, as the first in the list gets installed first
+tool_list="binutils gcc cmake lcov valgrind"
+mpi_list="mpich openmpi"
+math_list="mkl acml openblas reflapack"
+lib_list="fftw libint libxc libsmm libxsmm scalapack elpa \
+          ptscotch parmetis metis superlu pexsi quip"
+# ----------------------------------------------------------------------
+
+# first set everything to __DONTUSE__
+for ii in $tool_list ; do
+    eval with_${ii}=__DONTUSE__
+done
+for ii in $mpi_list ; do
+    eval with_${ii}=__DONTUSE__
+done
+for ii in $math_list ; do
+    eval with_${ii}=__DONTUSE__
+done
+for ii in $lib_list ; do
+    eval with_${ii}=__DONTUSE__
+done
+
+# tools to turn on by default:
+with_binutils=__SYSTEM__
+with_gcc=__SYSTEM__
+
+# libs to turn on by default, the math and mpi libraries are chosen by there respective modes:
+with_fftw=__INSTALL__
+with_libint=__INSTALL__
+with_libxsmm=__INSTALL__
+with_libxc=__INSTALL__
+with_scalapack=__INSTALL__
+
+# default math library settings, FAST_MATH_MODE picks the math library
+# to use, and with_* defines the default method of installation if it
+# is picked. Choices for FAST_MATH_MODE are: mkl, acml, openblas,
+# reflapack
+export FAST_MATH_MODE=openblas
+with_acml=__SYSTEM__
+with_mkl=__SYSTEM__
+with_openblas=__INSTALL__
+with_reflapack=__INSTALL__
+
+# for MPI, first delect system MPI variant
+with_openmpi=__SYSTEM__
+with_mpich=__SYSTEM__
+if (command -v mpirun &> /dev/null) ; then
+    # check if we are dealing with openmpi or mpich
+    if (mpirun --version 2>&1 | grep -s -q "HYDRA") ; then
+        echo "MPI is detected and it appears to be MPICH"
+        export MPI_MODE=mpich
+    elif (mpirun --version 2>&1 | grep -s -q "Open MPI") ; then
+        echo "MPI is detected and it appears to be OpenMPI"
+        export MPI_MODE=openmpi
+    else
+        report_error $LINENO "MPI is detected on your system, but does not seem to be either OpenMPI or MPICH, and is unsupported for this installtion script. Consider use another MPI library or install either OpenMPI or MPICH directly using this script by setting the option for example: --with-mpich=install"
+        exit 1
+    fi
+else
+    report_warning $LINENO "You do not seem to have MPI installed on you system, unless specified otherwise this installation will carry on with MPI disabled"
+    MPI_MODE=no
+fi
+
+# default enable options
 enable_toolchain=__FALSE__
 enable_tsan=__FALSE__
 enable_gcc_master=__FALSE__
 enable_libxsmm_master=__FALSE__
 enable_omp=__TRUE__
 enable_cuda=__FALSE__
-with_gcc=__SYSTEM__
-with_binutils=__SYSTEM__
-with_cmake=__DONTUSE__
-with_valgrind=__DONTUSE__
-with_lcov=__DONTUSE__
-with_libxc=__INSTALL__
-with_libint=__INSTALL__
-with_fftw=__INSTALL__
-with_scalapack=__INSTALL__
-with_libsmm=__INSTALL__
-with_elpa=__DONTUSE__
-with_ptscotch=__DONTUSE__
-with_parmetis=__DONTUSE__
-with_metis=__DONTUSE__
-with_superlu=__DONTUSE__
-with_pexsi=__DONTUSE__
-with_quip=__DONTUSE__
 
-# default math library settings, FAST_MATH_MODE picks the math library
-# to use, and with_* defines the default method of installation if it
-# is picked. Choices for FAST_MATH_MODE are: __REFLAPACK__, __ACML__,
-# __MKL__, __OPENBLAS__ and __DONTUSE__
-export FAST_MATH_MODE="__OPENBLAS__"
-with_reflapack=__INSTALL__
-with_acml=__SYSTEM__
-with_mkl=__SYSTEM__
-with_openblas=__INSTALL__
-
-# default MPI library settins, MPI_MODE picks the MPI library to use,
-# and with_* defines the default method of installation if it is picked.
-# Choices for MPI_MODE are: __MPICH__, __OPENMPI__ and __DONTUSE__
-export MPI_MODE="__MPICH__"
-with_openmpi=__SYSTEM__
-with_mpich=__SYSTEM__
-
-# parse options
+# ----------------------------------------------------------------------
+# parse user options
+# ----------------------------------------------------------------------
 while [ $# -ge 1 ] ; do
     case $1 in
+        --mpi-mode=*)
+            user_input="${1#*=}"
+            case "$user_input" in
+                mpich)
+                    export MPI_MODE=mpich
+                    ;;
+                openmpi)
+                    export MPI_MODE=openmpi
+                    ;;
+                no)
+                    export MPI_MODE=no
+                    ;;
+                *)
+                    report_error ${LINENO} \
+                                 "--mpi-mode currently only supports openmpi, mpich and no as options"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        --math-mode=*)
+            user_input="${1#*=}"
+            case "$user_input" in
+                mkl)
+                    export FAST_MATH_MODE=mkl
+                    ;;
+                acml)
+                    export FAST_MATH_MODE=acml
+                    ;;
+                openblas)
+                    export FAST_MATH_MODE=openblas
+                    ;;
+                reflapack)
+                    export FAST_MATH_MODE=reflapack
+                    ;;
+                *)
+                    report_error ${LINENO} \
+                    "--math-mode currently only supports mkl, acml, openblas and reflapack as options"
+            esac
+            ;;
         --enable-toolchain*)
             enable_toolchain=$(read_enable $1)
             if [ $enable_toolchain = "__INVALID__" ] ; then
                 echo "invalid value for --enable-toolchain, please use yes or no" >&2
                 exit 1
+            fi
+            # set all package to __INSTALL__ status
+            if [ "$enable_toolchain" = "__TRUE__" ] ; then
+                for ii in $package_list ; do
+                    eval with_${ii}=__INSTALL__
+                done
             fi
             ;;
         --enable-tsan*)
@@ -188,6 +266,13 @@ while [ $# -ge 1 ] ; do
             enable_gcc_master=$(read_enable $1)
             if [ $enable_gcc_master = "__INVALID__" ] ; then
                 echo "invalid value for --enable-gcc-master, please use yes or no" >&2
+                exit 1
+            fi
+            ;;
+        --enable-libxsmm-master*)
+            enable_libxsmm_master=$(read_enable $1)
+            if [ $enable_libxsmm_master = "__INVALID__" ] ; then
+                echo "invalid value for --enable-libxsmm-master, please use yes or no" >&2
                 exit 1
             fi
             ;;
@@ -220,16 +305,16 @@ while [ $# -ge 1 ] ; do
         --with-valgrind*)
             with_valgrind=$(read_with $1)
             ;;
-        --with-openmpi*)
-            with_openmpi=$(read_with $1)
-            if [ "$with_openmpi" != "__DONTUSE__" ] ; then
-                export MPI_MODE="__OPENMPI__"
-            fi
-            ;;
         --with-mpich*)
             with_mpich=$(read_with $1)
-            if [ "$with_mpich" != "__DONTUSE__" ] ; then
-                export MPI_MODE="__MPICH__"
+            if [ $with_mpich != __DONTUSE__ ] ; then
+                export MPI_MODE=mpich
+            fi
+            ;;
+        --with-openmpi*)
+            with_openmpi=$(read_with $1)
+            if [ $with_openmpi != __DONTUSE__ ] ; then
+                export MPI_MODE=openmpi
             fi
             ;;
         --with-libint*)
@@ -246,20 +331,20 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-mkl*)
             with_mkl=$(read_with $1)
-            if [ "$with_mkl" != "__DONTUSE__" ] ; then
-                export FAST_MATH_MODE="__MKL__"
+            if [ $with_mkl != __DONTUSE__ ] ; then
+                export FAST_MATH_MODE=mkl
             fi
             ;;
         --with-acml*)
             with_acml=$(read_with $1)
-            if [ "$with_mkl" != "__DONTUSE__" ] ; then
-                export FAST_MATH_MODE="__ACML__"
+            if [ $with_acml != __DONTUSE__ ] ; then
+                export FAST_MATH_MODE=acml
             fi
             ;;
         --with-openblas*)
             with_openblas=$(read_with $1)
-            if [ "$with_mkl" != "__DONTUSE__" ] ; then
-                export FAST_MATH_MODE="__OPENBLAS__"
+            if [ $with_openblas != __DONTUSE__ ] ; then
+                export FAST_MATH_MODE=openblas
             fi
             ;;
         --with-scalapack*)
@@ -304,27 +389,6 @@ export ENABLE_CUDA=$enable_cuda
 [ "$enable_gcc_master" = "__TRUE__" ] && export gcc_ver=master
 [ "$enable_libxsmm_master" = "__TRUE__" ] && export libxsmm_ver=master
 [ "$with_valgrind" != "__DONTUSE__"  ] && export ENABLE_VALGRIND="__TRUE__"
-# if [ "$enable_toolchain" = "__TRUE__" ] ; then
-#     # use toolchain default settings
-#     with_gcc=__SYSTEM__
-#     with_binutils=__SYSTEM__
-#     with_cmake=__DONTUSE__
-#     with_valgrind=__DONTUSE__
-#     with_lcov=__DONTUSE__
-#     with_libxc=__INSTALL__
-#     with_libint=__INSTALL__
-#     with_fftw=__INSTALL__
-#     with_scalapack=__INSTALL__
-#     with_libsmm=__INSTALL__
-#     with_elpa=__DONTUSE__
-#     with_ptscotch=__DONTUSE__
-#     with_parmetis=__DONTUSE__
-#     with_metis=__DONTUSE__
-#     with_superlu=__DONTUSE__
-#     with_pexsi=__DONTUSE__
-#     with_quip=__DONTUSE__
-
-
 
 # ----------------------------------------------------------------------
 # Check and solve known conflicts before installations proceed
@@ -334,9 +398,8 @@ export ENABLE_CUDA=$enable_cuda
 if [ $ENABLE_TSAN = "__TRUE__" ] ; then
     if [ "$with_openblas" != "__DONTUSE__" ] ; then
         echo "TSAN is enabled, canoot use openblas, we will use reflapack instead"
-        with_openblas="__DONTUSE__"
         [ "$with_reflapack" = "__DONTUSE__" ] && with_reflapack="__INSTALL__"
-        export FAST_MATH_MODE="__REFLAPACK__"
+        export FAST_MATH_MODE=reflapack
     fi
     echo "TSAN is enabled, canoot use libsmm"
     with_libsmm="__DONTUSE__"
@@ -350,52 +413,27 @@ if [ "$ENABLE_VALGRIND" != "__TRUE__" ] ; then
     fi
 fi
 
-# check math library options
-if [ "$FAST_MATH_MODE" = "__DONTUSE__" ] ; then
-   report_error $LINENO "Must use a fast linear algebra library, currently supported for this installer are OpenBLAS, MKL and ACML."
-   exit 1
-fi
-# enable_lapack="__FALSE__"
-# lapack_option_list="$with_acml $with_mkl $with_openblas"
-# for ii in $lapack_option_list ; do
-#     if [ "$ii" != "__DONTUSE__" ] ; then
-#         if [ $enable_lapack = "__FALSE__" ] ; then
-#             enable_lapack="__TRUE__"
-#         else
-#             echo "Please use only one LAPACK library" >&2
-#             exit 1
-#         fi
-#     fi
-# done
-# if [ $enable_lapack = "__FALSE__" ] ; then
-#     echo "Must use one of the LAPACK libraries." >&2
-#     exit 1
-# fi
-
 # mpi library conflicts
-if [ "$MPI_MODE" = "__DONTUSE__" ] ; then
-    ENABLE_MPI="__FALSE__"
+if [ $MPI_MODE = no ] ; then
+    if [ "$with_scalapack" != "__DONTUSE__"  ] ; then
+        echo "Not using MPI, so scalapack is disabled."
+        with_scalapack="__DONTUSE__"
+    fi
+    if [ "$with_elpa" != "__DONTUSE__" ] ; then
+        echo "Not using MPI, so ELPA is disabled."
+        with_elpa="__DONTUSE__"
+    fi
+    if [ "$with_pexi" != "__DONTUSE__" ] ; then
+        echo "Not using MPI, so PEXSI is disabled."
+        with_pexsi="__DONTUSE__"
+    fi
 else
-    ENABLE_MPI="__TRUE__"
-fi
-export ENABLE_MPI
-if [ $ENABLE_MPI = "__TRUE__" ] ; then
     # if gcc is installed, then mpi needs to be installed too
     if [ "$with_gcc" = "__INSTALL__" ] ; then
         echo "You have chosen to install GCC, therefore MPI libraries will have to be installed too"
-        [ "$with_openmpi" != "__DONTUSE__" ] && with_openmpi="__INSTALL__"
-        [ "$with_mpich" != "__DONTUSE__" ] && with_mpich="__INSTALL__"
+        with_openmpi="__INSTALL__"
+        with_mpich="__INSTALL__"
     fi
-else
-    [ "$with_scalapack" != "__DONTUSE__"  ] && \
-        echo "Not using MPI, so scalapack is disabled."
-    with_scalapack="__DONTUSE__"
-    [ "$with_elpa" != "__DONTUSE__" ] && \
-        echo "Not using MPI, so ELPA is disabled."
-    with_elpa="__DONTUSE__"
-    [ "$with_pexi" != "__DONTUSE__" ] && \
-        echo "Not using MPI, so PEXSI is disabled."
-    with_pexsi="__DONTUSE__"
 fi
 
 # PESXI and its dependencies
@@ -510,14 +548,14 @@ export F90FLAGS=${F90FLAGS:-"-O2 -g -Wno-error"}
 export F77FLAGS=${F77FLAGS:-"-O2 -g -Wno-error"}
 export CXXFLAGS=${CXXFLAGS:-"-O2 -g -Wno-error"}
 
-./scripts/install_binutils.sh "${with_binutils}"; load "${BUILDDIR}/setup_binutils"
-./scripts/install_cmake.sh    "${with_cmake}";    load "${BUILDDIR}/setup_cmake"
-./scripts/install_lcov.sh     "${with_lcov}";     load "${BUILDDIR}/setup_lcov"
-./scripts/install_valgrind.sh "${with_valgrind}"; load "${BUILDDIR}/setup_valgrind"
-./scripts/install_gcc.sh      "${with_gcc}";      load "${BUILDDIR}/setup_gcc"
+for ii in $tool_list ; do
+    install_mode="$(eval echo \${with_${ii}})"
+    ./scripts/install_${ii}.sh "$install_mode"
+    load "${BUILDDIR}/setup_${ii}"
+done
 
 # ----------------------------------------------------------------------
-# Now, install the dependent libraries
+# Install or compile packages using newly installed tools
 # ----------------------------------------------------------------------
 
 # setup compiler flags, leading to nice stack traces on crashes but
@@ -535,11 +573,11 @@ export LDFLAGS="$TSANFLAGS"
 
 # MPI libraries
 case "$MPI_MODE" in
-    __OPENMPI__)
-        ./scripts/install_openmpi.sh "${with_openmpi}"; load "${BUILDDIR}/setup_openmpi"
-        ;;
-    __MPICH__)
+    mpich)
         ./scripts/install_mpich.sh "${with_mpich}"; load "${BUILDDIR}/setup_mpich"
+        ;;
+    openmpi)
+        ./scripts/install_openmpi.sh "${with_openmpi}"; load "${BUILDDIR}/setup_openmpi"
         ;;
 esac
 
@@ -554,13 +592,13 @@ export FAST_MATH_LIBS=''
 
 ./scripts/install_reflapack.sh "${with_reflapack}"; load "${BUILDDIR}/setup_reflapack"
 case "$FAST_MATH_MODE" in
-    __MKL__)
+    mkl)
         ./scripts/install_mkl.sh "${with_mkl}"; load "${BUILDDIR}/setup_mkl"
         ;;
-    __ACML__)
+    acml)
         ./scripts/install_acml.sh "${with_acml}"; load "${BUILDDIR}/setup_acml"
         ;;
-    __OPENBLAS__)
+    openblas)
         ./scripts/install_openblas.sh "${with_openblas}"; load "${BUILDDIR}/setup_openblas"
         ;;
 esac
@@ -584,19 +622,11 @@ export CP_LDFLAGS="$(unique ${CP_LDFLAGS} "IF_VALGRIND(\"${REF_MATH_LDFLAGS}\",\
 export CP_LIBS="$(unique ${CP_LIBS} "IF_VALGRIND(${REF_MATH_LIBS},${FAST_MATH_LIBS})")"
 
 # other libraries
-./scripts/install_fftw.sh      "${with_fftw}";      load "${BUILDDIR}/setup_fftw"
-./scripts/install_libxc.sh     "${with_libxc}";     load "${BUILDDIR}/setup_libxc"
-./scripts/install_libint.sh    "${with_libint}";    load "${BUILDDIR}/setup_libint"
-./scripts/install_scalapack.sh "${with_scalapack}"; load "${BUILDDIR}/setup_scalapack"
-./scripts/install_libxsmm.sh   "${with_libxsmm}";   load "${BUILDDIR}/setup_libxsmm"
-./scripts/install_libsmm.sh    "${with_libsmm}";    load "${BUILDDIR}/setup_libsmm"
-./scripts/install_elpa.sh      "${with_elpa}";      load "${BUILDDIR}/setup_elpa"
-./scripts/install_ptscotch.sh  "${with_ptscotch}";  load "${BUILDDIR}/setup_ptscotch"
-./scripts/install_parmetis.sh  "${with_parmetis}";  load "${BUILDDIR}/setup_parmetis"
-./scripts/install_metis.sh     "${with_metis}";     load "${BUILDDIR}/setup_metis"
-./scripts/install_superlu.sh   "${with_superlu}";   load "${BUILDDIR}/setup_superlu"
-./scripts/install_pexsi.sh     "${with_pexsi}";     load "${BUILDDIR}/setup_pexsi"
-./scripts/install_quip.sh      "${with_quip}";      load "${BUILDDIR}/setup_quip"
+for ii in $lib_list ; do
+    install_mode="$(eval echo \${with_${ii}})"
+    ./scripts/install_${ii}.sh "$install_mode"
+    load "${BUILDDIR}/setup_${ii}"
+done
 
 # ----------------------------------------------------------------------
 # generate arch file for compiling cp2k
@@ -606,13 +636,6 @@ echo "==================== generating arch files ===================="
 echo "arch files can be found in the ${INSTALLDIR}/arch subdirectory"
 mkdir -p ${INSTALLDIR}/arch
 cd ${INSTALLDIR}/arch
-
-# BEG:DEBUG:LT:2016/02/01
-echo ${CP_LIBS}
-echo ${CP_LDFLAGS}
-echo ${CP_CFLAGS}
-# END:DEBUG:LT:2016/02/01
-
 
 # add standard libs
 LIBS="${CP_LIBS} -lstdc++"

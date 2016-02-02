@@ -87,7 +87,6 @@ EOF
         cat "${BUILDDIR}/setup_openmpi" >> $SETUPFILE
     fi
     cat <<EOF >> "${BUILDDIR}/setup_openmpi"
-export MPI_MODE="__OPENMPI__"
 export OPENMPI_CFLAGS="${OPENMPI_CFLAGS}"
 export OPENMPI_LDFLAGS="${OPENMPI_LDFLAGS}"
 export OPENMPI_LIBS="${OPENMPI_LIBS}"

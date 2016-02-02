@@ -30,7 +30,6 @@ case "$with_reflapack" in
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf lapack-${reflapack_ver}.tgz
             cd lapack-${reflapack_ver}
-
             cat <<EOF > make.inc
 SHELL    = /bin/sh
 FORTRAN  = gfortran
@@ -93,7 +92,7 @@ export REFLAPACK_LIBS="${REFLAPACK_LIBS}"
 export REF_MATH_LDFLAGS="\${REF_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS}"
 export REF_MATH_LIBS="\${REF_MATH_LIBS} ${REFLAPACK_LIBS}"
 EOF
-    if [ "$FAST_MATH_MODE" = "__REFLAPACK__" ] ; then
+    if [ "$FAST_MATH_MODE" = reflapack ] ; then
         cat <<EOF >> setup_reflapack
 export FAST_MATH_LDFLAGS="\${FAST_MATH_LDFLAGS} ${REFLAPACK_LDFLAGS}"
 export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${REFLAPACK_LIBS}"

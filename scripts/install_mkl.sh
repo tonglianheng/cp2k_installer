@@ -66,17 +66,17 @@ if [ "$with_mkl" != "__DONTUSE__" ] ; then
     # set the correct lib flags from  MLK link adviser
     MKL_LIBS="-Wl,--start-group ${mkl_lib_dir}/libmkl_gf_lp64.a ${mkl_lib_dir}/libmkl_core.a ${mkl_lib_dir}/libmkl_sequential.a"
     # check optional libraries
-    if [ $ENABLE_MPI = "__TRUE__" ] ; then
+    if [ $MPI_MODE != no ] ; then
         enable_mkl_scalapack="__TRUE__"
         mkl_optional_libs="libmkl_scalapack_lp64.a"
         case $MPI_MODE in
-            __OPENMPI__)
-                mkl_optional_libs="$mkl_optional_libs libmkl_blacs_openmpi_lp64.a"
-                mkl_blacs_lib="libmkl_blacs_openmpi_lp64.a"
-                ;;
-            __MPICH__)
+            mpich)
                 mkl_optional_libs="$mkl_optional_libs libmkl_blacs_lp64.a"
                 mkl_blacs_lib="libmkl_blacs_lp64.a"
+                ;;
+            openmpi)
+                mkl_optional_libs="$mkl_optional_libs libmkl_blacs_openmpi_lp64.a"
+                mkl_blacs_lib="libmkl_blacs_openmpi_lp64.a"
                 ;;
             *)
                 enable_mkl_scalapack="__FALSE__"

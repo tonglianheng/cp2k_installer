@@ -17,7 +17,7 @@ ELPA_LIBS_OMP=''
 cd "${BUILDDIR}"
 
 # elpa only works with MPI switched on
-if [ "$ENABLE_MPI" = "__FALSE__" ] ; then
+if [ $MPI_MODE = no ] ; then
     report_warning $LINENO "MPI is disabled, skipping elpa installation"
 cat <<EOF > "${BUILDDIR}/setup_elpa"
 with_elpa="__FALSE__"

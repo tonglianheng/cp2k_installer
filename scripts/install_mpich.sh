@@ -44,7 +44,7 @@ case "$with_mpich" in
         MPICH_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
-        echo "==================== Finding Mpich from system paths ===================="
+        echo "==================== Finding MPICH from system paths ===================="
         check_command mpirun "mpich"
         check_command mpicc "mpich"
         check_command mpif90 "mpich"
@@ -57,7 +57,7 @@ case "$with_mpich" in
     __DONTUSE__)
         ;;
     *)
-        echo "==================== Linking Mpich to user paths ===================="
+        echo "==================== Linking MPICH to user paths ===================="
         pkg_install_dir="$with_mpich"
         check_dir "${pkg_install_dir}/bin"
         check_dir "${pkg_install_dir}/lib"

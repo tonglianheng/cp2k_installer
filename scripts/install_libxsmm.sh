@@ -48,7 +48,7 @@ EOF
             # openblas, mkl or system lapack. We will just use
             # reflapack in place of the system lapack here.
             case $FAST_MATH_MODE in
-                __OPENBLAS__)
+                openblas)
                     require_env OPENBLAS_LDFLAGS
                     openblas_flag=1
                     mkl_flag=0
@@ -57,7 +57,7 @@ EOF
                     blas_threads="${blas_threads#*libopenblas}"
                     blas_threads="${blas_threads%%.*}"
                     ;;
-                __MKL__)
+                mkl)
                     # mkl exists if MKLROOT is set, and libxsmm make
                     # only recognizes MKLROOT
                     require_env MKLROOT
