@@ -28,7 +28,7 @@ case "$with_parmetis" in
                              https://www.cp2k.org/static/downloads/parmetis-${parmetis_ver}.tar.gz
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
-            tar -xzf parmetis_${parmetis_ver}.tar.gz
+            tar -xzf parmetis-${parmetis_ver}.tar.gz
             cd parmetis-${parmetis_ver}
             make config prefix=${pkg_install_dir} >& config.log
             make -j $NPROCS >& make.log
