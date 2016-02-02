@@ -18,11 +18,11 @@ case "$with_valgrind" in
         if [ -f "${install_lock_file}" ] ; then
             echo "valgrind-${valgrind_ver} is already installed, skipping it."
         else
-            if [ -f valgrind-${valgrind_ver}.tar.gz ] ; then
-                echo "valgrind-${valgrind_ver}.tar.gz is found"
+            if [ -f valgrind-${valgrind_ver}.tar.bz2 ] ; then
+                echo "valgrind-${valgrind_ver}.tar.bz2 is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
-                             https://www.cp2k.org/static/downloads/valgrind-${valgrind_ver}.tar.gz
+                             https://www.cp2k.org/static/downloads/valgrind-${valgrind_ver}.tar.bz2
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xjf valgrind-${valgrind_ver}.tar.bz2

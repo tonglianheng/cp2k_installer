@@ -199,11 +199,12 @@ if (command -v mpirun &> /dev/null) ; then
         echo "MPI is detected and it appears to be OpenMPI"
         export MPI_MODE=openmpi
     else
-        report_error $LINENO "MPI is detected on your system, but does not seem to be either OpenMPI or MPICH, and is unsupported for this installtion script. Consider use another MPI library or install either OpenMPI or MPICH directly using this script by setting the option for example: --with-mpich=install"
-        exit 1
+        report_warning $LINENO "MPI is detected on your system, but does this script cannot recognize its type, as it only supports OpenMPI and MPICH, use the system MPI at your own risk..."
+        # default guess to mpich
+        export MPI_MODE=mpich
     fi
 else
-    report_warning $LINENO "You do not seem to have MPI installed on you system, unless specified otherwise this installation will carry on with MPI disabled"
+    report_warning $LINENO "No MPI installation detected on you system"
     MPI_MODE=no
 fi
 
