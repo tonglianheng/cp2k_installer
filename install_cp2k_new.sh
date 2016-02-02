@@ -20,6 +20,11 @@ $(basename $script_name) [options]
 OPTIONS:
 
 -h, --help                Show this message.
+-j <n>                    Number of processors to use for compilation, if
+                          this option is not present, then the script
+                          automatically tries to determine the number of
+                          processors you have and try to use all of the
+                          processors.
 --no-check-certificate    If you encounter "certificate verification" errors
                           from wget or ones saying that "common name doesn’t
                           match requested host name" while at tarball downloading
@@ -208,6 +213,9 @@ else
     MPI_MODE=no
 fi
 
+# number of processors to use
+export NPROCS=$(get_nprocs)
+
 # default enable options
 enable_tsan=__FALSE__
 enable_gcc_master=__FALSE__
@@ -220,6 +228,10 @@ enable_cuda=__FALSE__
 # ----------------------------------------------------------------------
 while [ $# -ge 1 ] ; do
     case $1 in
+        -j)
+            shift
+            export NPROCS=$1
+            ;;
         --no-check-certificate)
             export DOWNLOADER_FLAGS="-n"
             ;;
@@ -517,7 +529,6 @@ export INSTALLDIR="${ROOTDIR}/install"
 export SETUPFILE="${INSTALLDIR}/setup"
 export SHA256_CHECKSUM="${SCRIPTDIR}/checksums.sha256"
 export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch.tmpl"
-export NPROCS=$(get_nprocs)
 
 # mkdir -p "$BUILDDIR"
 mkdir -p "$INSTALLDIR"
