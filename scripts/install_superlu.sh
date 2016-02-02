@@ -35,7 +35,7 @@ case "$with_superlu" in
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf superlu_dist_${superlu_ver}.tar.gz
-            cd superlu_dist-${superlu_ver}
+            cd SuperLU_DIST-${superlu_ver}
             mv make.inc make.inc.orig
             cat <<EOF >> make.inc
 PLAT=_${OPENBLAS_ARCH}
