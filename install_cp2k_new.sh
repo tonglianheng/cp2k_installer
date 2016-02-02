@@ -420,6 +420,7 @@ export ENABLE_CUDA=$enable_cuda
 [ "$enable_gcc_master" = "__TRUE__" ] && export gcc_ver=master
 [ "$enable_libxsmm_master" = "__TRUE__" ] && export libxsmm_ver=master
 [ "$with_valgrind" != "__DONTUSE__"  ] && export ENABLE_VALGRIND="__TRUE__"
+[ "$with_lcov" != "__DONTUSE__" ] && export ENABLE_COVERAGE="__TRUE__"
 
 # ----------------------------------------------------------------------
 # Check and solve known conflicts before installations proceed
@@ -743,39 +744,39 @@ rm -f ${INSTALLDIR}/arch/local*
     { gen_arch_file "local.sdbg" "-DDEBUG";       arch_vers="${arch_vers} sdbg"; }
 [ "$ENABLE_OMP" = __TRUE__ ] && \
     { gen_arch_file "local.ssmp" "-DOMP";         arch_vers="${arch_vers} ssmp"; }
-[ "$ENABLE_MPI" = __TRUE__ ] && \
+[ "$MPI_MODE" != no ] && \
     { gen_arch_file "local.popt" "-DMPI";         arch_vers="${arch_vers} popt"; }
-[ "$ENABLE_MPI" = __TRUE__ ] && \
+[ "$MPI_MODE" != no ] && \
     { gen_arch_file "local.pdbg" "-DMPI -DDEBUG"; arch_vers="${arch_vers} pdbg"; }
-[ "$ENABLE_MPI" = __TRUE__ ] && \
+[ "$MPI_MODE" != no ] && \
 [ "$ENABLE_OMP" = __TRUE__ ] && \
     { gen_arch_file "local.psmp" "-DMPI -DOMP";   arch_vers="${arch_vers} psmp"; }
 # cuda enabled arch files
 if [ "$ENABLE_CUDA" = __TRUE__ ] ; then
     [ "$ENABLE_OMP" = __TRUE__ ] && \
         { gen_arch_file "local_cuda.ssmp" "-DCUDA -DOMP";               arch_cuda="ssmp"; }
-    [ "$ENABLE_MPI" = __TRUE__ ] && \
+    [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
         { gen_arch_file "local_cuda.psmp" "-DCUDA -DOMP -DMPI";         arch_cuda="${arch_cuda} psmp"; }
     [ "$ENABLE_OMP" = __TRUE__ ] && \
         { gen_arch_file "local_cuda.sdbg" "-DCUDA -DDEBUG -DOMP";       arch_cuda="${arch_cuda} sdbg"; }
-    [ "$ENABLE_MPI" = __TRUE__ ] && \
+    [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
         { gen_arch_file "local_cuda.pdbg" "-DCUDA -DDEBUG -DOMP -DMPI"; arch_cuda="${arch_cuda} pdbg"; }
-    [ "$ENABLE_MPI" = __TRUE__ ] && \
+    [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
         { gen_arch_file "local_cuda_warn.psmp" "-DCUDA -DMPI -DOMP -DWARNALL"; }
 fi
 # valgrind enabled arch files
-if [ "$ENABLE_VALGRIND" != __TRUE__ ] ; then
+if [ "$ENABLE_VALGRIND" = __TRUE__ ] ; then
         { gen_arch_file "local_valgrind.sdbg" "-DVALGRIND";       arch_valg="sdbg"; }
-    [ "$ENABLE_MPI" = __TRUE__ ] && \
+    [ "$MPI_MODE" != no ] && \
         { gen_arch_file "local_valgrind.pdbg" "-DVALGRIND -DMPI"; arch_valg="${arch_valgrind} pdbg"; }
 fi
 # coverage enabled arch files
-if [ "$with_lcov" != __DONTUSE__ ]; then
+if [ "$ENABLE_COVERAGE" = __TRUE__ ]; then
         { gen_arch_file "local_coverage.sdbg" "-DCOVERAGE";       arch_cov="sdbg"; }
-    [ "$ENABLE_MPI" = __TRUE__ ] && \
+    [ "$MPI_MODE" != no ] && \
         { gen_arch_file "local_coverage.pdbg" "-DCOVERAGE -DMPI"; arch_cov="${arch_cov} pdbg"; }
     [ "$ENABLE_CUDA" = __TRUE__ ] && \
         { gen_arch_file "local_coverage_cuda.pdbg"   "-DCOVERAGE -DMPI -DCUDA"; }
