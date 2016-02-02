@@ -16,8 +16,8 @@ cd "${BUILDDIR}"
 case "$with_pexsi" in
     __INSTALL__)
         echo "==================== Installing PEXSI ===================="
-        require_env PARMTEIS_LDFLAGS
-        require_env PARMTEIS_LIBS
+        require_env PARMETIS_LDFLAGS
+        require_env PARMETIS_LIBS
         require_env METIS_LDFLAGS
         require_env METIS_LIBS
         require_env SUPERLU_LDFLAGS
