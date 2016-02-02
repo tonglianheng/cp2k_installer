@@ -32,6 +32,7 @@ case "$with_gcc" in
                              https://ftp.gnu.org/gnu/gcc/gcc-${gcc_ver}/gcc-${gcc_ver}.tar.gz
                 tar -xzf gcc-${gcc_ver}.tar.gz
             fi
+            echo "Installing GCC from scratch into ${pkg_install_dir}"
             cd gcc-${gcc_ver}
             ./contrib/download_prerequisites >& prereq.log
             GCCROOT=${PWD}
@@ -45,7 +46,7 @@ case "$with_gcc" in
                                  >& config.log
             make -j $NPROCS >& make.log
             make -j $NPROCS install >& install.log
-
+            # thread sanitizer
             if [ $ENABLE_TSAN = "__TRUE__" ] ; then
                 # now the tricky bit... we need to recompile in particular
                 # libgomp with -fsanitize=thread.. there is not configure
@@ -101,7 +102,7 @@ case "$with_gcc" in
         GCC_LDFLAGS="-L'${pkg_install_dir}/lib64' -L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib64' -Wl,-rpath='${pkg_install_dir}/lib64'"
         ;;
 esac
-if [ $ENABLE_TSAN = "__TRUE__" ] ; then
+if [ "$ENABLE_TSAN" = "__TRUE__" ] ; then
     TSANFLAGS="-fsanitize=thread"
 else
     TSANFLAGS=""

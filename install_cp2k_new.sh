@@ -19,23 +19,41 @@ $(basename $script_name) [options]
 
 OPTIONS:
 
--h, --help                Show this message
+-h, --help                Show this message.
+--no-check-certificate    If you encounter "certificate verification" errors
+                          from wget or ones saying that "common name doesn’t
+                          match requested host name" while at tarball downloading
+                          stage, then the recommended solution is to install
+                          the newest wget release.  Alternatively, you can use
+                          this option to bypass the verification and proceed with
+                          the download. Security wise this should still be okay
+                          as the installation script will check file checksums
+                          after every tarball download. Nevertheless use this
+                          option at your own risk.
+--install-all             This option will set value of all --with-PKG
+                          options to "install". You can selectively set
+                          --with-PKG to another value again by having the
+                          --with-PKG option placed AFTER this option on the
+                          command line.
 
 The --enable-FEATURE options follow the rules:
   --enable-FEATURE=yes    Enable this particular feature
   --enable-FEATHRE=no     Disable this particular feature
   --enable-FEATURE        The option keyword alone is equivalent to
                           --enable-FEATURE=yes
-
-  --enable-toochain       Sets all --with-PKG to install
   --enable-tsan           If you are installing GCC using this script
                           this option enables thread sanitizer support.
                           This is only relevant for debugging purposes.
                           Default = no
   --enable-gcc-master     If you are installing GCC using this script
-                          this option forces the master development version/
+                          this option forces the master development version
+                          to be installed.
                           Default = no
-  --enable-omp            Turn on OpenMP (threaded) support.
+  --enable-libxsmm-master If you are installing libxsmm using this script
+                          this option forces the master development version
+                          to be installed.
+                          Default = no
+  --enable-omp            Turn on OpenMP (threading) support.
                           Default = yes
   --enable-cuda           Turn on GPU (CUDA) support.
                           Default = no
@@ -56,6 +74,8 @@ The --with-PKG options follow the rules:
   --with-gcc              The GCC compiler to use to compile CP2K
                           Default = system
   --with-binutils         GNU binutils
+                          Default = system
+  --with-make             GNU make
                           Default = system
   --with-cmake            Cmake utilities, required for building ParMETIS
                           Default = no
@@ -102,6 +122,10 @@ The --with-PKG options follow the rules:
                           the library (which may take a long time), the script will
                           try to download a preexisting version from the CP2K website
                           that is compatable with your system.
+                          Default = no
+  --with-libxsmm          Small matrix multiplication library for x86_64 systems. If
+                          your system arch is x86_64, then you can use libxsmm
+                          instead of libsmm.
                           Default = install
   --with-elpa             Eigenvalue SoLvers for Petaflop-Applications library.
                           Fast library for large parallel jobs.
@@ -126,32 +150,25 @@ EOF
 }
 
 # ----------------------------------------------------------------------
-# PACKAGE LIST: register all new depedent tools and libs here. Order
-# is important, as the first in the list gets installed first
-tool_list="binutils gcc cmake lcov valgrind"
+# PACKAGE LIST: register all new dependent tools and libs here. Order
+# is important, the first in the list gets installed first
+tool_list="binutils make gcc cmake lcov valgrind"
 mpi_list="mpich openmpi"
 math_list="mkl acml openblas reflapack"
 lib_list="fftw libint libxc libsmm libxsmm scalapack elpa \
           ptscotch parmetis metis superlu pexsi quip"
+package_list="$tool_list $mpi_list $math_list $lib_list"
 # ----------------------------------------------------------------------
 
 # first set everything to __DONTUSE__
-for ii in $tool_list ; do
-    eval with_${ii}=__DONTUSE__
-done
-for ii in $mpi_list ; do
-    eval with_${ii}=__DONTUSE__
-done
-for ii in $math_list ; do
-    eval with_${ii}=__DONTUSE__
-done
-for ii in $lib_list ; do
+for ii in $package_list ; do
     eval with_${ii}=__DONTUSE__
 done
 
 # tools to turn on by default:
 with_binutils=__SYSTEM__
 with_gcc=__SYSTEM__
+with_make=__SYSTEM__
 
 # libs to turn on by default, the math and mpi libraries are chosen by there respective modes:
 with_fftw=__INSTALL__
@@ -191,7 +208,6 @@ else
 fi
 
 # default enable options
-enable_toolchain=__FALSE__
 enable_tsan=__FALSE__
 enable_gcc_master=__FALSE__
 enable_libxsmm_master=__FALSE__
@@ -203,6 +219,15 @@ enable_cuda=__FALSE__
 # ----------------------------------------------------------------------
 while [ $# -ge 1 ] ; do
     case $1 in
+        --no-check-certificate)
+            export DOWNLOADER_FLAGS="-n"
+            ;;
+        --install-all)
+            # set all package to __INSTALL__ status
+            for ii in $package_list ; do
+                eval with_${ii}=__INSTALL__
+            done
+            ;;
         --mpi-mode=*)
             user_input="${1#*=}"
             case "$user_input" in
@@ -241,19 +266,6 @@ while [ $# -ge 1 ] ; do
                     report_error ${LINENO} \
                     "--math-mode currently only supports mkl, acml, openblas and reflapack as options"
             esac
-            ;;
-        --enable-toolchain*)
-            enable_toolchain=$(read_enable $1)
-            if [ $enable_toolchain = "__INVALID__" ] ; then
-                echo "invalid value for --enable-toolchain, please use yes or no" >&2
-                exit 1
-            fi
-            # set all package to __INSTALL__ status
-            if [ "$enable_toolchain" = "__TRUE__" ] ; then
-                for ii in $package_list ; do
-                    eval with_${ii}=__INSTALL__
-                done
-            fi
             ;;
         --enable-tsan*)
             enable_tsan=$(read_enable $1)
@@ -295,6 +307,9 @@ while [ $# -ge 1 ] ; do
             ;;
         --with-binutils*)
             with_binutils=$(read_with $1)
+            ;;
+        --with-make*)
+            with_make=$(read_with $1)
             ;;
         --with-cmake*)
             with_cmake=$(read_with $1)
@@ -504,7 +519,7 @@ export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch.tmpl"
 export NPROCS=$(get_nprocs)
 
 # mkdir -p "$BUILDDIR"
-# mkdir -p "$INSTALLDIR"
+mkdir -p "$INSTALLDIR"
 
 # variables used for generating cp2k ARCH file
 export CP_DFLAGS=''
