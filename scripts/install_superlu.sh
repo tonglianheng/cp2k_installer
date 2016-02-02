@@ -16,8 +16,8 @@ cd "${BUILDDIR}"
 case "$with_superlu" in
     __INSTALL__)
         echo "==================== Installing SuperLU_DIST ===================="
-        require_env PARMTEIS_LDFLAGS
-        require_env PARMTEIS_LIBS
+        require_env PARMETIS_LDFLAGS
+        require_env PARMETIS_LIBS
         require_env METIS_LDFLAGS
         require_env METIS_LIBS
         require_env MATH_LDFLAGS
