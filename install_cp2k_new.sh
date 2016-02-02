@@ -381,6 +381,9 @@ while [ $# -ge 1 ] ; do
         --with-libsmm*)
             with_libsmm=$(read_with $1)
             ;;
+        --with-libxsmm*)
+            with_libxsmm=$(read_with $1)
+            ;;
         --with-elpa*)
             with_elpa=$(read_with $1)
             ;;
