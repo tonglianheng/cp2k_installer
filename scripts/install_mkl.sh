@@ -84,13 +84,15 @@ if [ "$with_mkl" != "__DONTUSE__" ] ; then
         esac
         for ii in $mkl_optional_libs ; do
             if ! [ -f "${mkl_lib_dir}/${ii}" ] ; then
-                enable_mlk_scalapack="__FALSE__"
+                enable_mkl_scalapack="__FALSE__"
             fi
         done
-        if [ $enable_mlk_scalapack = "__TRUE__" ] ; then
+        if [ $enable_mkl_scalapack = "__TRUE__" ] ; then
             echo "Using MKL provided ScaLAPACK and BLACS"
             MKL_LIBS="${mkl_lib_dir}/libmkl_scalapack_lp64.a ${MKL_LIBS} ${mkl_lib_dir}/${mkl_blacs_lib}"
         fi
+    else
+        enable_mkl_scalapack="__FALSE__"
     fi
     MKL_LIBS="${MKL_LIBS} -Wl,--end-group -lpthread -lm -ldl"
     MKL_CFLAGS="${MKL_CFLAGS} -I${MKLROOT}/include"
@@ -107,7 +109,7 @@ export MKL_LIBS="${MKL_LIBS}"
 export FAST_MATH_CFLAGS="\${FAST_MATH_CFLAGS} ${MKL_CFLAGS}"
 export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${MKL_LIBS}"
 EOF
-    if [ $enable_mlk_scalapack = "__TRUE__" ] ; then
+    if [ $enable_mkl_scalapack = "__TRUE__" ] ; then
         cat <<EOF >> "${BUILDDIR}/setup_mkl"
 export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
 with_scalapack="__DONTUSE__"
