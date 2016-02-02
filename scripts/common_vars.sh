@@ -44,3 +44,4 @@ export MPIFC=${MPIFC:-mpif90}
 export MPIF77=${MPIF77:-mpif77}
 export MPIF90=${MPIF90:-mpif90}
 export MPICXX=${MPICXX:-mpic++}
+export NVCC=${NVCC:-nvcc}

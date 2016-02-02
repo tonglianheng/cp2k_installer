@@ -1,4 +1,3 @@
-#define __COMMA__ ,
 #ifdef MPI
 #define IF_MPI(a,b) a
 #else
@@ -44,19 +43,19 @@
 #define IF_COVERAGE(a,b) b
 #endif
 #
-CC          = gcc
-CXX         = g++
+CC          = ${CC}
+CXX         = ${CXX}
 CPP         =
 AR          = ar -r
 #
 #ifdef MPI
 #define IF_MPI(a,b) a
-FC          = mpif90
-LD          = mpif90
+FC          = ${MPIFC}
+LD          = ${MPIFC}
 #else
 #define IF_MPI(a,b) b
-FC          = gfortran
-LD          = gfortran
+FC          = ${FC}
+LD          = ${FC}
 #endif
 #
 LIBS        = ${LIBS}
@@ -68,11 +67,10 @@ LDFLAGS     = ${LDFLAGS}
 CFLAGS      = ${CFLAGS}
 #
 #ifdef CUDA
-NVCC        = nvcc -D__GNUC_MINOR__=6 -D__GNUC__=4
+NVCC        = ${NVCC} -D__GNUC_MINOR__=6 -D__GNUC__=4
 NVFLAGS     = ${NVFLAGS}
 #endif
 #
 #ifdef WARNALL
 FCLOGPIPE   =  2> \$(notdir \$<).warn
 #endif
-

@@ -32,14 +32,14 @@ case "$with_reflapack" in
             cd lapack-${reflapack_ver}
             cat <<EOF > make.inc
 SHELL    = /bin/sh
-FORTRAN  = gfortran
+FORTRAN  = $FC
 OPTS     = $FFLAGS -frecursive
 DRVOPTS  = $FFLAGS -frecursive
 NOOPT    = $FFLAGS -O0 -frecursive -fno-fast-math
-LOADER   = gfortran
+LOADER   = $FC
 LOADOPTS = $FFLAGS -Wl,--enable-new-dtags
 TIMER    = INT_ETIME
-CC       = gcc
+CC       = $CC
 CFLAGS   = $CFLAGS
 ARCH     = ar
 ARCHFLAGS= cr

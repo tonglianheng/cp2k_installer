@@ -60,9 +60,9 @@ case "$with_elpa" in
             ./configure  --prefix=${pkg_install_dir} \
                          --enable-openmp=no \
                          --enable-shared=$shared_flag \
-                         FC="mpif90 -ffree-line-length-none" \
-                         CC="mpicc" \
-                         CXX="mpic++" \
+                         FC="${MPIFC} -ffree-line-length-none" \
+                         CC="${MPICC}" \
+                         CXX="${MPICXX}" \
                          FCFLAGS="${FCFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                          CFLAGS="${CFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                          CXXFLAGS="${CXXFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
@@ -78,9 +78,9 @@ case "$with_elpa" in
                 ./configure  --prefix=${pkg_install_dir} \
                              --enable-openmp=yes \
                              --enable-shared=$shared_flag \
-                             FC="mpif90 -ffree-line-length-none" \
-                             CC="mpicc" \
-                             CXX="mpic++" \
+                             FC="${MPIFC} -ffree-line-length-none" \
+                             CC="${MPICC}" \
+                             CXX="${MPICXX}" \
                              FCFLAGS="${FCFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                              CFLAGS="${CFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                              CXXFLAGS="${CXXFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \

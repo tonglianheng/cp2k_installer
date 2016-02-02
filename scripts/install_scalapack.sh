@@ -33,8 +33,8 @@ case "$with_scalapack" in
             cd scalapack-${scalapack_ver}
             cat << EOF > SLmake.inc
 CDEFS         = -DAdd_
-FC            = mpif90
-CC            = mpicc
+FC            = ${MPIFC}
+CC            = ${MPICC}
 NOOPT         = ${FFLAGS} -O0 -fno-fast-math
 FCFLAGS       = ${FFLAGS} ${MATH_CFLAGS}
 CCFLAGS       = ${CFLAGS} ${MATH_CFLAGS}
