@@ -15,12 +15,12 @@ MKL_LIBS=''
 cd "${BUILDDIR}"
 case "$with_mkl" in
     __INSTALL__)
-        echo "==================== Installing Mkl ===================="
+        echo "==================== Installing MKL ===================="
         echo "Cannot install Intel MKL automatically, please contact your system administrator" >&2
         exit 1
         ;;
     __SYSTEM__)
-        echo "==================== Finding LAPACK from system paths ===================="
+        echo "==================== Finding MKL from system paths ===================="
         if ! [ -z "MKLROOT" ] ; then
             echo "MKLROOT is found to be $MKLROOT"
         else
@@ -34,7 +34,7 @@ case "$with_mkl" in
     __DONTUSE__)
         ;;
     *)
-        echo "==================== Linking LAPACK to user paths ===================="
+        echo "==================== Linking MKL to user paths ===================="
         check_dir "$with_mkl"
         MKLROOT="$with_mkl"
         ;;
