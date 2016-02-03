@@ -697,7 +697,7 @@ done
 
 echo "==================== generating arch files ===================="
 echo "arch files can be found in the ${INSTALLDIR}/arch subdirectory"
-! [ -d "${INSTALLDIR}/arch" ] mkdir -p ${INSTALLDIR}/arch
+! [ -f "${INSTALLDIR}/arch" ] && mkdir -p ${INSTALLDIR}/arch
 cd ${INSTALLDIR}/arch
 
 # -------------------------
@@ -749,7 +749,7 @@ FCDEBFLAGS="$FCDEB_FLAGS IF_DEBUG($FCDEB_FLAGS_DEBUG,)"
 DFLAGS="${CP_DFLAGS} IF_DEBUG(-D__HAS_IEEE_EXCEPTIONS,) IF_COVERAGE($COVERAGE_DFLAGS,)"
 # language independent flags
 G_CFLAGS="$BASEFLAGS"
-G_CFLAGS="$G_CFLAGS IF_COVERAGE($COVERAGE_FLAGS, IF_DEBUG($NOOPT_FLAGS, $OPT_FLAGS)"
+G_CFLAGS="$G_CFLAGS IF_COVERAGE($COVERAGE_FLAGS, IF_DEBUG($NOOPT_FLAGS, $OPT_FLAGS))"
 G_CFLAGS="$G_CFLAGS IF_DEBUG(,$PROFOPT_FLAGS)"
 G_CFLAGS="$G_CFLAGS $CP_CFLAGS"
 # FCFLAGS, for gfortran
