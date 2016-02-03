@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_lcov=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_lcov" ] && rm "${BUILDDIR}/setup_lcov"
+
 ! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 case "$with_lcov" in
@@ -46,7 +48,6 @@ case "$with_lcov" in
         ;;
 esac
 if [ "$with_lcov" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_lcov" ] && rm "${BUILDDIR}/setup_lcov"
     if [ "$with_lcov" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_lcov"
 prepend_path PATH "$pkg_install_dir/usr/bin"

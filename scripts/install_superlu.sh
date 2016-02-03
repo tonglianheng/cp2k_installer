@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_superlu=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_superlu" ] && rm "${BUILDDIR}/setup_superlu"
+
 SUPERLU_CFLAGS=''
 SUPERLU_LDFLAGS=''
 SUPERLU_LIBS=''
@@ -83,7 +85,6 @@ EOF
         ;;
 esac
 if [ "$with_superlu" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_superlu" ] && rm "${BUILDDIR}/setup_superlu"
     SUPERLU_LIBS="-lsuperlu_dist"
     if [ "$with_superlu" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_superlu"

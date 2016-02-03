@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_elpa=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_elpa" ] && rm "${BUILDDIR}/setup_elpa"
+
 ELPA_CFLAGS=''
 ELPA_LDFLAGS=''
 ELPA_LIBS=''
@@ -157,7 +159,6 @@ case "$with_elpa" in
         ;;
 esac
 if [ "$with_elpa" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_elpa" ] && rm "${BUILDDIR}/setup_elpa"
     ELPA_LIBS="-lelpa"
     ELPA_LIBS_OMP="-lelpa_openmp"
     cat <<EOF > "${BUILDDIR}/setup_elpa"

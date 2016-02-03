@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_valgrind=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_valgrind" ] && rm "${BUILDDIR}/setup_valgrind"
+
 ! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 case "$with_valgrind" in
@@ -49,7 +51,6 @@ case "$with_valgrind" in
         ;;
 esac
 if [ "$with_valgrind" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_valgrind" ] && rm "${BUILDDIR}/setup_valgrind"
     if [ "$with_valgrind" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_valgrind"
 prepend_path PATH "$pkg_install_dir/bin"

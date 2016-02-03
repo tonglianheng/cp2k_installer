@@ -758,7 +758,7 @@ FCFLAGS="$G_CFLAGS \$(FCDEBFLAGS) \$(WFLAGS) \$(DFLAGS)"
 CFLAGS="$G_CFLAGS \$(DFLAGS)"
 
 # Linker flags
-LDFLAGS="${CP_LDFLAGS} \$(FCFLAGS)"
+LDFLAGS="\$(FCFLAGS) ${CP_LDFLAGS}"
 
 # Library flags
 # add standard libs

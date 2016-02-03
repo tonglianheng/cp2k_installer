@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_acml=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_acml" ] && rm "${BUILDDIR}/setup_acml"
+
 ACML_CFLAGS=''
 ACML_LDFLAGS=''
 ACML_LIBS=''
@@ -39,7 +41,6 @@ case "$with_acml" in
         ;;
 esac
 if [ "$with_acml" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_acml" ] && rm "${BUILDDIR}/setup_acml"
     ACML_LIBS="-lacml"
     if [ "$with_acml" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_acml"

@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_metis=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_metis" ] && rm "${BUILDDIR}/setup_metis"
+
 METIS_CFLAGS=''
 METIS_LDFLAGS=''
 METIS_LIBS=''
@@ -44,7 +46,6 @@ case "$with_metis" in
         ;;
 esac
 if [ "$with_metis" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_metis" ] && rm "${BUILDDIR}/setup_metis"
     METIS_LIBS="-lmetis"
     if [ "$with_metis" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_metis"

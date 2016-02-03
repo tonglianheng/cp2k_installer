@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_cmake=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_cmake" ] && rm "${BUILDDIR}/setup_cmake"
+
 ! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 case "$with_cmake" in
@@ -47,7 +49,6 @@ case "$with_cmake" in
         ;;
 esac
 if [ "$with_cmake" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_cmake" ] && rm "${BUILDDIR}/setup_cmake"
     if [ "$with_cmake" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_cmake"
 prepend_path PATH "$pkg_install_dir/bin"

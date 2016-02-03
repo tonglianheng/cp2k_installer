@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_mkl=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_mkl" ] && rm "${BUILDDIR}/setup_mkl"
+
 MKL_CFLAGS=''
 MKL_LDFLAGS=''
 MKL_LIBS=''
@@ -98,7 +100,6 @@ if [ "$with_mkl" != "__DONTUSE__" ] ; then
     MKL_CFLAGS="${MKL_CFLAGS} -I${MKLROOT}/include"
 
     # write setup files
-    [ -f "${BUILDDIR}/setup_mkl" ] && rm "${BUILDDIR}/setup_mkl"
     cat <<EOF > "${BUILDDIR}/setup_mkl"
 export MKLROOT="${MKLROOT}"
 EOF

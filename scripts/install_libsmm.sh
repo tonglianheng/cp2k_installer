@@ -18,6 +18,8 @@ libsmm_exists() {
 
 with_libsmm=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_libsmm" ] && rm "${BUILDDIR}/setup_libsmm"
+
 LIBSMM_CFLAGS=''
 LIBSMM_LDFLAGS=''
 LIBSMM_LIBS=''
@@ -90,7 +92,6 @@ EOF
         ;;
 esac
 if [ "$with_libsmm" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_libsmm" ] && rm "${BUILDDIR}/setup_libsmm"
     LIBSMM_LIBS="-lsmm_dnn"
     if [ "$with_libsmm" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libsmm"

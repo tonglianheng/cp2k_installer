@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_libxc=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_libxc" ] && rm "${BUILDDIR}/setup_libxc"
+
 LIBXC_CFLAGS=''
 LIBXC_LDFLAGS=''
 LIBXC_LIBS=''
@@ -61,7 +63,6 @@ case "$with_libxc" in
         ;;
 esac
 if [ "$with_libxc" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_libxc" ] && rm "${BUILDDIR}/setup_libxc"
     LIBXC_LIBS="-lxcf90 -lxc"
     if [ "$with_libxc" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libxc"

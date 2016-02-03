@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_libxsmm=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_libxsmm" ] && rm "${BUILDDIR}/setup_libxsmm"
+
 LIBXSMM_CFLAGS=''
 LIBXSMM_LDFLAGS=''
 LIBXSMM_LIBS=''
@@ -134,7 +136,6 @@ EOF
         ;;
 esac
 if [ "$with_libxsmm" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_libxsmm" ] && rm "${BUILDDIR}/setup_libxsmm"
     LIBXSMM_LIBS="-lxmm"
     if [ "$with_libxsmm" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libxsmm"

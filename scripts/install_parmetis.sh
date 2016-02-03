@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_parmetis=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_parmetis" ] && rm "${BUILDDIR}/setup_parmetis"
+
 PARMETIS_CFLAGS=''
 PARMETIS_LDFLAGS=''
 PARMETIS_LIBS=''
@@ -63,7 +65,6 @@ case "$with_parmetis" in
         ;;
 esac
 if [ "$with_parmetis" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_parmetis" ] && rm "${BUILDDIR}/setup_parmetis"
     PARMETIS_LIBS="-lparmetis"
     if [ "$with_parmetis" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_parmetis"

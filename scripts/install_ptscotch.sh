@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_scotch=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_ptscotch" ] && rm "${BUILDDIR}/setup_ptscotch"
+
 SCOTCH_CFLAGS=''
 SCOTCH_LDFLAGS=''
 SCOTCH_LIBS=''
@@ -67,7 +69,6 @@ case "$with_scotch" in
         ;;
 esac
 if [ "$with_scotch" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_ptscotch" ] && rm "${BUILDDIR}/setup_ptscotch"
     SCOTCH_LIBS="-lptscotch -lptscotcherr -lscotchmetis -lscotch -lscotcherr"
     if [ "$with_scotch" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_ptscotch"

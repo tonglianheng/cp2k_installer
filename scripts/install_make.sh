@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_make=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_make" ] && rm "${BUILDDIR}/setup_make"
+
 ! [ -d "${BUILDDIR}" ] && mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 case "$with_make" in
@@ -49,7 +51,6 @@ case "$with_make" in
         ;;
 esac
 if [ "$with_make" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_make" ] && rm "${BUILDDIR}/setup_make"
     if [ "$with_make" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_make"
 prepend_path PATH "$pkg_install_dir/bin"

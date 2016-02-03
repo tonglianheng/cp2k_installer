@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_mpich=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_mpich" ] && rm "${BUILDDIR}/setup_mpich"
+
 MPICH_CFLAGS=''
 MPICH_LDFLAGS=''
 MPICH_LIBS=''
@@ -67,7 +69,6 @@ case "$with_mpich" in
         ;;
 esac
 if [ "$with_mpich" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_mpich" ] && rm "${BUILDDIR}/setup_mpich"
     MPICH_LIBS="-lmpi -lmpicxx"
     if [ "$with_mpich" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_mpich"

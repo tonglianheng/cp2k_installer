@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_openmpi=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_openmpi" ] && rm "${BUILDDIR}/setup_openmpi"
+
 OPENMPI_CFLAGS=''
 OPENMPI_LDFLAGS=''
 OPENMPI_LIBS=''
@@ -74,7 +76,6 @@ case "$with_openmpi" in
         ;;
 esac
 if [ "$with_openmpi" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_openmpi" ] && rm "${BUILDDIR}/setup_openmpi"
     OPENMPI_LIBS="-lmpi -lmpi_cxx"
     if [ "$with_openmpi" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_openmpi"

@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_scalapack=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_scalapack" ] && rm "${BUILDDIR}/setup_scalapack"
+
 SCALAPACK_CFLAGS=''
 SCALAPACK_LDFLAGS=''
 SCALAPACK_LIBS=''
@@ -75,7 +77,6 @@ EOF
         ;;
 esac
 if [ "$with_scalapack" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_scalapack" ] && rm "${BUILDDIR}/setup_scalapack"
     SCALAPACK_LIBS="-lscalapack"
     if [ "$with_scalapack" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_scalapack"

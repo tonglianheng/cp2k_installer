@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_pexsi=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_pexsi" ] && rm "${BUILDDIR}/setup_pexsi"
+
 PEXSI_CFLAGS=''
 PEXSI_LDFLAGS=''
 PEXSI_LIBS=''
@@ -101,7 +103,6 @@ case "$with_pexsi" in
         ;;
 esac
 if [ "$with_pexsi" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_pexsi" ] && rm "${BUILDDIR}/setup_pexsi"
     PEXSI_LIBS="-lpexsi"
     if [ "$with_pexsi" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_pexsi"

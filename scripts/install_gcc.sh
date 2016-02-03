@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_gcc=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_gcc" ] && rm "${BUILDDIR}/setup_gcc"
+
 GCC_LDFLAGS=""
 GCC_CFLAGS=""
 TSANFLAGS=""
@@ -108,7 +110,6 @@ else
     TSANFLAGS=""
 fi
 if [ "$with_gcc" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_gcc" ] && rm "${BUILDDIR}/setup_gcc"
     if [ "$with_gcc" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_gcc"
 prepend_path PATH "${pkg_install_dir}/bin"

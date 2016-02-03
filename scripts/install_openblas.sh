@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_openblas=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_openblas" ] && rm "${BUILDDIR}/setup_openblas"
+
 OPENBLAS_CFLAGS=''
 OPENBLAS_LDFLAGS=''
 OPENBLAS_LIBS=''
@@ -79,7 +81,6 @@ case "$with_openblas" in
         ;;
 esac
 if [ "$with_openblas" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_openblas" ] && rm "${BUILDDIR}/setup_openblas"
     OPENBLAS_LIBS="-lopenblas"
     if [ "$with_openblas" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_openblas"

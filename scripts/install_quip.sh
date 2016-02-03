@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_quip=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_quip" ] && rm "${BUILDDIR}/setup_quip"
+
 if [ "${ENABLE_TSAN}" = "__TRUE__" ] ; then
     report_warning "QUIP is not combatiable with thread sanitizer, not installing..."
 cat <<EOF > setup_quip
@@ -100,7 +102,6 @@ case "$with_quip" in
         ;;
 esac
 if [ "$with_quip" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_quip" ] && rm "${BUILDDIR}/setup_quip"
     QUIP_LIBS="-lquip_core -latoms -lFoX_sax -lFoX_common -lFoX_utils -lFoX_fsys"
     if [ "$with_quip" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_quip"

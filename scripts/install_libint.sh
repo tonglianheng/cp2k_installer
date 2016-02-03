@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_libint=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_libint" ] && rm "${BUILDDIR}/setup_libint"
+
 LIBINT_CFLAGS=''
 LIBINT_LDFLAGS=''
 LIBINT_LIBS=''
@@ -67,7 +69,6 @@ case "$with_libint" in
         ;;
 esac
 if [ "$with_libint" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_libint" ] && rm "${BUILDDIR}/setup_libint"
     LIBINT_LIBS="-lderiv -lint"
     if [ "$with_libint" != "__SYSTEM__" ] ; then
         cat <<EOF > "${BUILDDIR}/setup_libint"

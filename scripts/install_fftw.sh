@@ -8,6 +8,8 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 
 with_fftw=${1:-__INSTALL__}
 
+[ -f "${BUILDDIR}/setup_fftw" ] && rm "${BUILDDIR}/setup_fftw"
+
 FFTW_CFLAGS=''
 FFTW_LDFLAGS=''
 FFTW_LIBS=''
@@ -59,7 +61,6 @@ case "$with_fftw" in
         ;;
 esac
 if [ "$with_fftw" != "__DONTUSE__" ] ; then
-    [ -f "${BUILDDIR}/setup_fftw" ] && rm "${BUILDDIR}/setup_fftw"
     FFTW_LIBS="-lfftw3"
     FFTW_LIBS_OMP="-lfftw3_omp"
     if [ "$with_fftw" != "__SYSTEM__" ] ; then
