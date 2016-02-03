@@ -204,7 +204,7 @@ if (command -v mpirun &> /dev/null) ; then
         echo "MPI is detected and it appears to be OpenMPI"
         export MPI_MODE=openmpi
     else
-        report_warning $LINENO "MPI is detected on your system, but does this script cannot recognize its type, as it only supports OpenMPI and MPICH, use the system MPI at your own risk..."
+        report_warning $LINENO "MPI is detected on your system, but this script cannot recognize its type as it only supports OpenMPI and MPICH, use the system MPI at your own risk..."
         # default guess to mpich
         export MPI_MODE=native
     fi
