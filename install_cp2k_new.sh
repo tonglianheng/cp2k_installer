@@ -678,10 +678,11 @@ fi
 # note that C preprocessor which we use as a mode chooser has
 # difficulty in interpreting commas in macro arguments unless it is
 # inside parenthesis or quotes. So we must quote the LDFLAGS, as they
-# may contain -Wl, flags
+# may contain -Wl, flags. Also for MKL LIBS will also contain -Wl,
+# flags
 export CP_CFLAGS="$(unique ${CP_CFLAGS} "IF_VALGRIND(${REF_MATH_CFLAGS},${FAST_MATH_CFLAGS})")"
 export CP_LDFLAGS="$(unique ${CP_LDFLAGS} "IF_VALGRIND(\"${REF_MATH_LDFLAGS}\",\"${FAST_MATH_LDFLAGS}\")")"
-export CP_LIBS="$(unique ${CP_LIBS} "IF_VALGRIND(${REF_MATH_LIBS},${FAST_MATH_LIBS})")"
+export CP_LIBS="$(unique ${CP_LIBS} "IF_VALGRIND(\"${REF_MATH_LIBS}\",\"${FAST_MATH_LIBS}\")")"
 
 # other libraries
 for ii in $lib_list ; do
