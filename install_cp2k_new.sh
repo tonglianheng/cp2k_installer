@@ -206,7 +206,7 @@ if (command -v mpirun &> /dev/null) ; then
     else
         report_warning $LINENO "MPI is detected on your system, but does this script cannot recognize its type, as it only supports OpenMPI and MPICH, use the system MPI at your own risk..."
         # default guess to mpich
-        export MPI_MODE=mpich
+        export MPI_MODE=native
     fi
 else
     report_warning $LINENO "No MPI installation detected on you system"
@@ -249,6 +249,10 @@ while [ $# -ge 1 ] ; do
                     ;;
                 openmpi)
                     export MPI_MODE=openmpi
+                    ;;
+                native)
+                    ::
+                    export MPI_MODE=native
                     ;;
                 no)
                     export MPI_MODE=no
@@ -586,6 +590,9 @@ if (command -v ftn &> /dev/null) ; then
     export MPIF90=ftn
     echo "setting MPICXX to CC"
     export MPICXX=CC
+    # disable installing gcc and mpi libraries
+    with_gcc=__DONTUSE__
+    export MPI_MODE=native
 fi
 
 # ----------------------------------------------------------------------
