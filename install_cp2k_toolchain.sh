@@ -697,53 +697,94 @@ done
 
 echo "==================== generating arch files ===================="
 echo "arch files can be found in the ${INSTALLDIR}/arch subdirectory"
-mkdir -p ${INSTALLDIR}/arch
+! [ -d "${INSTALLDIR}/arch" ] mkdir -p ${INSTALLDIR}/arch
 cd ${INSTALLDIR}/arch
 
+# -------------------------
+# set compiler flags
+# -------------------------
+
+# we always want good line information and backtraces
+BASEFLAGS="-march=native -fno-omit-frame-pointer -g ${TSANFLAGS}"
+OPT_FLAGS="-O3 -funroll-loops -ffast-math"
+NOOPT_FLAGS="-O1"
+
+# those flags that do not influence code generation are used always, the others if debug
+FCDEB_FLAGS="-ffree-form -std=f2003 -fimplicit-none"
+FCDEB_FLAGS_DEBUG="-fsanitize=leak -fcheck='bounds,do,recursion,pointer' -ffpe-trap='invalid,zero,overflow' -finit-real=snan -fno-fast-math"
+
+# code coverage generation flags
+#For gcc 6.0 use -O1 -coverage -fkeep-static-functions
+COVERAGE_FLAGS="-O0 -coverage"
+COVERAGE_DFLAGS="-D__NO_ABORT"
+
+# profile based optimization, see https://www.cp2k.org/howto:pgo
+PROFOPT_FLAGS="\$(PROFOPT)"
+
+# special flags for gfortran
+# https://gcc.gnu.org/onlinedocs/gfortran/Error-and-Warning-Options.html
+# we error out for these warnings (-Werror=uninitialized -Wno-maybe-uninitialized -> error on variables that must be used uninitialized)
+WFLAGS_ERROR="-Werror=aliasing -Werror=ampersand -Werror=c-binding-type -Werror=intrinsic-shadow -Werror=intrinsics-std -Werror=line-truncation -Werror=tabs -Werror=realloc-lhs-all -Werror=target-lifetime -Werror=underflow -Werror=unused-but-set-variable -Werror=unused-variable -Werror=unused-dummy-argument -Werror=conversion -Werror=zerotrip -Werror=uninitialized -Wno-maybe-uninitialized"
+# we just warn for those (that eventually might be promoted to WFLAGSERROR). It is useless to put something here with 100s of warnings.
+WFLAGS_WARN="-Wuse-without-only"
+# while here we collect all other warnings, some we'll ignore
+WFLAGS_WARNALL="-pedantic -Wall -Wextra -Wsurprising -Wunused-parameter -Warray-temporaries -Wcharacter-truncation -Wconversion-extra -Wimplicit-interface -Wimplicit-procedure -Wreal-q-constant -Wunused-parameter -Walign-commons -Wfunction-elimination -Wrealloc-lhs -Wcompare-reals -Wzerotrip"
+
+# check all of the above flags, filter out incompatable flags for the
+# current version of gcc in use
+BASEFLAGS=$(allowed_gfortran_flags         $BASEFLAGS)
+OPT_FLAGS=$(allowed_gfortran_flags         $OPT_FLAGS)
+NOOPT_FLAGS=$(allowed_gfortran_flags       $NOOPT_FLAGS)
+FCDEB_FLAGS=$(allowed_gfortran_flags       $FCDEB_FLAGS)
+FCDEB_FLAGS_DEBUG=$(allowed_gfortran_flags $FCDEB_FLAGS_DEBUG)
+COVERAGE_FLAGS=$(allowed_gfortran_flags    $COVERAGE_FLAGS)
+WFLAGS_ERROR=$(allowed_gfortran_flags      $WFLAGS_ERROR)
+WFLAGS_WARN=$(allowed_gfortran_flags       $WFLAGS_WARN)
+WFLAGS_WARNALL=$(allowed_gfortran_flags    $WFLAGS_WARNALL)
+
+# contagnate the above flags into WFLAGS, FCDEBFLAGS, DFLAGS and
+# finally into FCFLAGS and CFLAGS
+WFLAGS="$WFLAGSERROR $WFLAGSWARN IF_WARNALL(${WFLAGSWARNALL},)"
+FCDEBFLAGS="$FCDEB_FLAGS IF_DEBUG($FCDEB_FLAGS_DEBUG,)"
+DFLAGS="${CP_DFLAGS} IF_DEBUG(-D__HAS_IEEE_EXCEPTIONS,) IF_COVERAGE($COVERAGE_DFLAGS,)"
+# language independent flags
+G_CFLAGS="$BASEFLAGS"
+G_CFLAGS="$G_CFLAGS IF_COVERAGE($COVERAGE_FLAGS, IF_DEBUG($NOOPT_FLAGS, $OPT_FLAGS)"
+G_CFLAGS="$G_CFLAGS IF_DEBUG(,$PROFOPT_FLAGS)"
+G_CFLAGS="$G_CFLAGS $CP_CFLAGS"
+# FCFLAGS, for gfortran
+FCFLAGS="$G_CFLAGS \$(FCDEBFLAGS) \$(WFLAGS) \$(DFLAGS)"
+# CFLAGS, spcial flags for gcc (currently none)
+CFLAGS="$G_CFLAGS \$(DFLAGS)"
+
+# Linker flags
+LDFLAGS="${CP_LDFLAGS} \$(FCFLAGS)"
+
+# Library flags
 # add standard libs
 LIBS="${CP_LIBS} -lstdc++"
 
-# we always want good line information and backtraces
-BASEFLAGS="${BASEFLAGS} -march=native -fno-omit-frame-pointer -g ${TSANFLAGS}"
-#For gcc 6.0 use -O1 -coverage -fkeep-static-functions -D__NO_ABORT
-BASEFLAGS="${BASEFLAGS} IF_COVERAGE(-O0 -coverage -D__NO_ABORT, IF_DEBUG(-O1,-O2 -ffast-math))"
-# those flags that do not influence code generation are used always, the others if debug
-FCDEBFLAGS="IF_DEBUG(-fsanitize=leak -fcheck='bounds,do,recursion,pointer' -ffpe-trap='invalid,zero,overflow' -finit-real=snan -fno-fast-math,) -std=f2003 -fimplicit-none "
-DFLAGS="${CP_DFLAGS} IF_DEBUG(-D__HAS_IEEE_EXCEPTIONS,)"
-# profile based optimization, see https://www.cp2k.org/howto:pgo
-BASEFLAGS="${BASEFLAGS} IF_DEBUG(,\$(PROFOPT))"
-
-# Special flags for gfortran
-# https://gcc.gnu.org/onlinedocs/gfortran/Error-and-Warning-Options.html
-# we error out for these warnings (-Werror=uninitialized -Wno-maybe-uninitialized -> error on variables that must be used uninitialized)
-WFLAGSERROR="-Werror=aliasing -Werror=ampersand -Werror=c-binding-type -Werror=intrinsic-shadow -Werror=intrinsics-std -Werror=line-truncation -Werror=tabs -Werror=realloc-lhs-all -Werror=target-lifetime -Werror=underflow -Werror=unused-but-set-variable -Werror=unused-variable -Werror=unused-dummy-argument -Werror=conversion -Werror=zerotrip -Werror=uninitialized -Wno-maybe-uninitialized"
-# we just warn for those (that eventually might be promoted to WFLAGSERROR). It is useless to put something here with 100s of warnings.
-#WFLAGSWARN="-Wuse-without-only"
-WFLAGSWARN=""
-# while here we collect all other warnings, some we'll ignore
-WFLAGSWARNALL="-pedantic -Wall -Wextra -Wsurprising -Wunused-parameter -Warray-temporaries -Wcharacter-truncation -Wconversion-extra -Wimplicit-interface -Wimplicit-procedure -Wreal-q-constant -Wunused-parameter -Walign-commons -Wfunction-elimination -Wrealloc-lhs -Wcompare-reals -Wzerotrip"
-# combine warn/error flags
-WFLAGS="$WFLAGSERROR $WFLAGSWARN IF_WARNALL(${WFLAGSWARNALL},)"
-FCFLAGS="${BASEFLAGS} -ffree-form ${CP_CFLAGS} \$(FCDEBFLAGS) \$(WFLAGS) \$(DFLAGS)"
-LDFLAGS="${CP_LDFLAGS} \$(FCFLAGS)"
-
-# Spcial flags for gcc (currently none)
-CFLAGS="${BASEFLAGS} ${CP_CFLAGS} \$(DFLAGS)"
-
 # CUDA stuff
+CUDA_LIBS="-lcudart -lcufft -lcublas -lrt IF_DEBUG(-lnvToolsExt,)"
+CUDA_DFLAGS="-D__ACC -D__DBCSR_ACC -D__PW_CUDA IF_DEBUG(-D__CUDA_PROFILING,)"
 if [ "$ENABLE_CUDA" = __TRUE__ ] ; then
-    LIBS="${LIBS} IF_CUDA(-lcudart -lcufft -lcublas -lrt IF_DEBUG(-lnvToolsExt,),)"
-    DFLAGS="IF_CUDA(-D__ACC -D__DBCSR_ACC -D__PW_CUDA IF_DEBUG(-D__CUDA_PROFILING,),) ${DFLAGS}"
-    NVFLAGS="-arch sm_35 \$(DFLAGS) "
+    LIBS="${LIBS} IF_CUDA(${CUDA_LIBS},)"
+    DFLAGS="IF_CUDA(${CUDA_DFLAGS},) ${DFLAGS}"
+    NVFLAGS="-arch sm_35 \$(DFLAGS)"
 fi
+
+# -------------------------
+# generate the arch files
+# -------------------------
 
 # helper routine for instantiating the arch.tmpl
 gen_arch_file() {
- local filename=$1
- local flags=$2
- local TMPL=$(cat ${ARCH_FILE_TEMPLATE})
- eval "printf \"$TMPL\"" | cpp -traditional-cpp -P ${flags} - > $filename
- echo "Wrote install/arch/"$filename
+    local __filename=$1
+    local __flags=$2
+    require_env ARCH_FILE_TEMPLATE
+    local __TMPL=$(cat ${ARCH_FILE_TEMPLATE})
+    eval "printf \"$__TMPL\"" | cpp -traditional-cpp -P ${__flags} - > $__filename
+    echo "Wrote install/arch/"$__filename
 }
 
 rm -f ${INSTALLDIR}/arch/local*
@@ -790,16 +831,25 @@ if [ "$ENABLE_COVERAGE" = __TRUE__ ]; then
         { gen_arch_file "local_coverage_cuda.pdbg"   "-DCOVERAGE -DMPI -DCUDA"; }
 fi
 
+# -------------------------
+# print out user instructions
+# -------------------------
+
 cat <<EOF
 ========================== usage =========================
 Done!
-Now copy: cp ${INSTALLDIR}/arch/* to the cp2k/arch/ directory
-to use the installed tools and libraries and cp2k version
+Now copy:
+  cp ${INSTALLDIR}/arch/* to the cp2k/arch/ directory
+To use the installed tools and libraries and cp2k version
 compiled with it you will first need to execute at the prompt:
   source ${SETUPFILE}
 To build CP2K you should change directory:
   cd cp2k/makefiles/
   make -j ${nprocs} ARCH=local VERSION="${arch_vers}"
+
+arch files for GPU enabled CUDA versions are named "local_cuda.*"
+arch files for valgrind versions are named "local_valgrind.*"
+arch files for coverage versions are named "local_coverage.*"
 EOF
 
 #EOF

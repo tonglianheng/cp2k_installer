@@ -24,8 +24,8 @@ case "$with_gcc" in
             if [ "${gcc_ver}" == "master" ]; then
                 # no check since this follows the gcc trunk svn repo and changes constantly
                 download_pkg_no_checksum ${DOWNLOADER_FLAGS} \
+                                         -o gcc-master.zip \
                                          https://github.com/gcc-mirror/gcc/archive/master.zip
-                mv master gcc-master.zip
                 unzip -q gcc-master.zip
             else
                 download_pkg ${DOWNLOADER_FLAGS} \

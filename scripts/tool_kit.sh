@@ -329,6 +329,57 @@ check_lib() {
     fi
 }
 
+# check if a flag is allowed for the current version of
+# gfortran. returns 0 if allowed and 1 if not
+check_gfortran_flag() {
+    local __flag=$1
+    local __FC=${FC:-gfortran}
+    require_env TEST_FTN_SRC
+    # no need to do a full compilation, just -E -cpp would do for
+    # checking flags
+    $__FC -E -cpp $__flag ${TEST_FTN_SRC} &> /dev/null
+}
+
+# check if a flag is allowed for the current version of
+# gcc. returns 0 if allowed and 1 if not
+check_gcc_flag() {
+    local __flag=$1
+    local __CC=${CC:-gcc}
+    require_env TEST_C_SRC
+    # no need to do a full compilation, just -E -cpp would do for
+    # checking flags
+    $__CC -E -cpp $__flag ${TEST_C_SRC} &> /dev/null
+}
+
+
+# given a list of flags, only print out what is allowed by the current
+# version of gfortran
+allowed_gfortran_flags() {
+    local __flags=$@
+    local __flag=''
+    local __result=''
+    for __flag in $__flags ; do
+        if (check_gfortran_flag $__flag) ; then
+            [ -z "$__result" ] && __result="$__flag" || __result="$__result $__flag"
+        fi
+    done
+    echo $__result
+}
+
+# given a list of flags, only print out what is allowed by the current
+# version of gcc
+allowed_gcc_flags() {
+    local __flags=$@
+    local __flag=''
+    local __result=''
+    for __flag in $__flags ; do
+        if (check_gcc_flag $__flag) ; then
+            [ -z "$__result" ] && __result="$__flag" || __result="$__result $__flag"
+        fi
+    done
+    echo $__result
+}
+
 # prepend a directory to a given path
 prepend_path() {
     local __env_var=$1
@@ -465,7 +516,7 @@ download_pkg() {
     done
     local __filename="$(basename $__url)"
     # env variable for checksum file must be provided
-    [ require_env SHA256_CHECKSUMS ] || return 1
+    require_env SHA256_CHECKSUMS
     # download
     if ! wget $__wget_flags $__url ; then
         report_error "failed to download $__url"
