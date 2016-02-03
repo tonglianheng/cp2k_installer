@@ -20,7 +20,6 @@ case "$with_superlu" in
         require_env PARMETIS_LIBS
         require_env METIS_LDFLAGS
         require_env METIS_LIBS
-        require_env MATH_LDFLAGS
         require_env MATH_LIBS
         pkg_install_dir="${INSTALLDIR}/superlu_dist-${superlu_ver}"
         install_lock_file="$pkg_install_dir/install_successful"

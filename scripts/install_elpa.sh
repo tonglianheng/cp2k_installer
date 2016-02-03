@@ -33,7 +33,6 @@ case "$with_elpa" in
         if [ -f "${install_lock_file}" ] ; then
             echo "elpa-${elpa_ver} is already installed, skipping it."
         else
-            require_env MATH_LDFLAGS
             require_env MATH_LIBS
             if [ -f elpa-${elpa_ver}.tar.gz ] ; then
                 echo "elpa-${elpa_ver}.tar.gz is found"

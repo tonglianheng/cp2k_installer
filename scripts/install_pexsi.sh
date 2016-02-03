@@ -22,7 +22,6 @@ case "$with_pexsi" in
         require_env METIS_LIBS
         require_env SUPERLU_LDFLAGS
         require_env SUPERLU_LIBS
-        require_env MATH_LDFLAGS
         require_env MATH_LIBS
         pkg_install_dir="${INSTALLDIR}/pexsi-${pexsi_ver}"
         install_lock_file="$pkg_install_dir/install_successful"
