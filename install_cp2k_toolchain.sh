@@ -135,7 +135,7 @@ The --with-PKG options follow the rules:
   --with-elpa             Eigenvalue SoLvers for Petaflop-Applications library.
                           Fast library for large parallel jobs.
                           Default = no
-  --with-ptscotch           PT-SCOTCH, only used if PEXSI is used
+  --with-ptscotch         PT-SCOTCH, only used if PEXSI is used
                           Default = no
   --with-parmetis         ParMETIS, and if --with-parmetis=install will also install
                           METIS, only used if PEXSI is used
