@@ -25,7 +25,7 @@ case "$with_gcc" in
                 # no check since this follows the gcc trunk svn repo and changes constantly
                 download_pkg_no_checksum ${DOWNLOADER_FLAGS} \
                                          https://github.com/gcc-mirror/gcc/archive/master.zip
-                mv master.zip gcc-master.zip
+                mv master gcc-master.zip
                 unzip -q gcc-master.zip
             else
                 download_pkg ${DOWNLOADER_FLAGS} \

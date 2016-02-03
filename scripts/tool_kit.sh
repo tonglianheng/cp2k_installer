@@ -252,6 +252,16 @@ add_lib_from_paths() {
     fi
 }
 
+# check if environment variable is assigned and non-empty
+require_env() {
+    local __env_var_name=$1
+    local __env_var="$(eval echo "\$$__env_var_name")"
+    if [ -z "$__env_var" ] ; then
+        report_error "requires environment variable $__env_var_name to work"
+        return 1
+    fi
+}
+
 # check if a command is available
 check_command() {
     local __command=$1
@@ -406,53 +416,61 @@ checksum() {
    fi
 }
 
-
 # downloader for the package tars, excludes checksum
 download_pkg_no_chesksum() {
+    # usage: download_pkg_no_checksums [-n] [-o output_filename] url
     local __wget_flags=''
-    if [ "$1" = "-n" ] ; then
+    local __url=''
+    while [ $# -ge 1 ] ; do
+        case "$1" in
+            -n)
+                local __wget_flags="$__wget_flags --no-check-certificate"
+                ;;
+            -o)
+                shift
+                __wget_flags="$__wget_flags -O $1"
+               ;;
+            *)
+                __url="$1"
+                ;;
+        esac
         shift
-        local __wget_flags="--no-check-certificate"
-    fi
-    local __url="$1"
-    local __filename="$(basename $__url)"
+    done
     # download
-    if ! wget "$__wget_flags" "$__url" ; then
+    if ! wget $__wget_flags $__url ; then
         report_error "failed to download $__url"
         return 1
     fi
 }
 
-
 # downloader for the package tars, includes checksum
 download_pkg() {
+    # usage: download_pkg [-n] [-o output_filename] url
     local __wget_flags=''
-    if [ "$1" = "-n" ] ; then
+    local __url=''
+    while [ $# -ge 1 ] ; do
+        case "$1" in
+            -n)
+                local __wget_flags="$__wget_flags --no-check-certificate"
+                ;;
+            -o)
+                shift
+                __wget_flags="$__wget_flags -O $1"
+               ;;
+            *)
+                __url="$1"
+                ;;
+        esac
         shift
-        local __wget_flags="--no-check-certificate"
-    fi
-    local __url="$1"
+    done
     local __filename="$(basename $__url)"
     # env variable for checksum file must be provided
-    if [ -z "$SHA256_CHECKSUMS" ] ; then
-        report_error "env variable SHA256_CHECKSUMS is unset or empty!"
-        return 1
-    fi
+    [ require_env SHA256_CHECKSUMS ] || return 1
     # download
-    if ! wget "$__wget_flags" "$__url" ; then
+    if ! wget $__wget_flags $__url ; then
         report_error "failed to download $__url"
         return 1
     fi
     # checksum
     checksum "$__filename" "$SHA256_CHECKSUMS"
-}
-
-# check if environment variable is assigned and non-empty
-require_env() {
-    local __env_var_name=$1
-    local __env_var="$(eval echo "\$$__env_var_name")"
-    if [ -z "$__env_var" ] ; then
-        report_error "requires environment variable $__env_var_name to work"
-        return 1
-    fi
 }
