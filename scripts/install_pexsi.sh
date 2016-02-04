@@ -25,6 +25,8 @@ case "$with_pexsi" in
         require_env SUPERLU_LDFLAGS
         require_env SUPERLU_LIBS
         require_env MATH_LIBS
+        require_env MPI_LDFLAGS
+        require_env MPI_LIBS
         pkg_install_dir="${INSTALLDIR}/pexsi-${pexsi_ver}"
         install_lock_file="$pkg_install_dir/install_successful"
         if [ -f "${install_lock_file}" ] ; then
@@ -43,7 +45,7 @@ case "$with_pexsi" in
                 sed -e "s|\(PAR_ND_LIBRARY *=\).*|\1 parmetis|" \
                     -e "s|\(SEQ_ND_LIBRARY *=\).*|\1 metis|" \
                     -e "s|\(PEXSI_DIR *=\).*|\1 ${PWD}|" \
-                    -e "s|\(CPP_LIB *=\).*|\1 -lstdc++ -lmpi_cxx |" \
+                    -e "s|\(CPP_LIB *=\).*|\1 -lstdc++ ${MPI_LDFLAGS} ${MPI_LIBS} |" \
                     -e "s|\(LAPACK_LIB *=\).*|\1 ${MATH_LDFLAGS} ${MATH_LIBS}|" \
                     -e "s|\(BLAS_LIB *=\).*|\1|" \
                     -e "s|\(\bMETIS_LIB *=\).*|\1 ${METIS_LDFLAGS} ${METIS_LIBS}|" \
