@@ -2,11 +2,29 @@
 [ "${BASH_SOURCE[0]}" ] && SCRIPT_NAME="${BASH_SOURCE[0]}" || SCRIPT_NAME=$0
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd -P)"
 
-source "${SCRIPT_DIR}"/scripts/common_vars.sh
-source "${SCRIPT_DIR}"/scripts/package_versions.sh
-source "${SCRIPT_DIR}"/scripts/tool_kit.sh
+# ----------------------------------------------------------------------
+# Work directories and used files
+# ----------------------------------------------------------------------
+export ROOTDIR="${PWD}"
+export SCRIPTDIR="${ROOTDIR}/scripts"
+export BUILDDIR="${ROOTDIR}/build"
+export INSTALLDIR="${ROOTDIR}/install"
+export SETUPFILE="${INSTALLDIR}/setup"
+export SHA256_CHECKSUM="${SCRIPTDIR}/checksums.sha256"
+export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch.tmpl"
+export TEST_FTN_FILE="${SCRIPTDIR}/test_code.f90"
+export TEST_C_FILE="${SCRIPTDIR}/test_code.c"
 
-# macro for display help
+# ----------------------------------------------------------------------
+# Load common variables and tools
+# ----------------------------------------------------------------------
+source "${SCRIPTDIR}"/common_vars.sh
+source "${SCRIPTDIR}"/package_versions.sh
+source "${SCRIPTDIR}"/tool_kit.sh
+
+# ----------------------------------------------------------------------
+# Documentation
+# ----------------------------------------------------------------------
 show_help() {
     cat<<EOF
 This script will help you compile and install, or link libraries
@@ -157,6 +175,7 @@ EOF
 # ----------------------------------------------------------------------
 # PACKAGE LIST: register all new dependent tools and libs here. Order
 # is important, the first in the list gets installed first
+# ----------------------------------------------------------------------
 tool_list="binutils make gcc cmake lcov valgrind"
 mpi_list="mpich openmpi"
 math_list="mkl acml openblas reflapack"
@@ -169,6 +188,10 @@ package_list="$tool_list $mpi_list $math_list $lib_list"
 for ii in $package_list ; do
     eval with_${ii}=__DONTUSE__
 done
+
+# ----------------------------------------------------------------------
+# Work out default settings
+# ----------------------------------------------------------------------
 
 # tools to turn on by default:
 with_binutils=__SYSTEM__
@@ -192,9 +215,10 @@ with_mkl=__SYSTEM__
 with_openblas=__INSTALL__
 with_reflapack=__INSTALL__
 
-# for MPI, first delect system MPI variant
+# for MPI, we try to detect system MPI variant
 with_openmpi=__SYSTEM__
 with_mpich=__SYSTEM__
+
 if (command -v mpirun &> /dev/null) ; then
     # check if we are dealing with openmpi or mpich
     if (mpirun --version 2>&1 | grep -s -q "HYDRA") ; then
@@ -204,12 +228,11 @@ if (command -v mpirun &> /dev/null) ; then
         echo "MPI is detected and it appears to be OpenMPI"
         export MPI_MODE=openmpi
     else
-        report_warning $LINENO "MPI is detected on your system, but this script cannot recognize its type as it only supports OpenMPI and MPICH, use the system MPI at your own risk..."
-        # default guess to mpich
-        export MPI_MODE=native
+        # default to mpich
+        export MPI_MODE=mpich
     fi
 else
-    report_warning $LINENO "No MPI installation detected on you system"
+    report_warning $LINENO "No MPI installation detected on you system, please ignore this message if you are using Cray Linux Environment"
     MPI_MODE=no
 fi
 
@@ -222,6 +245,23 @@ enable_gcc_master=__FALSE__
 enable_libxsmm_master=__FALSE__
 enable_omp=__TRUE__
 enable_cuda=__FALSE__
+
+# defaults for CRAY Linux Environment
+if [ "$CRAY_LD_LIBRARY_PATH" ] ; then
+    enable_cray=__TRUE__
+    export FAST_MATH_MODE=cray
+    # Default MPI used by CLE is assumed to be MPICH, in any case
+    # don't use the installers for the MPI libraries
+    with_mpich="__DONTUSE__"
+    with_openmpi="__DONTUSE__"
+    export MPI_MODE=mpich
+    # switch off some installers by default
+    with_gcc="__DONTUSE__"
+    with_fftw="__DONTUSE__"
+    with_scalapack="__DONTUSE__"
+else
+    enable_cray=__FALSE__
+fi
 
 # ----------------------------------------------------------------------
 # parse user options
@@ -250,10 +290,6 @@ while [ $# -ge 1 ] ; do
                 openmpi)
                     export MPI_MODE=openmpi
                     ;;
-                native)
-                    ::
-                    export MPI_MODE=native
-                    ;;
                 no)
                     export MPI_MODE=no
                     ;;
@@ -267,6 +303,9 @@ while [ $# -ge 1 ] ; do
         --math-mode=*)
             user_input="${1#*=}"
             case "$user_input" in
+                cray)
+                    export FAST_MATH_MODE=cray
+                    ;;
                 mkl)
                     export FAST_MATH_MODE=mkl
                     ;;
@@ -287,35 +326,42 @@ while [ $# -ge 1 ] ; do
         --enable-tsan*)
             enable_tsan=$(read_enable $1)
             if [ $enable_tsan = "__INVALID__" ] ; then
-                echo "invalid value for --enable-tsan, please use yes or no" >&2
+                report_error "invalid value for --enable-tsan, please use yes or no"
                 exit 1
             fi
             ;;
         --enable-gcc-master*)
             enable_gcc_master=$(read_enable $1)
             if [ $enable_gcc_master = "__INVALID__" ] ; then
-                echo "invalid value for --enable-gcc-master, please use yes or no" >&2
+                report_error "invalid value for --enable-gcc-master, please use yes or no"
                 exit 1
             fi
             ;;
         --enable-libxsmm-master*)
             enable_libxsmm_master=$(read_enable $1)
             if [ $enable_libxsmm_master = "__INVALID__" ] ; then
-                echo "invalid value for --enable-libxsmm-master, please use yes or no" >&2
+                report_error "invalid value for --enable-libxsmm-master, please use yes or no"
                 exit 1
             fi
             ;;
         --enable-omp*)
             enable_omp=$(read_enable $1)
             if [ $enable_omp = "__INVALID__" ] ; then
-                echo "invalid value for --enable-omp, please use yes or no" >&2
+                report_error "invalid value for --enable-omp, please use yes or no"
                 exit 1
             fi
             ;;
         --enable-cuda*)
             enable_cuda=$(read_enable $1)
             if [ $enable_cuda = "__INVALID__" ] ; then
-                echo "invalid value for --enable-cuda, please use yes or no" >&2
+                report_error "invalid value for --enable-cuda, please use yes or no"
+                exit 1
+            fi
+            ;;
+        --enable-cray*)
+            enable_cray=$(read_enable $1)
+            if [ $enable_cray = "__INVALID__" ] ; then
+                report_error "invalid value for --enable-cray, please use yes or no"
                 exit 1
             fi
             ;;
@@ -421,6 +467,7 @@ done
 export ENABLE_TSAN=$enable_tsan
 export ENABLE_OMP=$enable_omp
 export ENABLE_CUDA=$enable_cuda
+export ENABLE_CRAY=$enable_cray
 [ "$enable_gcc_master" = "__TRUE__" ] && export gcc_ver=master
 [ "$enable_libxsmm_master" = "__TRUE__" ] && export libxsmm_ver=master
 [ "$with_valgrind" != "__DONTUSE__"  ] && export ENABLE_VALGRIND="__TRUE__"
@@ -496,27 +543,19 @@ elif [ "$with_pexsi" = "__INSTALL__" ] ; then
     [ "$with_superlu" = "__DONTUSE__" ] && with_superlu="__INSTALL__"
 else
     if [ "$with_ptscotch" = "__DONTUSE__" ] ; then
-        echo "For PEXSI to work you need a working PT-Scotch library" >&2
-        echo "use --with-ptscotch option to specify if you wish to install" >&2
-        echo "the library or specify its location." >&2
+        report_error "For PEXSI to work you need a working PT-Scotch library use --with-ptscotch option to specify if you wish to install the library or specify its location."
         exit 1
     fi
     if [ "$with_parmetis" = "__DONTUSE__" ] ; then
-        echo "For PEXSI to work you need a working PARMETIS library" >&2
-        echo "use --with-parmetis option to specify if you wish to install" >&2
-        echo "the library or specify its location." >&2
+        report_error "For PEXSI to work you need a working PARMETIS library use --with-parmetis option to specify if you wish to install the library or specify its location."
         exit 1
     fi
     if [ "$with_metis" = "__DONTUSE__" ] ; then
-        echo "For PEXSI to work you need a working METIS library" >&2
-        echo "use --with-metis option to specify if you wish to install" >&2
-        echo "the library or specify its location." >&2
+        report_error "For PEXSI to work you need a working METIS library use --with-metis option to specify if you wish to install the library or specify its location."
         exit 1
     fi
     if [ "$with_superlu" = "__DONTUSE__" ] ; then
-        echo "For PEXSI to work you need a working SuperLU-DIST library" >&2
-        echo "use --with-superlu option to specify if you wish to install" >&2
-        echo "the library or specify its location." >&2
+        report_error "For PEXSI to work you need a working SuperLU-DIST library use --with-superlu option to specify if you wish to install the library or specify its location."
         exit 1
     fi
 fi
@@ -530,15 +569,7 @@ fi
 # ----------------------------------------------------------------------
 # Preliminaries
 # ----------------------------------------------------------------------
-export ROOTDIR="${PWD}"
-export SCRIPTDIR="${ROOTDIR}/scripts"
-export BUILDDIR="${ROOTDIR}/build"
-export INSTALLDIR="${ROOTDIR}/install"
-export SETUPFILE="${INSTALLDIR}/setup"
-export SHA256_CHECKSUM="${SCRIPTDIR}/checksums.sha256"
-export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch.tmpl"
 
-# mkdir -p "$BUILDDIR"
 mkdir -p "$INSTALLDIR"
 
 # variables used for generating cp2k ARCH file
@@ -566,33 +597,51 @@ prepend_path() {
 EOF
 
 # ----------------------------------------------------------------------
-# For CRAY systems where wrapper are used for compilers
+# Special settings for CRAY Linux Environment (CLE)
 # ----------------------------------------------------------------------
-if (command -v ftn &> /dev/null) ; then
+if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
+    echo "----------------------------------------------------------------------"
     echo "CRAY Linux Environment (CLE) is detected"
-    echo "setting CC to cc"
+    echo "----------------------------------------------------------------------"
+    # add CRAY_LD_LIBRARY_PATH to system search path
+    export LIB_PATHS="CRAY_LD_LIBRARY_PATH ${LIB_PATHS}"
+    # set compilers to CLE wrappers
+    check_command cc
+    check_command ftn
+    check_command CC
     export CC=cc
-    echo "setting FC to ftn"
     export FC=ftn
-    echo "setting F77 to ftn"
     export F77=ftn
-    echo "setting F90 to ftn"
     export F90=ftn
-    echo "setting CXX to CC"
     export CXX=CC
-    echo "setting MPICC to cc"
     export MPICC=cc
-    echo "setting MPIFC to ftn"
     export MPIFC=ftn
-    echo "setting MPIF77 to ftn"
     export MPIF77=ftn
-    echo "setting MPIF90 to ftn"
     export MPIF90=ftn
-    echo "setting MPICXX to CC"
     export MPICXX=CC
-    # disable installing gcc and mpi libraries
-    with_gcc=__DONTUSE__
-    export MPI_MODE=native
+    # CRAY libsci should contains core math libraries, scalapack and fftw
+    # doesn't need LDFLAGS or CFLAGS, nor do the one need to explicitly
+    # link the math and scalapack libraries, as all is taken care of by
+    # the cray compiler wrappers. We do need to explicitly link to fftw3
+    # so that fftw2 do not get choosen by CLE automatically
+    if [ "$with_fftw" = "__DONTUSE__" ] ; then
+        export FFTW_LIBS="-lfftw3"
+        export FFTW_LIBS_OMP="-lfftw3_threads"
+        export CP_DFLAGS="${CP_DFLAGS} -D__FFTW3 IF_COVERAGE(IF_MPI(,-U__FFTW3),)"
+        export CP_LIBS="${CP_LIBS} ${FFTW_LIBS} IF_OMP(${FFTW_LIBS_OMP},)"
+    fi
+    if [ "$with_scalapack" = "__DONTUSE__" ] ; then
+        export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
+    fi
+    check_lib -lz
+    check_lib -ldl
+    export CRAY_EXTRA_LIBS="-lz -ldl"
+    # the space is intentional, so that the variable is non-empty and
+    # can pass require_env checks
+    export SCALAPACK_LDFLAGS=" "
+    export SCALAPACK_LIBS=" "
+    export MPI_LDFLAGS=" "
+    export MPI_LIBS=" "
 fi
 
 # ----------------------------------------------------------------------
@@ -612,7 +661,7 @@ export CXXFLAGS=${CXXFLAGS:-"-O2 -g -Wno-error"}
 
 for ii in $tool_list ; do
     install_mode="$(eval echo \${with_${ii}})"
-    ./scripts/install_${ii}.sh "$install_mode"
+    "${SCRIPTDIR}"/install_${ii}.sh "$install_mode"
     load "${BUILDDIR}/setup_${ii}"
 done
 
@@ -631,15 +680,15 @@ export CXXFLAGS="-O2 -ftree-vectorize -g -fno-omit-frame-pointer -march=native -
 export LDFLAGS="$TSANFLAGS"
 
 # get system arch information using OpenBLAS prebuild
-./scripts/get_openblas_arch.sh; load "${BUILDDIR}/openblas_arch"
+"${SCRIPTDIR}"/get_openblas_arch.sh; load "${BUILDDIR}/openblas_arch"
 
 # MPI libraries
 case "$MPI_MODE" in
     mpich)
-        ./scripts/install_mpich.sh "${with_mpich}"; load "${BUILDDIR}/setup_mpich"
+        "${SCRIPTDIR}"/install_mpich.sh "${with_mpich}"; load "${BUILDDIR}/setup_mpich"
         ;;
     openmpi)
-        ./scripts/install_openmpi.sh "${with_openmpi}"; load "${BUILDDIR}/setup_openmpi"
+        "${SCRIPTDIR}"/install_openmpi.sh "${with_openmpi}"; load "${BUILDDIR}/setup_openmpi"
         ;;
 esac
 
@@ -652,16 +701,22 @@ export FAST_MATH_CFLAGS=''
 export FAST_MATH_LDFLAGS=''
 export FAST_MATH_LIBS=''
 
-./scripts/install_reflapack.sh "${with_reflapack}"; load "${BUILDDIR}/setup_reflapack"
+"${SCRIPTDIR}"/install_reflapack.sh "${with_reflapack}"; load "${BUILDDIR}/setup_reflapack"
 case "$FAST_MATH_MODE" in
     mkl)
-        ./scripts/install_mkl.sh "${with_mkl}"; load "${BUILDDIR}/setup_mkl"
+        "${SCRIPTDIR}"/install_mkl.sh "${with_mkl}"; load "${BUILDDIR}/setup_mkl"
         ;;
     acml)
-        ./scripts/install_acml.sh "${with_acml}"; load "${BUILDDIR}/setup_acml"
+        "${SCRIPTDIR}"/install_acml.sh "${with_acml}"; load "${BUILDDIR}/setup_acml"
         ;;
     openblas)
-        ./scripts/install_openblas.sh "${with_openblas}"; load "${BUILDDIR}/setup_openblas"
+        "${SCRIPTDIR}"/install_openblas.sh "${with_openblas}"; load "${BUILDDIR}/setup_openblas"
+        ;;
+    cray)
+        # note the space is intentional so that the variable is
+        # non-empty and can pass require_env checks
+        export FAST_MATH_LDFLAGS="${FAST_MATH_LDFLAGS} "
+        export FAST_MATH_LIBS="${FAST_MATH_LIBS} ${CRAY_EXTRA_LIBS}"
         ;;
 esac
 
@@ -687,7 +742,7 @@ export CP_LIBS="$(unique ${CP_LIBS} "IF_VALGRIND(\"${REF_MATH_LIBS}\",\"${FAST_M
 # other libraries
 for ii in $lib_list ; do
     install_mode="$(eval echo \${with_${ii}})"
-    ./scripts/install_${ii}.sh "$install_mode"
+    "${SCRIPTDIR}"/install_${ii}.sh "$install_mode"
     load "${BUILDDIR}/setup_${ii}"
 done
 

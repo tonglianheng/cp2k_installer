@@ -311,7 +311,7 @@ check_lib() {
     # used during link stage. However, I think using ld is more
     # general, as in most systems LIBRARY_PATH is rarely defined, and
     # we would have to reply on gcc.
-    local __search_engine="ld"
+    local __search_engine="ld -o /dev/null"
     local __search_paths="$LIB_PATHS"
     # convert a list of paths to -L<dir> list used by ld
     __search_engine="$__search_engine $(paths_to_ld $__search_paths)"
@@ -334,10 +334,10 @@ check_lib() {
 check_gfortran_flag() {
     local __flag=$1
     local __FC=${FC:-gfortran}
-    require_env TEST_FTN_SRC
+    require_env TEST_FTN_FILE
     # no need to do a full compilation, just -E -cpp would do for
     # checking flags
-    $__FC -E -cpp $__flag ${TEST_FTN_SRC} &> /dev/null
+    $__FC -E -cpp $__flag ${TEST_FTN_FILE} &> /dev/null
 }
 
 # check if a flag is allowed for the current version of
@@ -345,10 +345,10 @@ check_gfortran_flag() {
 check_gcc_flag() {
     local __flag=$1
     local __CC=${CC:-gcc}
-    require_env TEST_C_SRC
+    require_env TEST_C_FILE
     # no need to do a full compilation, just -E -cpp would do for
     # checking flags
-    $__CC -E -cpp $__flag ${TEST_C_SRC} &> /dev/null
+    $__CC -E -cpp $__flag ${TEST_C_FILE} &> /dev/null
 }
 
 

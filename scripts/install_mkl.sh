@@ -18,7 +18,7 @@ cd "${BUILDDIR}"
 case "$with_mkl" in
     __INSTALL__)
         echo "==================== Installing MKL ===================="
-        echo "Cannot install Intel MKL automatically, please contact your system administrator" >&2
+        report_error ${LINENO} "To install MKL you should contact your system administrator."
         exit 1
         ;;
     __SYSTEM__)
@@ -26,12 +26,11 @@ case "$with_mkl" in
         if ! [ -z "MKLROOT" ] ; then
             echo "MKLROOT is found to be $MKLROOT"
         else
-            echo "Cannot find env variable $MKLROOT, it seems mkl is not" >&2
-            echo "properly installed on your system, or that its root directory ">&2
-            echo "is stored in a different env variable. Please check the " >&2
-            echo "location of your MKL installation and use --with-mkl=<location>" >&2
+            report_error ${LINENO} "Cannot find env variable MKLROOT, the script relies on it being set. Please check in MKL installation and use --with-mkl=<location> to pass the path to MKL root directory to this script."
             exit 1
         fi
+        check_lib -lm
+        check_lib -ldl
         ;;
     __DONTUSE__)
         ;;
