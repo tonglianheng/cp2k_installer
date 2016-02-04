@@ -27,7 +27,7 @@ case "$with_mpich" in
                 echo "mpich-${mpich_ver}.tar.gz is found"
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
-                https://www.open-mpi.org/software/ompi/v1.8/downloads/mpich-${mpich_ver}.tar.gz
+                             https://www.cp2k.org/static/downloads/mpich-${mpich_ver}.tar.gz
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf mpich-${mpich_ver}.tar.gz
