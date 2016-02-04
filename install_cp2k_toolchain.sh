@@ -232,7 +232,7 @@ if (command -v mpirun &> /dev/null) ; then
         export MPI_MODE=mpich
     fi
 else
-    report_warning $LINENO "No MPI installation detected on you system, please ignore this message if you are using Cray Linux Environment"
+    report_warning $LINENO "No MPI installation detected on you system. Ignore this message if you are using Cray Linux Environment"
     MPI_MODE=no
 fi
 

@@ -18,7 +18,7 @@ report_warning() {
         local __lineno=''
         local __message="$1"
     fi
-    echo "WARNING: (${SCRIPT_NAME}{$__lineno}) $__message" >&2
+    echo "WARNING: (${SCRIPT_NAME}${__lineno}) $__message" >&2
 }
 
 # report an error message with script name and line number
