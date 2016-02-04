@@ -11,7 +11,7 @@ export BUILDDIR="${ROOTDIR}/build"
 export INSTALLDIR="${ROOTDIR}/install"
 export SETUPFILE="${INSTALLDIR}/setup"
 export SHA256_CHECKSUM="${SCRIPTDIR}/checksums.sha256"
-export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch.tmpl"
+export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch_base.tmpl"
 export TEST_FTN_FILE="${SCRIPTDIR}/test_code.f90"
 export TEST_C_FILE="${SCRIPTDIR}/test_code.c"
 
@@ -575,7 +575,7 @@ mkdir -p "$INSTALLDIR"
 # variables used for generating cp2k ARCH file
 export CP_DFLAGS=''
 export CP_LIBS=''
-export CP_CFLAGS='IF_OMP(-fopenmp,)'
+export CP_CFLAGS='IF_OMP(-fopenmp|)'
 export CP_LDFLAGS="-Wl,--enable-new-dtags"
 
 # ----------------------------------------------------------------------
@@ -627,20 +627,20 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     if [ "$with_fftw" = "__DONTUSE__" ] ; then
         export FFTW_LIBS="-lfftw3"
         export FFTW_LIBS_OMP="-lfftw3_threads"
-        export CP_DFLAGS="${CP_DFLAGS} -D__FFTW3 IF_COVERAGE(IF_MPI(,-U__FFTW3),)"
-        export CP_LIBS="${CP_LIBS} ${FFTW_LIBS} IF_OMP(${FFTW_LIBS_OMP},)"
+        export CP_DFLAGS="${CP_DFLAGS} -D__FFTW3 IF_COVERAGE(IF_MPI(|-U__FFTW3)|)"
+        export CP_LIBS="${CP_LIBS} ${FFTW_LIBS} IF_OMP(${FFTW_LIBS_OMP}|)"
     fi
     if [ "$with_scalapack" = "__DONTUSE__" ] ; then
-        export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
+        export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__SCALAPACK|)"
     fi
     case $MPI_MODE in
         mpich)
-            export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3,)"
+            export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
             export MPI_LDFLAGS=" "
             export MPI_LIBS=" "
             ;;
         openmpi)
-            export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3,)"
+            export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
             export MPI_LDFLAGS=" "
             export MPI_LIBS="-lmpi -lmpi_cxx"
             ;;
@@ -740,14 +740,9 @@ else
     export MATH_LIBS="${FAST_MATH_LIBS}"
 fi
 
-# note that C preprocessor which we use as a mode chooser has
-# difficulty in interpreting commas in macro arguments unless it is
-# inside parenthesis or quotes. So we must quote the LDFLAGS, as they
-# may contain -Wl, flags. Also for MKL LIBS will also contain -Wl,
-# flags
-export CP_CFLAGS="$(unique ${CP_CFLAGS} "IF_VALGRIND(${REF_MATH_CFLAGS},${FAST_MATH_CFLAGS})")"
-export CP_LDFLAGS="$(unique ${CP_LDFLAGS} "IF_VALGRIND(\"${REF_MATH_LDFLAGS}\",\"${FAST_MATH_LDFLAGS}\")")"
-export CP_LIBS="$(unique ${CP_LIBS} "IF_VALGRIND(\"${REF_MATH_LIBS}\",\"${FAST_MATH_LIBS}\")")"
+export CP_CFLAGS="${CP_CFLAGS} IF_VALGRIND(${REF_MATH_CFLAGS}|${FAST_MATH_CFLAGS})"
+export CP_LDFLAGS="${CP_LDFLAGS} IF_VALGRIND(${REF_MATH_LDFLAGS}|${FAST_MATH_LDFLAGS})"
+export CP_LIBS="${CP_LIBS} IF_VALGRIND(${REF_MATH_LIBS}|${FAST_MATH_LIBS})"
 
 # other libraries
 for ii in $lib_list ; do
@@ -768,6 +763,13 @@ cd ${INSTALLDIR}/arch
 # -------------------------
 # set compiler flags
 # -------------------------
+
+# need to switch between FC and MPICC etc in arch file, but cannot use
+# same variable names, so use _arch suffix
+CC_arch="$CC"
+CXX_arch="$CXX"
+FC_arch="IF_MPI(${MPIFC}|${FC})"
+LD_arch="IF_MPI(${MPIFC}|${FC})"
 
 # we always want good line information and backtraces
 BASEFLAGS="-march=native -fno-omit-frame-pointer -g ${TSANFLAGS}"
@@ -809,13 +811,13 @@ WFLAGS_WARNALL=$(allowed_gfortran_flags    $WFLAGS_WARNALL)
 
 # contagnate the above flags into WFLAGS, FCDEBFLAGS, DFLAGS and
 # finally into FCFLAGS and CFLAGS
-WFLAGS="$WFLAGSERROR $WFLAGSWARN IF_WARNALL(${WFLAGSWARNALL},)"
-FCDEBFLAGS="$FCDEB_FLAGS IF_DEBUG($FCDEB_FLAGS_DEBUG,)"
-DFLAGS="${CP_DFLAGS} IF_DEBUG(-D__HAS_IEEE_EXCEPTIONS,) IF_COVERAGE($COVERAGE_DFLAGS,)"
+WFLAGS="$WFLAGS_ERROR $WFLAGS_WARN IF_WARNALL(${WFLAGS_WARNALL}|)"
+FCDEBFLAGS="$FCDEB_FLAGS IF_DEBUG($FCDEB_FLAGS_DEBUG|)"
+DFLAGS="${CP_DFLAGS} IF_DEBUG(-D__HAS_IEEE_EXCEPTIONS|) IF_COVERAGE($COVERAGE_DFLAGS|)"
 # language independent flags
 G_CFLAGS="$BASEFLAGS"
-G_CFLAGS="$G_CFLAGS IF_COVERAGE($COVERAGE_FLAGS, IF_DEBUG($NOOPT_FLAGS, $OPT_FLAGS))"
-G_CFLAGS="$G_CFLAGS IF_DEBUG(,$PROFOPT_FLAGS)"
+G_CFLAGS="$G_CFLAGS IF_COVERAGE($COVERAGE_FLAGS|IF_DEBUG($NOOPT_FLAGS|$OPT_FLAGS))"
+G_CFLAGS="$G_CFLAGS IF_DEBUG(|$PROFOPT_FLAGS)"
 G_CFLAGS="$G_CFLAGS $CP_CFLAGS"
 # FCFLAGS, for gfortran
 FCFLAGS="$G_CFLAGS \$(FCDEBFLAGS) \$(WFLAGS) \$(DFLAGS)"
@@ -830,11 +832,11 @@ LDFLAGS="\$(FCFLAGS) ${CP_LDFLAGS}"
 LIBS="${CP_LIBS} -lstdc++"
 
 # CUDA stuff
-CUDA_LIBS="-lcudart -lcufft -lcublas -lrt IF_DEBUG(-lnvToolsExt,)"
-CUDA_DFLAGS="-D__ACC -D__DBCSR_ACC -D__PW_CUDA IF_DEBUG(-D__CUDA_PROFILING,)"
+CUDA_LIBS="-lcudart -lcufft -lcublas -lrt IF_DEBUG(-lnvToolsExt|)"
+CUDA_DFLAGS="-D__ACC -D__DBCSR_ACC -D__PW_CUDA IF_DEBUG(-D__CUDA_PROFILING|)"
 if [ "$ENABLE_CUDA" = __TRUE__ ] ; then
-    LIBS="${LIBS} IF_CUDA(${CUDA_LIBS},)"
-    DFLAGS="IF_CUDA(${CUDA_DFLAGS},) ${DFLAGS}"
+    LIBS="${LIBS} IF_CUDA(${CUDA_LIBS}|)"
+    DFLAGS="IF_CUDA(${CUDA_DFLAGS}|) ${DFLAGS}"
     NVFLAGS="-arch sm_35 \$(DFLAGS)"
 fi
 
@@ -842,59 +844,93 @@ fi
 # generate the arch files
 # -------------------------
 
-# helper routine for instantiating the arch.tmpl
+# generator for CP2K ARCH files
 gen_arch_file() {
-    local __filename=$1
-    local __flags=$2
+    # usage: gen_arch_file file_name flags
+    #
+    # If the flags are present they are assumed to be on, otherwise
+    # they switched off
     require_env ARCH_FILE_TEMPLATE
-    local __TMPL=$(cat ${ARCH_FILE_TEMPLATE})
-    eval "printf \"$__TMPL\"" | cpp -traditional-cpp -P ${__flags} - > $__filename
-    echo "Wrote install/arch/"$__filename
+    local __filename=$1
+    shift
+    local __flags=$@
+    local __full_flag_list="MPI OMP DEBUG CUDA WARNALL VALGRIND COVERAGE"
+    local __flag=''
+    for __flag in $__full_flag_list ; do
+        eval "local ${__flag}_var=off"
+    done
+    for __flag in $__flags ; do
+        eval "${__flag}_var=on"
+    done
+    # geneate initial arch file
+    cat $ARCH_FILE_TEMPLATE > $__filename
+    # add additional parts
+    if [ "$__CUDA" = "on" ] ; then
+      cat <<EOF >> $__filename
+NVCC        = ${NVCC} -D__GNUC_MINOR__=6 -D__GNUC__=4
+NVFLAGS     = ${NVFLAGS}
+EOF
+    fi
+    if [ "$__WARNALL" = "on" ] ; then
+        cat <<EOF >> $__filename
+FCLOGPIPE   =  2> \$(notdir \$<).warn
+EOF
+    fi
+    # replace variable values in output file using eval
+    local __TMPL=$(cat $__filename)
+    eval "printf \"${__TMPL}\n\"" > $__filename
+    # pass this to parsers to replace all of the IF_XYZ statements
+    for __flag in $__full_flag_list ; do
+        parse_if $__flag $(eval echo \$${__flag}_var) $__filename
+    done
+    echo "Wrote ${INSTALLDIR}/arch/$__filename"
 }
 
 rm -f ${INSTALLDIR}/arch/local*
 # normal production arch files
-    { gen_arch_file "local.sopt" "";              arch_vers="sopt"; }
-    { gen_arch_file "local.sdbg" "-DDEBUG";       arch_vers="${arch_vers} sdbg"; }
+    { gen_arch_file "local.sopt" ;              arch_vers="sopt"; }
+    { gen_arch_file "local.sdbg" DEBUG;       arch_vers="${arch_vers} sdbg"; }
 [ "$ENABLE_OMP" = __TRUE__ ] && \
-    { gen_arch_file "local.ssmp" "-DOMP";         arch_vers="${arch_vers} ssmp"; }
+    { gen_arch_file "local.ssmp" OMP;         arch_vers="${arch_vers} ssmp"; }
 [ "$MPI_MODE" != no ] && \
-    { gen_arch_file "local.popt" "-DMPI";         arch_vers="${arch_vers} popt"; }
+    { gen_arch_file "local.popt" MPI;         arch_vers="${arch_vers} popt"; }
 [ "$MPI_MODE" != no ] && \
-    { gen_arch_file "local.pdbg" "-DMPI -DDEBUG"; arch_vers="${arch_vers} pdbg"; }
+    { gen_arch_file "local.pdbg" MPI DEBUG; arch_vers="${arch_vers} pdbg"; }
 [ "$MPI_MODE" != no ] && \
 [ "$ENABLE_OMP" = __TRUE__ ] && \
-    { gen_arch_file "local.psmp" "-DMPI -DOMP";   arch_vers="${arch_vers} psmp"; }
+    { gen_arch_file "local.psmp" MPI OMP;   arch_vers="${arch_vers} psmp"; }
 # cuda enabled arch files
 if [ "$ENABLE_CUDA" = __TRUE__ ] ; then
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.ssmp" "-DCUDA -DOMP";               arch_cuda="ssmp"; }
+        { gen_arch_file "local_cuda.ssmp" CUDA OMP;               arch_cuda="ssmp"; }
     [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.psmp" "-DCUDA -DOMP -DMPI";         arch_cuda="${arch_cuda} psmp"; }
+        { gen_arch_file "local_cuda.psmp" CUDA OMP MPI;         arch_cuda="${arch_cuda} psmp"; }
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.sdbg" "-DCUDA -DDEBUG -DOMP";       arch_cuda="${arch_cuda} sdbg"; }
+        { gen_arch_file "local_cuda.sdbg" CUDA DEBUG OMP;       arch_cuda="${arch_cuda} sdbg"; }
     [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.pdbg" "-DCUDA -DDEBUG -DOMP -DMPI"; arch_cuda="${arch_cuda} pdbg"; }
+        { gen_arch_file "local_cuda.pdbg" CUDA DEBUG OMP MPI; arch_cuda="${arch_cuda} pdbg"; }
     [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda_warn.psmp" "-DCUDA -DMPI -DOMP -DWARNALL"; }
+        { gen_arch_file "local_cuda_warn.psmp" CUDA MPI OMP WARNALL; }
 fi
 # valgrind enabled arch files
 if [ "$ENABLE_VALGRIND" = __TRUE__ ] ; then
-        { gen_arch_file "local_valgrind.sdbg" "-DVALGRIND";       arch_valg="sdbg"; }
+        { gen_arch_file "local_valgrind.sdbg" VALGRIND;       arch_valg="sdbg"; }
     [ "$MPI_MODE" != no ] && \
-        { gen_arch_file "local_valgrind.pdbg" "-DVALGRIND -DMPI"; arch_valg="${arch_valgrind} pdbg"; }
+        { gen_arch_file "local_valgrind.pdbg" VALGRIND MPI; arch_valg="${arch_valgrind} pdbg"; }
 fi
 # coverage enabled arch files
 if [ "$ENABLE_COVERAGE" = __TRUE__ ]; then
-        { gen_arch_file "local_coverage.sdbg" "-DCOVERAGE";       arch_cov="sdbg"; }
+        { gen_arch_file "local_coverage.sdbg" COVERAGE;       arch_cov="sdbg"; }
     [ "$MPI_MODE" != no ] && \
-        { gen_arch_file "local_coverage.pdbg" "-DCOVERAGE -DMPI"; arch_cov="${arch_cov} pdbg"; }
+        { gen_arch_file "local_coverage.pdbg" COVERAGE MPI; arch_cov="${arch_cov} pdbg"; }
     [ "$ENABLE_CUDA" = __TRUE__ ] && \
-        { gen_arch_file "local_coverage_cuda.pdbg"   "-DCOVERAGE -DMPI -DCUDA"; }
+        { gen_arch_file "local_coverage_cuda.pdbg" COVERAGE MPI CUDA; }
 fi
+
+cd "${ROODDIR}"
 
 # -------------------------
 # print out user instructions

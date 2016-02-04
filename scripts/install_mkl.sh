@@ -111,7 +111,7 @@ export FAST_MATH_LIBS="\${FAST_MATH_LIBS} ${MKL_LIBS}"
 EOF
     if [ $enable_mkl_scalapack = "__TRUE__" ] ; then
         cat <<EOF >> "${BUILDDIR}/setup_mkl"
-export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
+export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK|)"
 with_scalapack="__DONTUSE__"
 EOF
     fi

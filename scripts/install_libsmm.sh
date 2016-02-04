@@ -104,9 +104,9 @@ EOF
     cat <<EOF >> "${BUILDDIR}/setup_libsmm"
 export LIBSMM_LDFLAGS="${LIBSMM_LDFLAGS}"
 export LIBSMM_LIBS="${LIBSMM_LIBS}"
-export CP_DFLAGS="\${CP_DFLAGS} IF_VALGRIND(,-D__HAS_smm_dnn)"
+export CP_DFLAGS="\${CP_DFLAGS} IF_VALGRIND(|-D__HAS_smm_dnn)"
 export CP_LDFLAGS="\${CP_LDFLAGS} ${LIBSMM_LDFLAGS}"
-export CP_LIBS="IF_VALGRIND(,${LIBSMM_LIBS}) \${CP_LIBS}"
+export CP_LIBS="IF_VALGRIND(|${LIBSMM_LIBS}) \${CP_LIBS}"
 EOF
 fi
 cd "${ROOTDIR}"

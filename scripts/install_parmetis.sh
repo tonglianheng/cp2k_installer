@@ -81,9 +81,9 @@ export PARMETIS_INSTALL_MODE="${with_parmetis}"
 export PARMETIS_CFLAGS="${PARMETIS_CFLAGS}"
 export PARMETIS_LDFLAGS="${PARMETIS_LDFLAGS}"
 export PARMETIS_LIBS="${PARMETIS_LIBS}"
-export CP_CFLAGS="\${CP_CFLAGS} IF_MPI(${PARMETIS_CFLAGS},)"
-export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(\"${PARMETIS_LDFLAGS}\",)"
-export CP_LIBS="IF_MPI(-lptscotchparmetis,) \${CP_LIBS}"
+export CP_CFLAGS="\${CP_CFLAGS} IF_MPI(${PARMETIS_CFLAGS}|)"
+export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(${PARMETIS_LDFLAGS}|)"
+export CP_LIBS="IF_MPI(-lptscotchparmetis|) \${CP_LIBS}"
 EOF
 fi
 cd "${ROOTDIR}"

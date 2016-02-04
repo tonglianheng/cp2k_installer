@@ -89,9 +89,9 @@ EOF
     cat <<EOF >> "${BUILDDIR}/setup_scalapack"
 export SCALAPACK_LDFLAGS="${SCALAPACK_LDFLAGS}"
 export SCALAPACK_LIBS="${SCALAPACK_LIBS}"
-export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
-export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(\"${SCALAPACK_LDFLAGS}\",)"
-export CP_LIBS="IF_MPI(-lscalapack,) \${CP_LIBS}"
+export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__SCALAPACK|)"
+export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(${SCALAPACK_LDFLAGS}|)"
+export CP_LIBS="IF_MPI(-lscalapack|) \${CP_LIBS}"
 EOF
 fi
 cd "${ROOTDIR}"

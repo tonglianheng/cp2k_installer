@@ -524,3 +524,16 @@ download_pkg() {
     # checksum
     checksum "$__filename" "$SHA256_CHECKSUMS"
 }
+
+# parser for file containing IF_XYZ(a|b) statements
+parse_if() {
+    # usage: e.g. parse_if MPI on arch_template.popt
+    local __cond="$1"
+    local __flag="$2"
+    local __file="$3"
+    if [ "$__flag" = "on" ] ; then
+        sed -i -e "s@IF_${__cond}(\([^|]*\)|\([^)]*\))@\1@g" $__file
+    else
+        sed -i -e "s@IF_${__cond}(\([^|]*\)|\([^)]*\))@\2@g" $__file
+    fi
+}
