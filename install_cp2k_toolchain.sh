@@ -706,14 +706,18 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     fi
     case $MPI_MODE in
         mpich)
-            export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
-            export MPI_LDFLAGS=" "
-            export MPI_LIBS=" "
+            if [ "$with_mpich" = "__DONTUSE__" ] ; then
+                export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
+                export MPI_LDFLAGS=" "
+                export MPI_LIBS=" "
+            fi
             ;;
         openmpi)
-            export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
-            export MPI_LDFLAGS=" "
-            export MPI_LIBS="-lmpi -lmpi_cxx"
+            if [ "$with_openmpi" = "__DONTUSE__" ] ; then
+                export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
+                export MPI_LDFLAGS=" "
+                export MPI_LIBS="-lmpi -lmpi_cxx"
+            fi
             ;;
     esac
     check_lib -lz
@@ -959,12 +963,12 @@ EOF
 
 rm -f ${INSTALLDIR}/arch/local*
 # normal production arch files
-    { gen_arch_file "local.sopt" ;              arch_vers="sopt"; }
-    { gen_arch_file "local.sdbg" DEBUG;       arch_vers="${arch_vers} sdbg"; }
+    { gen_arch_file "local.sopt" ;          arch_vers="sopt"; }
+    { gen_arch_file "local.sdbg" DEBUG;     arch_vers="${arch_vers} sdbg"; }
 [ "$ENABLE_OMP" = __TRUE__ ] && \
-    { gen_arch_file "local.ssmp" OMP;         arch_vers="${arch_vers} ssmp"; }
+    { gen_arch_file "local.ssmp" OMP;       arch_vers="${arch_vers} ssmp"; }
 [ "$MPI_MODE" != no ] && \
-    { gen_arch_file "local.popt" MPI;         arch_vers="${arch_vers} popt"; }
+    { gen_arch_file "local.popt" MPI;       arch_vers="${arch_vers} popt"; }
 [ "$MPI_MODE" != no ] && \
     { gen_arch_file "local.pdbg" MPI DEBUG; arch_vers="${arch_vers} pdbg"; }
 [ "$MPI_MODE" != no ] && \
@@ -973,32 +977,32 @@ rm -f ${INSTALLDIR}/arch/local*
 # cuda enabled arch files
 if [ "$ENABLE_CUDA" = __TRUE__ ] ; then
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.ssmp" CUDA OMP;               arch_cuda="ssmp"; }
+      gen_arch_file "local_cuda.ssmp"          CUDA OMP
     [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.psmp" CUDA OMP MPI;         arch_cuda="${arch_cuda} psmp"; }
+      gen_arch_file "local_cuda.psmp"          CUDA OMP MPI
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.sdbg" CUDA DEBUG OMP;       arch_cuda="${arch_cuda} sdbg"; }
+      gen_arch_file "local_cuda.sdbg"          CUDA DEBUG OMP
     [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda.pdbg" CUDA DEBUG OMP MPI; arch_cuda="${arch_cuda} pdbg"; }
+      gen_arch_file "local_cuda.pdbg"          CUDA DEBUG OMP MPI
     [ "$MPI_MODE" != no ] && \
     [ "$ENABLE_OMP" = __TRUE__ ] && \
-        { gen_arch_file "local_cuda_warn.psmp" CUDA MPI OMP WARNALL; }
+      gen_arch_file "local_cuda_warn.psmp"     CUDA MPI OMP WARNALL
 fi
 # valgrind enabled arch files
 if [ "$ENABLE_VALGRIND" = __TRUE__ ] ; then
-        { gen_arch_file "local_valgrind.sdbg" VALGRIND;       arch_valg="sdbg"; }
+      gen_arch_file "local_valgrind.sdbg"      VALGRIND
     [ "$MPI_MODE" != no ] && \
-        { gen_arch_file "local_valgrind.pdbg" VALGRIND MPI; arch_valg="${arch_valgrind} pdbg"; }
+      gen_arch_file "local_valgrind.pdbg"      VALGRIND MPI
 fi
 # coverage enabled arch files
 if [ "$ENABLE_COVERAGE" = __TRUE__ ]; then
-        { gen_arch_file "local_coverage.sdbg" COVERAGE;       arch_cov="sdbg"; }
+      gen_arch_file "local_coverage.sdbg"      COVERAGE
     [ "$MPI_MODE" != no ] && \
-        { gen_arch_file "local_coverage.pdbg" COVERAGE MPI; arch_cov="${arch_cov} pdbg"; }
+      gen_arch_file "local_coverage.pdbg"      COVERAGE MPI
     [ "$ENABLE_CUDA" = __TRUE__ ] && \
-        { gen_arch_file "local_coverage_cuda.pdbg" COVERAGE MPI CUDA; }
+      gen_arch_file "local_coverage_cuda.pdbg" COVERAGE MPI CUDA
 fi
 
 cd "${ROODDIR}"
