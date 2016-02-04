@@ -633,6 +633,18 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     if [ "$with_scalapack" = "__DONTUSE__" ] ; then
         export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__SCALAPACK,)"
     fi
+    case $MPI_MODE in
+        mpich)
+            export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3,)"
+            export MPI_LDFLAGS=" "
+            export MPI_LIBS=" "
+            ;;
+        openmpi)
+            export CP_DFLAGS="\${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3,)"
+            export MPI_LDFLAGS=" "
+            export MPI_LIBS="-lmpi -lmpi_cxx"
+            ;;
+    esac
     check_lib -lz
     check_lib -ldl
     export CRAY_EXTRA_LIBS="-lz -ldl"
@@ -640,8 +652,6 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     # can pass require_env checks
     export SCALAPACK_LDFLAGS=" "
     export SCALAPACK_LIBS=" "
-    export MPI_LDFLAGS=" "
-    export MPI_LIBS=" "
 fi
 
 # ----------------------------------------------------------------------
