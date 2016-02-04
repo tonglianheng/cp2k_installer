@@ -351,7 +351,6 @@ check_gcc_flag() {
     $__CC -E -cpp $__flag ${TEST_C_FILE} &> /dev/null
 }
 
-
 # given a list of flags, only print out what is allowed by the current
 # version of gfortran
 allowed_gfortran_flags() {
