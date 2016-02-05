@@ -2,9 +2,22 @@
 [ "${BASH_SOURCE[0]}" ] && SCRIPT_NAME="${BASH_SOURCE[0]}" || SCRIPT_NAME=$0
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_NAME")" && pwd -P)"
 
-# ----------------------------------------------------------------------
+# +-----------------------------------------------------------------------+
+# |  CP2K: A general program to perform molecular dynamics simulations    |
+# |  Copyright (C) 2000 - 2016  CP2K developers group                     |
+# +-----------------------------------------------------------------------+
+#
+# *****************************************************************************
+#> \brief    This script will compile and install or link existing tools and
+#>           libraries CP2K depends on and generate a set of ARCH files which
+#>           can be used to compile CP2K
+#> \history  Created on Friday, 2016/02/05
+#> \author   Lianheng Tong (ltong) lianheng.tong@kcl.ac.uk
+# *****************************************************************************
+
+# ------------------------------------------------------------------------
 # Work directories and used files
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 export ROOTDIR="${PWD}"
 export SCRIPTDIR="${ROOTDIR}/scripts"
 export BUILDDIR="${ROOTDIR}/build"
@@ -15,16 +28,16 @@ export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch_base.tmpl"
 export TEST_FTN_FILE="${SCRIPTDIR}/test_code.f90"
 export TEST_C_FILE="${SCRIPTDIR}/test_code.c"
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Load common variables and tools
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 source "${SCRIPTDIR}"/common_vars.sh
 source "${SCRIPTDIR}"/package_versions.sh
 source "${SCRIPTDIR}"/tool_kit.sh
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Documentation
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 show_help() {
     cat<<EOF
 This script will help you compile and install, or link libraries
@@ -84,6 +97,7 @@ The --enable-FEATURE options follow the rules:
   --enable-FEATHRE=no     Disable this particular feature
   --enable-FEATURE        The option keyword alone is equivalent to
                           --enable-FEATURE=yes
+
   --enable-tsan           If you are installing GCC using this script
                           this option enables thread sanitizer support.
                           This is only relevant for debugging purposes.
@@ -215,7 +229,7 @@ the entire ./build directory.
 
   +----------------------------------------------------------------+
   |  YOU SHOULD ALWAYS SOURCE ./install/setup BEFORE YOU RUN CP2K  |
-  |  COMBILED WITH THIS TOOLCHAIN                                  |
+  |  COMPILED WITH THIS TOOLCHAIN                                  |
   +----------------------------------------------------------------+
 
 TROUBLESHOOTING:
@@ -244,26 +258,26 @@ this script.
 EOF
 }
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # PACKAGE LIST: register all new dependent tools and libs here. Order
 # is important, the first in the list gets installed first
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 tool_list="binutils make gcc cmake lcov valgrind"
 mpi_list="mpich openmpi"
 math_list="mkl acml openblas reflapack"
 lib_list="fftw libint libxc libsmm libxsmm scalapack elpa \
           ptscotch parmetis metis superlu pexsi quip"
 package_list="$tool_list $mpi_list $math_list $lib_list"
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 # first set everything to __DONTUSE__
 for ii in $package_list ; do
     eval with_${ii}=__DONTUSE__
 done
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Work out default settings
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 # tools to turn on by default:
 with_binutils=__SYSTEM__
@@ -338,9 +352,9 @@ else
     enable_cray=__FALSE__
 fi
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # parse user options
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 while [ $# -ge 1 ] ; do
     case $1 in
         -j)
@@ -548,9 +562,9 @@ export ENABLE_CRAY=$enable_cray
 [ "$with_valgrind" != "__DONTUSE__"  ] && export ENABLE_VALGRIND="__TRUE__"
 [ "$with_lcov" != "__DONTUSE__" ] && export ENABLE_COVERAGE="__TRUE__"
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Check and solve known conflicts before installations proceed
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 # GCC thread sanitizer conflicts
 if [ $ENABLE_TSAN = "__TRUE__" ] ; then
@@ -641,9 +655,9 @@ if [ "$with_parmetis" = "__INSTALL__" ] ; then
     with_metis="__INSTALL__"
 fi
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Preliminaries
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 mkdir -p "$INSTALLDIR"
 
@@ -653,9 +667,9 @@ export CP_LIBS=''
 export CP_CFLAGS='IF_OMP(-fopenmp|)'
 export CP_LDFLAGS="-Wl,--enable-new-dtags"
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Start writing setup file
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 cat <<EOF > "$SETUPFILE"
 #!/bin/bash
 prepend_path() {
@@ -671,13 +685,13 @@ prepend_path() {
 }
 EOF
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Special settings for CRAY Linux Environment (CLE)
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
-    echo "----------------------------------------------------------------------"
+    echo "------------------------------------------------------------------------"
     echo "CRAY Linux Environment (CLE) is detected"
-    echo "----------------------------------------------------------------------"
+    echo "------------------------------------------------------------------------"
     # add CRAY_LD_LIBRARY_PATH to system search path
     export LIB_PATHS="CRAY_LD_LIBRARY_PATH ${LIB_PATHS}"
     # set compilers to CLE wrappers
@@ -733,9 +747,9 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     export SCALAPACK_LIBS=" "
 fi
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Installing tools required for building CP2K and associated libraries
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 echo "Compiling with $NPROCS nodes."
 
@@ -754,9 +768,9 @@ for ii in $tool_list ; do
     load "${BUILDDIR}/setup_${ii}"
 done
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Install or compile packages using newly installed tools
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 # setup compiler flags, leading to nice stack traces on crashes but
 # still optimised
@@ -830,9 +844,9 @@ for ii in $lib_list ; do
     load "${BUILDDIR}/setup_${ii}"
 done
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # generate arch file for compiling cp2k
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 echo "==================== generating arch files ===================="
 echo "arch files can be found in the ${INSTALLDIR}/arch subdirectory"
