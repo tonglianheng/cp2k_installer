@@ -57,17 +57,23 @@ case "$with_elpa" in
             else
                 shared_flag=yes
             fi
+            # specific settings needed on CRAY Linux Environment
+            if [ $ENABLE_CRAY = "__TRUE__" ] ; then
+                # extra LDFLAGS needed
+                cray_ldflags="-dynamic"
+            fi
             # non-threaded version
             ./configure  --prefix=${pkg_install_dir} \
                          --enable-openmp=no \
                          --enable-shared=$shared_flag \
-                         FC="${MPIFC} -ffree-line-length-none" \
-                         CC="${MPICC}" \
-                         CXX="${MPICXX}" \
-                         FCFLAGS="${FCFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
+                         --enable-static=yes \
+                         FC=${MPIFC} \
+                         CC=${MPICC} \
+                         CXX=${MPICXX} \
+                         FCFLAGS="${FCFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS} -ffree-line-length-none" \
                          CFLAGS="${CFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                          CXXFLAGS="${CXXFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
-                         LDFLAGS="-Wl,--enable-new-dtags ${MATH_LDFLAGS} ${SCALAPACK_LDFLAGS}" \
+                         LDFLAGS="-Wl,--enable-new-dtags ${MATH_LDFLAGS} ${SCALAPACK_LDFLAGS} ${cray_ldflags}" \
                          LIBS="${SCALAPACK_LIBS} ${MATH_LIBS}" \
                          >& config.log
             make -j $NPROCS >&  make.log
@@ -79,13 +85,14 @@ case "$with_elpa" in
                 ./configure  --prefix=${pkg_install_dir} \
                              --enable-openmp=yes \
                              --enable-shared=$shared_flag \
-                             FC="${MPIFC} -ffree-line-length-none" \
-                             CC="${MPICC}" \
-                             CXX="${MPICXX}" \
-                             FCFLAGS="${FCFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
+                             --enable-static=yes \
+                             FC=${MPIFC} \
+                             CC=${MPICC} \
+                             CXX=${MPICXX} \
+                             FCFLAGS="${FCFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS} -ffree-line-length-none" \
                              CFLAGS="${CFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                              CXXFLAGS="${CXXFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
-                             LDFLAGS="-Wl,--enable-new-dtags ${MATH_LDFLAGS} ${SCALAPACK_LDFLAGS}" \
+                             LDFLAGS="-Wl,--enable-new-dtags ${MATH_LDFLAGS} ${SCALAPACK_LDFLAGS} ${cray_ldflags}" \
                              LIBS="${SCALAPACK_LIBS} ${MATH_LIBS}" \
                              >& config.log
                 make -j $NPROCS >&  make.log
