@@ -70,10 +70,11 @@ OPTIONS:
 --math-mode               Selects which core math library to use. Available options
                           are: acml, cray, mkl, openblas and reflapack. cray
                           corresponds to cray libsci, and is the default for CRAY
-                          (CLE) systems. Otherwise, openblas is the default option.
-                          Note that reflapack corresponds to the reference LAPACK
-                          library, and is not really recommended for CP2K binaries
-                          used for real simulations. Note that explicitly setting
+                          (CLE) systems. For non-CRAY systems, if env variable MKLROOT
+                          exists then mkl will be default, otherwise openblas is the
+                          default option. Note that reflapack corresponds to the
+                          reference LAPACK library, and is not really recommended for
+                          CP2K binaries used for real simulations. Explicitly setting
                           --with-acml, --with-mkl or --with-openblas options will
                           switch --math-mode to the respective modes, BUT
                           --with-reflapack option do not have this effect.
@@ -278,9 +279,13 @@ with_scalapack=__INSTALL__
 
 # default math library settings, FAST_MATH_MODE picks the math library
 # to use, and with_* defines the default method of installation if it
-# is picked. Choices for FAST_MATH_MODE are: mkl, acml, openblas,
-# reflapack
-export FAST_MATH_MODE=openblas
+# is picked. For non-CRAY systems defaults to mkl if $MKLROOT is
+# avaliable, otherwise defaults to openblas
+if [ "$MKLROOT" ] ; then
+    export FAST_MATH_MODE=mkl
+else
+    export FAST_MATH_MODE=openblas
+fi
 with_acml=__SYSTEM__
 with_mkl=__SYSTEM__
 with_openblas=__INSTALL__
@@ -289,7 +294,6 @@ with_reflapack=__INSTALL__
 # for MPI, we try to detect system MPI variant
 with_openmpi=__SYSTEM__
 with_mpich=__SYSTEM__
-
 if (command -v mpirun &> /dev/null) ; then
     # check if we are dealing with openmpi or mpich
     if (mpirun --version 2>&1 | grep -s -q "HYDRA") ; then
