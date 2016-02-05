@@ -975,6 +975,13 @@ EOF
     # pass this to parsers to replace all of the IF_XYZ statements
     for __flag in $__full_flag_list ; do
         parse_if $__flag $(eval echo \$${__flag}_var) $__filename
+
+# BEG:DEBUG:LT:2016/02/05
+        echo "------------------------------------------------------------------------"
+        echo "parse_if $__flag $(eval echo \$${__flag}_var) $__filename"
+        cat $__filename
+# END:DEBUG:LT:2016/02/05
+
     done
     echo "Wrote ${INSTALLDIR}/arch/$__filename"
 }

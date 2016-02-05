@@ -78,7 +78,6 @@ case "$with_elpa" in
                          >& config.log
             make -j $NPROCS >&  make.log
             make install >& install.log
-            ELPA_CFLAGS="-I${pkg_install_dir}/include/elpa-${elpa_ver}/modules"
             # threaded version
             if [ "$ENABLE_OMP" = "__TRUE__" ] ; then
                 make -j $NPROCS clean
@@ -97,11 +96,12 @@ case "$with_elpa" in
                              >& config.log
                 make -j $NPROCS >&  make.log
                 make install >& install.log
-                ELPA_CFLAGS_OMP="-I${pkg_install_dir}/include/elpa_openmp-${elpa_ver}/modules"
             fi
             cd ..
             touch "${install_lock_file}"
         fi
+        ELPA_CFLAGS="-I'${pkg_install_dir}/include/elpa-${elpa_ver}/modules'"
+        ELPA_CFLAGS_OMP="-I'${pkg_install_dir}/include/elpa_openmp-${elpa_ver}/modules'"
         ELPA_LDFLAGS="-L'${pkg_install_dir}/lib' -Wl,-rpath='${pkg_install_dir}/lib'"
         ;;
     __SYSTEM__)
