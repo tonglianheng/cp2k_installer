@@ -32,13 +32,19 @@ case "$with_parmetis" in
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf parmetis-${parmetis_ver}.tar.gz
             cd parmetis-${parmetis_ver}
-            make config prefix=${pkg_install_dir} >& config.log
+            make config \
+                 cc=${MPICC} \
+                 cxx=${MPICXX} \
+                 prefix=${pkg_install_dir} >& config.log
             make -j $NPROCS >& make.log
             make install >& install.log
             # Have to build METIS again independently due to bug in ParMETIS make install
             echo "==================== Installing METIS ===================="
             cd metis
-            make config prefix=${pkg_install_dir} >& config.log
+            make config \
+                 cc=${MPICC} \
+                 cxx=${MPICXX} \
+                 prefix=${pkg_install_dir} >& config.log
             make -j $NPROCS >& make.log
             make install >& install.log
             cd ../..

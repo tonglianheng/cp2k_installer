@@ -29,6 +29,14 @@ case "$with_cmake" in
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf cmake-${cmake_ver}.tar.gz
             cd cmake-${cmake_ver}
+            # on ARCHER (cray system), ccmake cannot compile without
+            # -ldl, but was not sure how to link -ldl in the CMake
+            # bootstrap scripts. As GUI are not really needed, we just
+            # disable it here
+            if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
+                cp CMakeLists.txt CMakeLists.txt.orig
+                sed -i 's/option(BUILD_CursesDialog "Build the CMake Curses Dialog ccmake" ON)/option(BUILD_CursesDialog "Build the CMake Curses Dialog ccmake" OFF)/g' CMakeLists.txt
+            fi
             ./bootstrap --prefix="${pkg_install_dir}" >& config.log
             make -j $NPROCS >&  make.log
             make install >& install.log
