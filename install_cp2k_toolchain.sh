@@ -344,9 +344,9 @@ if [ "$CRAY_LD_LIBRARY_PATH" ] ; then
     with_mpich="__DONTUSE__"
     with_openmpi="__DONTUSE__"
     export MPI_MODE=mpich
-    # switch off some installers by default
+    # set default value for some installers appropriate for CLE
     with_gcc="__DONTUSE__"
-    with_fftw="__DONTUSE__"
+    with_fftw="__SYSTEM__"
     with_scalapack="__DONTUSE__"
 else
     enable_cray=__FALSE__
@@ -708,23 +708,16 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     export MPIF77=ftn
     export MPIF90=ftn
     export MPICXX=CC
-    # CRAY libsci should contains core math libraries, scalapack and fftw
-    # doesn't need LDFLAGS or CFLAGS, nor do the one need to explicitly
-    # link the math and scalapack libraries, as all is taken care of by
-    # the cray compiler wrappers. We do need to explicitly link to fftw3
-    # so that fftw2 do not get choosen by CLE automatically
-    if [ "$with_fftw" = "__DONTUSE__" ] ; then
-        export FFTW_LIBS="-lfftw3"
-        export FFTW_LIBS_OMP="-lfftw3_threads"
-        export CP_DFLAGS="${CP_DFLAGS} -D__FFTW3 IF_COVERAGE(IF_MPI(|-U__FFTW3)|)"
-        export CP_LIBS="${CP_LIBS} ${FFTW_LIBS} IF_OMP(${FFTW_LIBS_OMP}|)"
-    fi
+    # CRAY libsci should contains core math libraries, scalapack
+    # doesn't need LDFLAGS or CFLAGS, nor do the one need to
+    # explicitly link the math and scalapack libraries, as all is
+    # taken care of by the cray compiler wrappers.
     if [ "$with_scalapack" = "__DONTUSE__" ] ; then
         export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__SCALAPACK|)"
     fi
     case $MPI_MODE in
         mpich)
-            if [ "$MPICH_DIR" ] ; then                
+            if [ "$MPICH_DIR" ] ; then
                 cray_mpich_include_path="$MPICH_DIR/include"
                 cray_mpich_lib_path="$MPICH_DIR/lib"
                 export INCLUDE_PATHS="$INCLUDE_PATHS cray_mpich_include_path"
