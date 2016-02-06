@@ -40,7 +40,7 @@ case "$with_quip" in
                              https://www.cp2k.org/static/downloads/QUIP-${quip_ver}.zip
             fi
             echo "Installing from scratch into ${pkg_install_dir}"
-            unzip QUIP-${quip_ver}.zip >& unzip.log
+            unzip -q -o QUIP-${quip_ver}.zip
             cd QUIP-${quip_ver}
             # translate OPENBLAS_ARCH
             case $OPENBLAS_ARCH in
@@ -55,6 +55,27 @@ case "$with_quip" in
                     exit 1
                     ;;
             esac
+            # The ARCHER cd has a very annoying habbit of printing out
+            # dir names to stdout for any target directories that are
+            # more than one level deep, and one cannot seem to disable
+            # it. This unfortunately messes up the installation script
+            # for QUIP. So this hack will help to resolve the issue
+            if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
+                sed -i \
+                    -e "s|\(cd build/.*\)|\1 &> /dev/null|g" \
+                    bin/find_sizeof_fortran_t
+            fi
+            sed -i \
+                -e "s|\(F77 *=\).*|\1 ftn|g" \
+                -e "s|\(F90 *=\).*|\1 ${FC}|g" \
+                -e "s|\(F95 *=\).*|\1 ${FC}|g" \
+                -e "s|\(CC *=\).*|\1 ${CC}|g" \
+                -e "s|\(CPLUSPLUS *=\).*|\1 ${CXX}|g" \
+                -e "s|\(LINKER *=\).*|\1 ${FC}|g" \
+                -e "s|\(FPP *=\).*|\1 ${FC} -E -x f95-cpp-input|g" \
+                -e "s|\(QUIPPY_FCOMPILER *=\).*|\1 ${FC}|g" \
+                -e "s|\(QUIPPY_CPP *=\).*|\1 ${FC} -E -x f95-cpp-input|g" \
+                arch/Makefile.linux_${quip_arch}_gfortran
             # enable debug symbols
             echo "F95FLAGS       += -g" >> arch/Makefile.linux_${quip_arch}_gfortran
             echo "F77FLAGS       += -g" >> arch/Makefile.linux_${quip_arch}_gfortran

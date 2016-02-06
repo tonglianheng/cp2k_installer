@@ -28,7 +28,7 @@ case "$with_gcc" in
                 download_pkg_no_checksum ${DOWNLOADER_FLAGS} \
                                          -o gcc-master.zip \
                                          https://github.com/gcc-mirror/gcc/archive/master.zip
-                unzip -q gcc-master.zip
+                unzip -q -o gcc-master.zip
             else
                 download_pkg ${DOWNLOADER_FLAGS} \
                              https://ftp.gnu.org/gnu/gcc/gcc-${gcc_ver}/gcc-${gcc_ver}.tar.gz

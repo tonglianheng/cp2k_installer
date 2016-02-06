@@ -42,29 +42,33 @@ case "$with_pexsi" in
             tar -xzf pexsi_v${pexsi_ver}.tar.gz
             cd pexsi_v${pexsi_ver}
             cat config/make.inc.linux.gnu | \
-                sed -e "s|\(PAR_ND_LIBRARY *=\).*|\1 parmetis|" \
-                    -e "s|\(SEQ_ND_LIBRARY *=\).*|\1 metis|" \
-                    -e "s|\(PEXSI_DIR *=\).*|\1 ${PWD}|" \
-                    -e "s|\(CPP_LIB *=\).*|\1 -lstdc++ ${MPI_LDFLAGS} ${MPI_LIBS} |" \
-                    -e "s|\(LAPACK_LIB *=\).*|\1 ${MATH_LDFLAGS} ${MATH_LIBS}|" \
-                    -e "s|\(BLAS_LIB *=\).*|\1|" \
-                    -e "s|\(\bMETIS_LIB *=\).*|\1 ${METIS_LDFLAGS} ${METIS_LIBS}|" \
-                    -e "s|\(PARMETIS_LIB *=\).*|\1 ${PARMETIS_LDFLAGS} ${PARMETIS_LIBS}|" \
-                    -e "s|\(DSUPERLU_LIB *=\).*|\1 ${SUPERLU_LDFLAGS} ${SUPERLU_LIBS}|" \
-                    -e "s|\(SCOTCH_LIB *=\).*|\1 ${SCOTCH_LDFLAGS} -lscotchmetis -lscotch -lscotcherr|" \
-                    -e "s|\(PTSCOTCH_LIB *=\).*|\1 ${SCOTCH_LDFLAGS} -lptscotchparmetis -lptscotch -lptscotcherr -lscotch|" \
-                    -e "s|#FLOADOPTS *=.*|FLOADOPTS    = \${LIBS} \${CPP_LIB}|" \
-                    -e "s|\(DSUPERLU_INCLUDE *=\).*|\1 ${SUPERLU_CFLAGS}|" \
-                    -e "s|\(INCLUDES *=\).*|\1 ${METIS_CFLAGS} ${PARMETIS_CFLAGS} ${MATH_CFLAGS} \${DSUPERLU_INCLUDE} \${PEXSI_INCLUDE}|" \
-                    -e "s|\(COMPILE_FLAG *=\).*|\1 ${CFLAGS} -fpermissive|" \
-                    -e "s|\(SUFFIX *=\).*|\1 ${OPENBLAS_ARCH}|" \
-                    -e "s|\(DSUPERLU_DIR *=\).*|\1|" \
-                    -e "s|\(METIS_DIR *=\).*|\1|" \
-                    -e "s|\(PARMETIS_DIR *=\).*|\1|" \
-                    -e "s|\(PTSCOTCH_DIR *=\).*|\1|" \
-                    -e "s|\(LAPACK_DIR *=\).*|\1|" \
-                    -e "s|\(BLAS_DIR *=\).*|\1|" \
-                    -e "s|\(GFORTRAN_LIB *=\).*|\1|" > make.inc
+                sed -e "s|\(CC *=\).*|\1 ${MPICC}|g" \
+                    -e "s|\(CXX *=\).*|\1 ${MPICXX}|g" \
+                    -e "s|\(FC *=\).*|\1 ${MPIFC}|g" \
+                    -e "s|\(LOADER *=\).*|\1 ${MPICXX}|g" \
+                    -e "s|\(PAR_ND_LIBRARY *=\).*|\1 parmetis|g" \
+                    -e "s|\(SEQ_ND_LIBRARY *=\).*|\1 metis|g" \
+                    -e "s|\(PEXSI_DIR *=\).*|\1 ${PWD}|g" \
+                    -e "s|\(CPP_LIB *=\).*|\1 -lstdc++ ${MPI_LDFLAGS} ${MPI_LIBS} |g" \
+                    -e "s|\(LAPACK_LIB *=\).*|\1 ${MATH_LDFLAGS} ${MATH_LIBS}|g" \
+                    -e "s|\(BLAS_LIB *=\).*|\1|g" \
+                    -e "s|\(\bMETIS_LIB *=\).*|\1 ${METIS_LDFLAGS} ${METIS_LIBS}|g" \
+                    -e "s|\(PARMETIS_LIB *=\).*|\1 ${PARMETIS_LDFLAGS} ${PARMETIS_LIBS}|g" \
+                    -e "s|\(DSUPERLU_LIB *=\).*|\1 ${SUPERLU_LDFLAGS} ${SUPERLU_LIBS}|g" \
+                    -e "s|\(SCOTCH_LIB *=\).*|\1 ${SCOTCH_LDFLAGS} -lscotchmetis -lscotch -lscotcherr|g" \
+                    -e "s|\(PTSCOTCH_LIB *=\).*|\1 ${SCOTCH_LDFLAGS} -lptscotchparmetis -lptscotch -lptscotcherr -lscotch|g" \
+                    -e "s|#FLOADOPTS *=.*|FLOADOPTS    = \${LIBS} \${CPP_LIB}|g" \
+                    -e "s|\(DSUPERLU_INCLUDE *=\).*|\1 ${SUPERLU_CFLAGS}|g" \
+                    -e "s|\(INCLUDES *=\).*|\1 ${METIS_CFLAGS} ${PARMETIS_CFLAGS} ${MATH_CFLAGS} \${DSUPERLU_INCLUDE} \${PEXSI_INCLUDE}|g" \
+                    -e "s|\(COMPILE_FLAG *=\).*|\1 ${CFLAGS} -fpermissive|g" \
+                    -e "s|\(SUFFIX *=\).*|\1 ${OPENBLAS_ARCH}|g" \
+                    -e "s|\(DSUPERLU_DIR *=\).*|\1|g" \
+                    -e "s|\(METIS_DIR *=\).*|\1|g" \
+                    -e "s|\(PARMETIS_DIR *=\).*|\1|g" \
+                    -e "s|\(PTSCOTCH_DIR *=\).*|\1|g" \
+                    -e "s|\(LAPACK_DIR *=\).*|\1|g" \
+                    -e "s|\(BLAS_DIR *=\).*|\1|g" \
+                    -e "s|\(GFORTRAN_LIB *=\).*|\1|g" > make.inc
             cd src
             make -j $NPROCS >& make.log
             # no make install, need to do install manually
