@@ -255,7 +255,7 @@ add_lib_from_paths() {
 # check if environment variable is assigned and non-empty
 require_env() {
     local __env_var_name=$1
-    local __env_var="$(eval echo "\$$__env_var_name")"
+    local __env_var="$(eval echo \"\$$__env_var_name\")"
     if [ -z "$__env_var" ] ; then
         report_error "requires environment variable $__env_var_name to work"
         return 1
