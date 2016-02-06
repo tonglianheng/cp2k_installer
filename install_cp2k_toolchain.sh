@@ -692,7 +692,7 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     echo "------------------------------------------------------------------------"
     echo "CRAY Linux Environment (CLE) is detected"
     echo "------------------------------------------------------------------------"
-    # add CRAY_LD_LIBRARY_PATH to system search path
+    # add cray paths to system search path
     export LIB_PATHS="CRAY_LD_LIBRARY_PATH ${LIB_PATHS}"
     # set compilers to CLE wrappers
     check_command cc
@@ -724,17 +724,29 @@ if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
     fi
     case $MPI_MODE in
         mpich)
+            if [ "$MPICH_DIR" ] ; then                
+                cray_mpich_include_path="$MPICH_DIR/include"
+                cray_mpich_lib_path="$MPICH_DIR/lib"
+                export INCLUDE_PATHS="$INCLUDE_PATHS cray_mpich_include_path"
+                export LIB_PATHS="$LIB_PATHS cray_mpich_lib_path"
+            fi
             if [ "$with_mpich" = "__DONTUSE__" ] ; then
-                export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
-                export MPI_LDFLAGS=" "
+                add_include_from_paths MPI_CFLAGS "mpi.h" $INCLUDE_PATHS
+                add_include_from_paths MPI_LDFLAGS "libmpi.*" $LIB_PATHS
+                export MPI_CFLAGS
+                export MPI_LDFLAGS
                 export MPI_LIBS=" "
+                export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
             fi
             ;;
         openmpi)
             if [ "$with_openmpi" = "__DONTUSE__" ] ; then
-                export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
-                export MPI_LDFLAGS=" "
+                add_include_from_paths MPI_CFLAGS "mpi.h" $INCLUDE_PATHS
+                add_include_from_paths MPI_LDFLAGS "libmpi.*" $LIB_PATHS
+                export MPI_CFLAGS
+                export MPI_LDFLAGS
                 export MPI_LIBS="-lmpi -lmpi_cxx"
+                export CP_DFLAGS="${CP_DFLAGS} IF_MPI(-D__parallel -D__MPI_VERSION=3|)"
             fi
             ;;
     esac

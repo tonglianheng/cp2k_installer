@@ -33,7 +33,11 @@ case "$with_scotch" in
             tar -xzf scotch_${scotch_ver}.tar.gz
             cd scotch_${scotch_ver}/src
             cat Make.inc/Makefile.inc.x86-64_pc_linux2 | \
-                sed "s|\(^CFLAGS\).*|\1 =  $CFLAGS -DCOMMON_RANDOM_FIXED_SEED -DSCOTCH_RENAME -Drestrict=__restrict -DIDXSIZE64|" > Makefile.inc
+                sed -e "s|\(^CCS\).*|\1 = $CC|g" \
+                    -e "s|\(^CCP\).*|\1 = $MPICC|g" \
+                    -e "s|\(^CCD\).*|\1 = $CC|g" \
+                    -e "s|\(^CFLAGS\).*|\1 = $CFLAGS -DCOMMON_RANDOM_FIXED_SEED -DSCOTCH_RENAME -Drestrict=__restrict -DIDXSIZE64 ${MPI_CFLAGS}|g" \
+                    > Makefile.inc
             make scotch -j $NPROCS >& make.log
             make ptscotch -j $NROCS >& make.log
             # PT-scotch make install is buggy in that it cannot create
