@@ -72,6 +72,12 @@ cat <<EOF > ${INSTALLDIR}/valgrind.supp
    ...
    fun:SymbolicFactorize
 }
+{
+   BuggyMPICH32
+   Memcheck:Cond
+   ...
+   fun:MPIR_Process_status
+}
 EOF
 # also need to give links to the .supp file in setup file
 cat <<EOF >> ${SETUPFILE}
