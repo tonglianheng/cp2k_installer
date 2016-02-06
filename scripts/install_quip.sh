@@ -26,7 +26,6 @@ cd "${BUILDDIR}"
 case "$with_quip" in
     __INSTALL__)
         echo "==================== Installing QUIP ===================="
-        require_env MATH_LDFLAGS
         require_env MATH_LIBS
         pkg_install_dir="${INSTALLDIR}/quip-${quip_ver}"
         install_lock_file="$pkg_install_dir/install_successful"
