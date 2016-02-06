@@ -950,39 +950,32 @@ gen_arch_file() {
     local __full_flag_list="MPI OMP DEBUG CUDA WARNALL VALGRIND COVERAGE"
     local __flag=''
     for __flag in $__full_flag_list ; do
-        eval "local ${__flag}_var=off"
+        eval "local __${__flag}=off"
     done
     for __flag in $__flags ; do
-        eval "${__flag}_var=on"
+        eval "__${__flag}=on"
     done
     # geneate initial arch file
     cat $ARCH_FILE_TEMPLATE > $__filename
     # add additional parts
     if [ "$__CUDA" = "on" ] ; then
       cat <<EOF >> $__filename
-NVCC        = ${NVCC} -D__GNUC_MINOR__=6 -D__GNUC__=4
-NVFLAGS     = ${NVFLAGS}
+#
+NVCC        = \${NVCC} -D__GNUC_MINOR__=6 -D__GNUC__=4
+NVFLAGS     = \${NVFLAGS}
 EOF
     fi
     if [ "$__WARNALL" = "on" ] ; then
         cat <<EOF >> $__filename
-FCLOGPIPE   =  2> \$(notdir \$<).warn
+#
+FCLOGPIPE   =  2> \\\$(notdir \\\$<).warn
 EOF
     fi
     # replace variable values in output file using eval
     local __TMPL=$(cat $__filename)
     eval "printf \"${__TMPL}\n\"" > $__filename
     # pass this to parsers to replace all of the IF_XYZ statements
-    for __flag in $__full_flag_list ; do
-        parse_if $__flag $(eval echo \$${__flag}_var) $__filename
-
-# BEG:DEBUG:LT:2016/02/05
-        echo "------------------------------------------------------------------------"
-        echo "parse_if $__flag $(eval echo \$${__flag}_var) $__filename"
-        cat $__filename
-# END:DEBUG:LT:2016/02/05
-
-    done
+    python ${SCRIPTDIR}/parse_if.py $__filename $__flags
     echo "Wrote ${INSTALLDIR}/arch/$__filename"
 }
 
