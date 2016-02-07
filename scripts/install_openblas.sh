@@ -38,10 +38,14 @@ case "$with_openblas" in
             # something else, the omp version is unused)
             make -j $NPROCS \
                  USE_THREAD=0 \
+                 CC=${CC} \
+                 FC=${FC} \
                  PREFIX="${pkg_install_dir}" \
                  >& make.serial.log
             make -j $NPROCS \
                  USE_THREAD=0 \
+                 CC=${CC} \
+                 FC=${FC} \
                  PREFIX="${pkg_install_dir}" \
                  install >& install.serial.log
             # make clean >& clean.log
@@ -49,12 +53,16 @@ case "$with_openblas" in
             #      USE_THREAD=1 \
             #      USE_OPENMP=1 \
             #      LIBNAMESUFFIX=omp \
+            #      CC=${CC} \
+            #      FC=${FC} \
             #      PREFIX="${pkg_install_dir}" \
             #      >& make.omp.log
             # make -j $nprocs \
             #      USE_THREAD=1 \
             #      USE_OPENMP=1 \
             #      LIBNAMESUFFIX=omp \
+            #      CC=${CC} \
+            #      FC=${FC} \
             #      PREFIX="${pkg_install_dir}" \
             #      install >& install.omp.log
             cd ..
