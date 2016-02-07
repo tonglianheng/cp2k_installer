@@ -756,7 +756,7 @@ fi
 # Installing tools required for building CP2K and associated libraries
 # ------------------------------------------------------------------------
 
-echo "Compiling with $NPROCS nodes."
+echo "Compiling with $NPROCS processes."
 
 # set environment for compiling compilers and tools required for CP2K
 # and libraries it depends on
@@ -1028,7 +1028,7 @@ if [ "$ENABLE_COVERAGE" = __TRUE__ ]; then
       gen_arch_file "local_coverage_cuda.pdbg" COVERAGE MPI CUDA
 fi
 
-cd "${ROODDIR}"
+cd "${ROOTDIR}"
 
 # -------------------------
 # print out user instructions
