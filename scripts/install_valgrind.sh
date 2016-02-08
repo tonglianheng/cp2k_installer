@@ -29,9 +29,9 @@ case "$with_valgrind" in
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xjf valgrind-${valgrind_ver}.tar.bz2
             cd valgrind-${valgrind_ver}
-            ./configure --prefix="${pkg_install_dir}" >& config.log
-            make -j $NPROCS >& make.log
-            make -j $NPROCS install >& install.log
+            ./configure --prefix="${pkg_install_dir}" > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make -j $NPROCS install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

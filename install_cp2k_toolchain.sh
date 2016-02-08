@@ -306,7 +306,7 @@ with_reflapack=__INSTALL__
 # for MPI, we try to detect system MPI variant
 with_openmpi=__SYSTEM__
 with_mpich=__SYSTEM__
-if (command -v mpirun &> /dev/null) ; then
+if (command -v mpirun >&- 2>&-) ; then
     # check if we are dealing with openmpi or mpich
     if (mpirun --version 2>&1 | grep -s -q "HYDRA") ; then
         echo "MPI is detected and it appears to be MPICH"

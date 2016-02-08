@@ -53,7 +53,7 @@ LAPACKLIB     = ${MATH_LIBS}
 LIBS          = \$(LAPACKLIB) \$(BLASLIB)
 EOF
             # scalapack build not parallel safe (update to the archive race)
-            make -j 1 lib >& make.log
+            make -j 1 lib > make.log 2>&1
             # does not have make install, so install manually
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
             cp libscalapack.a "${pkg_install_dir}/lib"

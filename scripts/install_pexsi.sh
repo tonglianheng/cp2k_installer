@@ -70,7 +70,7 @@ case "$with_pexsi" in
                     -e "s|\(BLAS_DIR *=\).*|\1|g" \
                     -e "s|\(GFORTRAN_LIB *=\).*|\1|g" > make.inc
             cd src
-            make -j $NPROCS >& make.log
+            make -j $NPROCS > make.log 2>&1
             # no make install, need to do install manually
             chmod a+r libpexsi_${OPENBLAS_ARCH}.a
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
@@ -79,7 +79,7 @@ case "$with_pexsi" in
                    "${pkg_install_dir}/lib/libpexsi.a"
             # make fortran interface
             cd ../fortran
-            make >& make.log #-j $nprocs will crash
+            make > make.log 2>&1 #-j $nprocs will crash
             chmod a+r f_ppexsi_interface.mod
             ! [ -d "${pkg_install_dir}/include" ] && mkdir -p "${pkg_install_dir}/include"
             cp f_ppexsi_interface.mod "${pkg_install_dir}/include"

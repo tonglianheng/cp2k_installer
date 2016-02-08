@@ -30,9 +30,9 @@ case "$with_binutils" in
             tar -xzf binutils-${binutils_ver}.tar.gz
             cd binutils-${binutils_ver}
             ./configure --prefix="${pkg_install_dir}" \
-                        --enable-gold --enable-plugins >& config.log
-            make -j $NPROCS >& make.log
-            make -j $NPROCS install >& install.log
+                        --enable-gold --enable-plugins > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make -j $NPROCS install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

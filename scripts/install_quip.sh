@@ -61,7 +61,7 @@ case "$with_quip" in
             # for QUIP. So this hack will help to resolve the issue
             if [ "$ENABLE_CRAY" = "__TRUE__" ] ; then
                 sed -i \
-                    -e "s|\(cd build/.*\)|\1 &> /dev/null|g" \
+                    -e "s|\(cd build/.*\)|\1 >&- 2>&-|g" \
                     bin/find_sizeof_fortran_t
             fi
             sed -i \
@@ -84,7 +84,7 @@ case "$with_quip" in
             # hit enter a few times to accept defaults
             echo -e "${MATH_LDFLAGS} ${MATH_LIBS} \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" | make config > config.log
             # make -j does not work :-(
-            make >& make.log
+            make > make.log 2>&1
             ! [ -d "${pkg_install_dir}/include" ] && mkdir -p "${pkg_install_dir}/include"
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
             cp build/linux_x86_64_gfortran/quip_unified_wrapper_module.mod \

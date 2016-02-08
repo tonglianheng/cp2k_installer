@@ -36,7 +36,7 @@ case "$with_gcc" in
             fi
             echo "Installing GCC from scratch into ${pkg_install_dir}"
             cd gcc-${gcc_ver}
-            ./contrib/download_prerequisites >& prereq.log
+            ./contrib/download_prerequisites > prereq.log 2>&1
             GCCROOT=${PWD}
             mkdir obj
             cd obj
@@ -45,9 +45,9 @@ case "$with_gcc" in
                                  --disable-multilib --disable-bootstrap \
                                  --enable-lto \
                                  --enable-plugins \
-                                 >& config.log
-            make -j $NPROCS >& make.log
-            make -j $NPROCS install >& install.log
+                                 > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make -j $NPROCS install > install.log 2>&1
             # thread sanitizer
             if [ $ENABLE_TSAN = "__TRUE__" ] ; then
                 # now the tricky bit... we need to recompile in particular
@@ -58,23 +58,23 @@ case "$with_gcc" in
                 # gcc, tested with 5.1.0 based on
                 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55374#c10
                 cd x86_64*/libgfortran
-                make clean >& clean.log
+                make clean > clean.log 2>&1
                 make -j $NPROCS \
                      CFLAGS="-std=gnu99 -g -O2 -fsanitize=thread " \
                      FCFLAGS="-g -O2 -fsanitize=thread" \
                      CXXFLAGS="-std=gnu99 -g -O2 -fsanitize=thread " \
                      LDFLAGS="-B`pwd`/../libsanitizer/tsan/.libs/ -Wl,-rpath,`pwd`/../libsanitizer/tsan/.libs/ -fsanitize=thread" \
-                     >& make.log
-                make install >& install.log
+                     > make.log 2>&1
+                make install > install.log 2>&1
                 cd ../libgomp
-                make clean >& clean.log
+                make clean > clean.log 2>&1
                 make -j $NPROCS \
                      CFLAGS="-std=gnu99 -g -O2 -fsanitize=thread " \
                      FCFLAGS="-g -O2 -fsanitize=thread" \
                      CXXFLAGS="-std=gnu99 -g -O2 -fsanitize=thread " \
                      LDFLAGS="-B`pwd`/../libsanitizer/tsan/.libs/ -Wl,-rpath,`pwd`/../libsanitizer/tsan/.libs/ -fsanitize=thread" \
-                     >& make.log
-                make install >& install.log
+                     > make.log 2>&1
+                make install > install.log 2>&1
                 cd $GCCROOT/obj/
             fi
             cd ../..

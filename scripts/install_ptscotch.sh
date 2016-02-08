@@ -38,12 +38,12 @@ case "$with_scotch" in
                     -e "s|\(^CCD\).*|\1 = $CC|g" \
                     -e "s|\(^CFLAGS\).*|\1 = $CFLAGS -DCOMMON_RANDOM_FIXED_SEED -DSCOTCH_RENAME -Drestrict=__restrict -DIDXSIZE64 ${MPI_CFLAGS}|g" \
                     > Makefile.inc
-            make scotch -j $NPROCS >& make.log
-            make ptscotch -j $NROCS >& make.log
+            make scotch -j $NPROCS > make.log 2>&1
+            make ptscotch -j $NROCS > make.log 2>&1
             # PT-scotch make install is buggy in that it cannot create
             # intermediate directories
             ! [ -d "${pkg_install_dir}" ] && mkdir -p "${pkg_install_dir}"
-            make install prefix=${pkg_install_dir} >& install.log
+            make install prefix=${pkg_install_dir} > install.log 2>&1
             cd ../..
             touch "${install_lock_file}"
         fi

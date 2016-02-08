@@ -10,7 +10,7 @@ source "${SCRIPT_DIR}"/tool_kit.sh
 # to find latest version)
 libsmm_exists() {
     query_url=https://www.cp2k.org/static/downloads/libsmm/$1-latest.a
-    reply_url="$(python -c "import urllib2; print(urllib2.urlopen('$query_url').geturl())" 2> /dev/null)"
+    reply_url="$(python -c "import urllib2; print(urllib2.urlopen('$query_url').geturl())" 2>&-)"
     if [ "$query_url" != "$reply_url" ]; then
         echo $reply_url | cut -d/ -f7
     fi

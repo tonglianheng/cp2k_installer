@@ -30,7 +30,7 @@ case "$with_lcov" in
             tar -xzf lcov-${lcov_ver}.tar.gz
             cd lcov-${lcov_ver}
             # note.... this installs in ${INSTALLDIR}/usr/bin
-            make PREFIX="${pkg_install_dir}" install >& make.log
+            make PREFIX="${pkg_install_dir}" install > make.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

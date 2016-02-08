@@ -43,9 +43,9 @@ case "$with_openmpi" in
                [ $glibc_minor_ver -lt 12 ] ; then
                 CFLAGS="${CFLAGS} -fgnu89-inline"
             fi
-            ./configure --prefix=${pkg_install_dir} CFLAGS="${CFLAGS}" >& config.log
-            make -j $NPROCS >& make.log
-            make -j $NPROCS install >& install.log
+            ./configure --prefix=${pkg_install_dir} CFLAGS="${CFLAGS}" > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make -j $NPROCS install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

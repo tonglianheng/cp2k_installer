@@ -33,9 +33,9 @@ case "$with_fftw" in
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf fftw-${fftw_ver}.tar.gz
             cd fftw-${fftw_ver}
-            ./configure  --prefix=${pkg_install_dir} --enable-openmp >& config.log
-            make -j $NPROCS >& make.log
-            make install >& install.log
+            ./configure  --prefix=${pkg_install_dir} --enable-openmp > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

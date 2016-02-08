@@ -41,9 +41,9 @@ case "$with_libint" in
                         --with-cc="$CC $CFLAGS" \
                         --with-cc-optflags="$CFLAGS" \
                         --with-cxx-optflags="$CXXFLAGS" \
-                        >& config.log
-            make -j $NPROCS >&  make.log
-            make install >& install.log
+                        > config.log 2>&1
+            make -j $NPROCS >  make.log 2>&1
+            make install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

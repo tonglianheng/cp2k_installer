@@ -41,14 +41,14 @@ case "$with_openblas" in
                  CC=${CC} \
                  FC=${FC} \
                  PREFIX="${pkg_install_dir}" \
-                 >& make.serial.log
+                 > make.serial.log 2>&1
             make -j $NPROCS \
                  USE_THREAD=0 \
                  CC=${CC} \
                  FC=${FC} \
                  PREFIX="${pkg_install_dir}" \
-                 install >& install.serial.log
-            # make clean >& clean.log
+                 install > install.serial.log 2>&1
+            # make clean > clean.log 2>&1
             # make -j $nprocs \
             #      USE_THREAD=1 \
             #      USE_OPENMP=1 \
@@ -56,7 +56,7 @@ case "$with_openblas" in
             #      CC=${CC} \
             #      FC=${FC} \
             #      PREFIX="${pkg_install_dir}" \
-            #      >& make.omp.log
+            #      > make.omp.log 2>&1
             # make -j $nprocs \
             #      USE_THREAD=1 \
             #      USE_OPENMP=1 \
@@ -64,7 +64,7 @@ case "$with_openblas" in
             #      CC=${CC} \
             #      FC=${FC} \
             #      PREFIX="${pkg_install_dir}" \
-            #      install >& install.omp.log
+            #      install > install.omp.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

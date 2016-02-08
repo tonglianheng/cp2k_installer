@@ -96,7 +96,7 @@ EOF
                  OPENBLAS=${openblas_flag} \
                  BLAS_THREADS=${blas_threads} \
                  PREFIX=${pkg_install_dir} \
-                 >& make.log
+                 > make.log 2>&1
             make -j $NPROCS \
                  CXX=$CXX \
                  CC=$CC \
@@ -109,7 +109,7 @@ EOF
                  OPENBLAS=${openblas_flag} \
                  BLAS_THREADS=${blas_threads} \
                  PREFIX=${pkg_install_dir} \
-                 install >& install.log
+                 install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

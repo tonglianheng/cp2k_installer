@@ -29,9 +29,9 @@ case "$with_make" in
             echo "Installing from scratch into ${pkg_install_dir}"
             tar -xzf make-${make_ver}.tar.gz
             cd make-${make_ver}
-            ./configure --prefix="${pkg_install_dir}" >& config.log
-            make -j $NPROCS >& make.log
-            make -j $NPROCS install >& install.log
+            ./configure --prefix="${pkg_install_dir}" > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make -j $NPROCS install > install.log 2>&1
             cd ..
             touch "${install_lock_file}"
         fi

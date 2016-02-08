@@ -75,12 +75,12 @@ case "$with_elpa" in
                          CXXFLAGS="${CXXFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                          LDFLAGS="-Wl,--enable-new-dtags ${MATH_LDFLAGS} ${SCALAPACK_LDFLAGS} ${cray_ldflags}" \
                          LIBS="${SCALAPACK_LIBS} ${MATH_LIBS}" \
-                         >& config.log
-            make -j $NPROCS >&  make.log
-            make install >& install.log
+                         > config.log 2>&1
+            make -j $NPROCS >  make.log 2>&1
+            make install > install.log 2>&1
             # threaded version
             if [ "$ENABLE_OMP" = "__TRUE__" ] ; then
-                make -j $NPROCS clean
+                make -j $NPROCS clean > clean.log 2>&1
                 ./configure  --prefix=${pkg_install_dir} \
                              --enable-openmp=yes \
                              --enable-shared=$shared_flag \
@@ -93,9 +93,9 @@ case "$with_elpa" in
                              CXXFLAGS="${CXXFLAGS} ${MATH_CFLAGS} ${SCALAPACK_CFLAGS}" \
                              LDFLAGS="-Wl,--enable-new-dtags ${MATH_LDFLAGS} ${SCALAPACK_LDFLAGS} ${cray_ldflags}" \
                              LIBS="${SCALAPACK_LIBS} ${MATH_LIBS}" \
-                             >& config.log
-                make -j $NPROCS >&  make.log
-                make install >& install.log
+                             > config.log 2>&1
+                make -j $NPROCS >  make.log 2>&1
+                make install > install.log 2>&1
             fi
             cd ..
             touch "${install_lock_file}"

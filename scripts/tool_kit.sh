@@ -87,7 +87,7 @@ unique() {
 
 # get the number of processes avaliable for compilation
 get_nprocs() {
-    if $(command -v nproc >& /dev/null) ; then
+    if $(command -v nproc >&- 2>&-) ; then
         echo $(nproc --all)
     else
         echo 1
@@ -270,7 +270,7 @@ check_command() {
     elif [ $# -gt 1 ] ; then
         local __package=$2
     fi
-    if $(command -v $__command >& /dev/null) ; then
+    if $(command -v $__command >&- 2>&-) ; then
         echo "path to $__command is " $(command -v $__command)
     else
         report_error "cannot find $__command, please check if $__package is installed or in system search path"
@@ -334,7 +334,7 @@ check_lib() {
 check_gfortran_module() {
     local __module_name=$1
     local __FC=${FC:-gfortran}
-    cat <<EOF | $__FC -c -o /dev/null -xf95 -ffree-form - &> /dev/null
+    cat <<EOF | $__FC -c -o /dev/null -xf95 -ffree-form - >&- 2>&-
 PROGRAM check_gfortran_module
 USE ${__module_name}
 IMPLICIT NONE
@@ -350,7 +350,7 @@ check_gfortran_flag() {
     local __FC=${FC:-gfortran}
     # no need to do a full compilation, just -E -cpp would do for
     # checking flags
-    cat <<EOF | $__FC -E -cpp $__flag -xf95 -ffree-form - &> /dev/null
+    cat <<EOF | $__FC -E -cpp $__flag -xf95 -ffree-form - >&- 2>&-
 PROGRAM test_code
   IMPLICIT NONE
   PRINT *, "PASS"
@@ -365,7 +365,7 @@ check_gcc_flag() {
     local __CC=${CC:-gcc}
     # no need to do a full compilation, just -E -cpp would do for
     # checking flags
-    cat <<EOF | $__CC -E -cpp $__flag -xc - &> /dev/null
+    cat <<EOF | $__CC -E -cpp $__flag -xc - >&- 2>&-
 #include <stdio.h>
 int main() {
   printf("PASS\n");
@@ -477,7 +477,7 @@ checksum() {
    local __shasum_command='sha256sum'
    # check if we have sha256sum command, Mac OS X does not have
    # sha256sum, but has an equivalent with shasum -a 256
-   command -v "$__shasum_command" >& /dev/null || \
+   command -v "$__shasum_command" >&- 2>&- || \
        __shasum_command="shasum -a 256"
    if eval "grep $__filename $__checksums | ${__shasum_command} --check" ; then
        echo "Checksum of $__filename Ok"

@@ -35,18 +35,18 @@ case "$with_parmetis" in
             make config \
                  cc=${MPICC} \
                  cxx=${MPICXX} \
-                 prefix=${pkg_install_dir} >& config.log
-            make -j $NPROCS >& make.log
-            make install >& install.log
+                 prefix=${pkg_install_dir} > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make install > install.log 2>&1
             # Have to build METIS again independently due to bug in ParMETIS make install
             echo "==================== Installing METIS ===================="
             cd metis
             make config \
                  cc=${MPICC} \
                  cxx=${MPICXX} \
-                 prefix=${pkg_install_dir} >& config.log
-            make -j $NPROCS >& make.log
-            make install >& install.log
+                 prefix=${pkg_install_dir} > config.log 2>&1
+            make -j $NPROCS > make.log 2>&1
+            make install > install.log 2>&1
             cd ../..
             touch "${install_lock_file}"
         fi

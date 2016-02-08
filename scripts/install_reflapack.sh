@@ -53,7 +53,7 @@ TMGLIB       = libtmglib.a
 LAPACKELIB   = liblapacke.a
 EOF
             # lapack/blas build is *not* parallel safe (updates to the archive race)
-            make -j 1 lib blaslib >& make.log
+            make -j 1 lib blaslib > make.log 2>&1
             # no make install, so have to do this manually
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
             cp libblas.a liblapack.a "${pkg_install_dir}/lib"

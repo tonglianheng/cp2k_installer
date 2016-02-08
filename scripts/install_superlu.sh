@@ -54,7 +54,7 @@ LOADER=\$(CC)
 LOADOPTS=${CFLAGS}
 CDEFS=-DAdd_
 EOF
-            make &> make.log #-j $nprocs will crash
+            make > make.log 2>&1 #-j $nprocs will crash
             # no make install, so need to this manually
             chmod a+r lib/* SRC/*.h
             ! [ -d "${pkg_install_dir}/lib" ] && mkdir -p "${pkg_install_dir}/lib"
