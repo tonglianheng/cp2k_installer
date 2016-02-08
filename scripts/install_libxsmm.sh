@@ -31,7 +31,7 @@ EOF
             echo "libxsmm-${libxsmm_ver} is already installed, skipping it."
         else
             if [ "$libxsmm_ver" = "master" ] ; then
-                download_pkg_no_chesksum ${DOWNLOADER_FLAGS} \
+                download_pkg_no_checksum ${DOWNLOADER_FLAGS} \
                                          -o libxsmm-master.zip \
                                          https://github.com/hfp/libxsmm/archive/master.zip
                 unzip -q -o libxsmm-master.zip

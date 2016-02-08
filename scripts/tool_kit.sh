@@ -489,8 +489,8 @@ checksum() {
 }
 
 # downloader for the package tars, excludes checksum
-download_pkg_no_chesksum() {
-    # usage: download_pkg_no_checksums [-n] [-o output_filename] url
+download_pkg_no_checksum() {
+    # usage: download_pkg_no_checksum [-n] [-o output_filename] url
     local __wget_flags=''
     local __url=''
     while [ $# -ge 1 ] ; do
