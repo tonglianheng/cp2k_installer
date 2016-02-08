@@ -65,7 +65,7 @@ case "$with_quip" in
                     bin/find_sizeof_fortran_t
             fi
             sed -i \
-                -e "s|\(F77 *=\).*|\1 ftn|g" \
+                -e "s|\(F77 *=\).*|\1 ${FC}|g" \
                 -e "s|\(F90 *=\).*|\1 ${FC}|g" \
                 -e "s|\(F95 *=\).*|\1 ${FC}|g" \
                 -e "s|\(CC *=\).*|\1 ${CC}|g" \
@@ -137,9 +137,9 @@ export QUIP_CFLAGS="${QUIP_CFLAGS}"
 export QUIP_LDFLAGS="${QUIP_LDFLAGS}"
 export QUIP_LIBS="${QUIP_LIBS}"
 export CP_DFLAGS="\${CP_DFLAGS} -D__QUIP"
-export CP_CFLAGS="\${CP_CFLAGS} IF_MPI(${QUIP_CFLAGS}|)"
-export CP_LDFLAGS="\${CP_LDFLAGS} IF_MPI(${QUIP_LDFLAGS}|)"
-export CP_LIBS="IF_MPI(${QUIP_LIBS}|) \${CP_LIBS}"
+export CP_CFLAGS="\${CP_CFLAGS} ${QUIP_CFLAGS}"
+export CP_LDFLAGS="\${CP_LDFLAGS} ${QUIP_LDFLAGS}"
+export CP_LIBS="${QUIP_LIBS} \${CP_LIBS}"
 EOF
 fi
 cd "${ROOTDIR}"
