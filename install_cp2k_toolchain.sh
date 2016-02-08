@@ -369,6 +369,8 @@ while [ $# -ge 1 ] ; do
             for ii in $package_list ; do
                 eval with_${ii}=__INSTALL__
             done
+            # default mpi-mode to MPICH
+            MPI_MODE=mpich
             ;;
         --mpi-mode=*)
             user_input="${1#*=}"
