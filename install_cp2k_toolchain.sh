@@ -262,7 +262,7 @@ EOF
 # PACKAGE LIST: register all new dependent tools and libs here. Order
 # is important, the first in the list gets installed first
 # ------------------------------------------------------------------------
-tool_list="binutils make gcc cmake lcov valgrind"
+tool_list="binutils lcov valgrind make cmake gcc"
 mpi_list="mpich openmpi"
 math_list="mkl acml openblas reflapack"
 lib_list="fftw libint libxc libsmm libxsmm scalapack elpa \
@@ -769,9 +769,14 @@ export F90FLAGS=${F90FLAGS:-"-O2 -g -Wno-error"}
 export F77FLAGS=${F77FLAGS:-"-O2 -g -Wno-error"}
 export CXXFLAGS=${CXXFLAGS:-"-O2 -g -Wno-error"}
 
+# need to setup tools after all of the tools are built. We should use
+# consistent pairs of gcc and binutils etc for make. So we use system
+# tool sets to compile the tool sets used to compile CP2K
 for ii in $tool_list ; do
     install_mode="$(eval echo \${with_${ii}})"
     "${SCRIPTDIR}"/install_${ii}.sh "$install_mode"
+done
+for ii in $tool_list ; do
     load "${BUILDDIR}/setup_${ii}"
 done
 
