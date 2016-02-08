@@ -25,8 +25,6 @@ export INSTALLDIR="${ROOTDIR}/install"
 export SETUPFILE="${INSTALLDIR}/setup"
 export SHA256_CHECKSUM="${SCRIPTDIR}/checksums.sha256"
 export ARCH_FILE_TEMPLATE="${SCRIPTDIR}/arch_base.tmpl"
-export TEST_FTN_FILE="${SCRIPTDIR}/test_code.f90"
-export TEST_C_FILE="${SCRIPTDIR}/test_code.c"
 
 # ------------------------------------------------------------------------
 # Load common variables and tools
@@ -902,6 +900,9 @@ WFLAGS_WARN="-Wuse-without-only"
 # while here we collect all other warnings, some we'll ignore
 WFLAGS_WARNALL="-pedantic -Wall -Wextra -Wsurprising -Wunused-parameter -Warray-temporaries -Wcharacter-truncation -Wconversion-extra -Wimplicit-interface -Wimplicit-procedure -Wreal-q-constant -Wunused-parameter -Walign-commons -Wfunction-elimination -Wrealloc-lhs -Wcompare-reals -Wzerotrip"
 
+# IEEE_EXCEPTIONS dependency
+IEEE_EXCEPTIONS_DFLAGS="-D__HAS_IEEE_EXCEPTIONS"
+
 # check all of the above flags, filter out incompatable flags for the
 # current version of gcc in use
 BASEFLAGS=$(allowed_gfortran_flags         $BASEFLAGS)
@@ -914,11 +915,17 @@ WFLAGS_ERROR=$(allowed_gfortran_flags      $WFLAGS_ERROR)
 WFLAGS_WARN=$(allowed_gfortran_flags       $WFLAGS_WARN)
 WFLAGS_WARNALL=$(allowed_gfortran_flags    $WFLAGS_WARNALL)
 
+# check if ieee_exeptions module is avaliable for the current version
+# of gfortran being used
+if ! (check_gfortran_module ieee_exceptions) ; then
+    IEEE_EXCEPTIONS_DFLAGS=""
+fi
+
 # contagnate the above flags into WFLAGS, FCDEBFLAGS, DFLAGS and
 # finally into FCFLAGS and CFLAGS
 WFLAGS="$WFLAGS_ERROR $WFLAGS_WARN IF_WARNALL(${WFLAGS_WARNALL}|)"
 FCDEBFLAGS="$FCDEB_FLAGS IF_DEBUG($FCDEB_FLAGS_DEBUG|)"
-DFLAGS="${CP_DFLAGS} IF_DEBUG(-D__HAS_IEEE_EXCEPTIONS|) IF_COVERAGE($COVERAGE_DFLAGS|)"
+DFLAGS="${CP_DFLAGS} IF_DEBUG($IEEE_EXCEPTIONS_DFLAGS|) IF_COVERAGE($COVERAGE_DFLAGS|)"
 # language independent flags
 G_CFLAGS="$BASEFLAGS"
 G_CFLAGS="$G_CFLAGS IF_COVERAGE($COVERAGE_FLAGS|IF_DEBUG($NOOPT_FLAGS|$OPT_FLAGS))"

@@ -329,15 +329,33 @@ check_lib() {
     fi
 }
 
+# check if a module is available for the current version of gfortran,
+# returns 0 if available and 1 if not
+check_gfortran_module() {
+    local __module_name=$1
+    local __FC=${FC:-gfortran}
+    cat <<EOF | $__FC -c -o /dev/null -xf95 -ffree-form - &> /dev/null
+PROGRAM check_gfortran_module
+USE ${__module_name}
+IMPLICIT NONE
+PRINT *, "PASS"
+END PROGRAM check_gfortran_module
+EOF
+}
+
 # check if a flag is allowed for the current version of
 # gfortran. returns 0 if allowed and 1 if not
 check_gfortran_flag() {
     local __flag=$1
     local __FC=${FC:-gfortran}
-    require_env TEST_FTN_FILE
     # no need to do a full compilation, just -E -cpp would do for
     # checking flags
-    $__FC -E -cpp $__flag ${TEST_FTN_FILE} &> /dev/null
+    cat <<EOF | $__FC -E -cpp $__flag -xf95 -ffree-form - &> /dev/null
+PROGRAM test_code
+  IMPLICIT NONE
+  PRINT *, "PASS"
+END PROGRAM test_code
+EOF
 }
 
 # check if a flag is allowed for the current version of
@@ -345,10 +363,14 @@ check_gfortran_flag() {
 check_gcc_flag() {
     local __flag=$1
     local __CC=${CC:-gcc}
-    require_env TEST_C_FILE
     # no need to do a full compilation, just -E -cpp would do for
     # checking flags
-    $__CC -E -cpp $__flag ${TEST_C_FILE} &> /dev/null
+    cat <<EOF | $__CC -E -cpp $__flag -xc - &> /dev/null
+#include <stdio.h>
+int main() {
+  printf("PASS\n");
+}
+EOF
 }
 
 # given a list of flags, only print out what is allowed by the current

@@ -1,4 +1,0 @@
-PROGRAM test_code
-  IMPLICIT NONE
-  PRINT *, "PASS"
-END PROGRAM test_code
